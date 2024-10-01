@@ -39,7 +39,7 @@ public:
 		randomColors();
 	}
 
-	bool isClicked(bool rectangle, float mx, float my) const {
+	bool isClicked(float mx, float my) const {
 		return (mx >= rect.x1 && mx <= rect.x2 && my >= rect.y1 && my <= rect.y2);
 	}
 
@@ -172,7 +172,7 @@ void Mouse(int button, int state, int x, int y)
 		transCoord(x, y, openglX, openglY);		//	윈도우 좌표를 OpenGL 좌표로 변환
 
 		for (int i = SZ - 1; i >= 0; --i) {		//	나중에 출력된 사각형 먼저 인식되게 하기 위함
-			if (rc[i].isDrawn() && rc[i].isClicked(1, openglX, openglY)) {
+			if (rc[i].isDrawn() && rc[i].isClicked(openglX, openglY)) {
 				std::cout << i << " Clicked" << '\n';
 
 				oldX = x;

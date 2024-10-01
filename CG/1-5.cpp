@@ -140,7 +140,7 @@ void main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA); // 디스플레이 모드 설정 - 더블 버퍼링 | RGBD 모드
 	glutInitWindowPosition(300, 300); // 윈도우의 위치 지정
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT); // 윈도우의 크기 지정
-	glutCreateWindow("1-3"); // 윈도우 생성 (윈도우 이름)
+	glutCreateWindow("1-5"); // 윈도우 생성 (윈도우 이름)
 
 	//--- GLEW 초기화하기
 	glewExperimental = GL_TRUE;

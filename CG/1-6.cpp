@@ -39,7 +39,7 @@ class RectClass {
 public:
 	RectClass() {
 		//	굳이 x y 따로 해봄 :D
-		std::uniform_real_distribution<float> size(0.1f, 0.5f);
+		std::uniform_real_distribution<float> size(0.1f, 0.4f);
 
 		float sizeX = size(dre);
 		float sizeY = size(dre);
@@ -55,7 +55,7 @@ public:
 		randomColors();
 	}
 
-	bool isClicked(bool rectangle, float mx, float my) const {
+	bool isClicked(float mx, float my) const {
 		return (mx >= rect.x1 && mx <= rect.x2 && my >= rect.y1 && my <= rect.y2);
 	}
 
@@ -112,9 +112,6 @@ void transCoord(int wx, int wy, float& ox, float& oy) {
 }
 
 bool timer = false;
-bool left_button = false;
-//int selected;
-int oldX, oldY;
 
 void main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정 
 {	//--- 윈도우 생성하기
@@ -122,7 +119,7 @@ void main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA); // 디스플레이 모드 설정 - 더블 버퍼링 | RGBD 모드
 	glutInitWindowPosition(300, 300); // 윈도우의 위치 지정
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT); // 윈도우의 크기 지정
-	glutCreateWindow("1-3"); // 윈도우 생성 (윈도우 이름)
+	glutCreateWindow("1-6"); // 윈도우 생성 (윈도우 이름)
 
 	//--- GLEW 초기화하기
 	glewExperimental = GL_TRUE;
@@ -163,7 +160,6 @@ GLvoid Reshape(int w, int h)
 	glViewport(0, 0, w, h);
 }
 
-//	마우스 마우스 마우스
 void Mouse(int button, int state, int x, int y)
 {
 	if (state == GLUT_DOWN && button == GLUT_LEFT_BUTTON) {	//	클릭
@@ -171,17 +167,11 @@ void Mouse(int button, int state, int x, int y)
 
 		transCoord(x, y, openglX, openglY);		//	윈도우 좌표를 OpenGL 좌표로 변환
 
-		oldX = x;
-		oldY = y;
-		left_button = true;
+		for (int i = maxSize - 1; i >= 0; --i) {
+			if (rc[i].isVanishing() && rc[i].isClicked(openglX, openglY)) {
 
-		std::cout << "On" << '\n';
-	}
-
-	else if (state == GLUT_UP) {
-		left_button = false;
-
-		std::cout << "Off" << '\n';
+			}
+		}
 	}
 
 	glutPostRedisplay();
@@ -190,7 +180,7 @@ void Mouse(int button, int state, int x, int y)
 void KeyBoard(unsigned char key, int x, int y)
 {
 	if (key == 'r') {
-		std::uniform_int_distribution<> uid(20, 40);
+		std::uniform_int_distribution<> uid(5, 10);
 
 		maxSize = uid(dre);
 		std::cout << "Number of Shapes: " << maxSize << '\n';
