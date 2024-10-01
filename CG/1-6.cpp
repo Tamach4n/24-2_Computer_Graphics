@@ -4,9 +4,8 @@
 #include <gl/freeglut_ext.h>
 #include <random>
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
-#define WH 0.1f
+#define WINDOW_WIDTH 800.f
+#define WINDOW_HEIGHT 600.f
 
 std::random_device rd;
 std::default_random_engine dre(rd());
@@ -37,35 +36,22 @@ struct Rect {
 
 class RectClass {
 public:
-	RectClass() {
-		//	굳이 x y 따로 해봄 :D
-		std::uniform_real_distribution<float> size(0.1f, 0.4f);
-
-		float sizeX = size(dre);
-		float sizeY = size(dre);
-
-		std::uniform_real_distribution<float> haniX(-1.0f, 1.0f - sizeX);
-		std::uniform_real_distribution<float> haniY(-1.0f, 1.0f - sizeY);
-
-		float cX = haniX(dre);
-		float cY = haniY(dre);
-
-		rect = { cX, cY, cX + sizeX, cY + sizeY };
-		vanish = 0;
-		randomColors();
-	}
+	RectClass();
 
 	bool isClicked(float mx, float my) const {
 		return (mx >= rect.x1 && mx <= rect.x2 && my >= rect.y1 && my <= rect.y2);
 	}
 
-	bool isVanishing() const {
+	int isVanishing() const {
 		return vanish;
 	}
 
-	bool isColliding(const RectClass& other) const {
-		return (rect.x1 < other.rect.x2 && rect.x2 > other.rect.x1
-			&& rect.y1 < other.rect.y2 && rect.y2 > other.rect.y1);
+	int getLengthChibi() const {
+		return lengthChibi;
+	}
+
+	const Rect& getRect() const {
+		return rect;
 	}
 
 	void drawRect() const {
@@ -79,10 +65,6 @@ public:
 		b = urd(dre);
 	}
 
-	const Rect& getRect() const {
-		return rect;
-	}
-
 	void updateState(int state) {
 		vanish = state;
 	}
@@ -93,14 +75,149 @@ public:
 		cB = b;
 	}
 
-private:
+	void moveRect(GLfloat dx, GLfloat dy) {
+		rect.x1 += dx;
+		rect.y1 += dy;
+		rect.x2 += dx;
+		rect.y2 += dy;
+	}
+
+	void makeChibis() {
+		vanish = 1;
+		std::cout << "makeChibis" << '\n';
+		lengthChibi = 4;
+		chibi = new RectClass[lengthChibi];
+		chibi[0].rect = { rect.x1, (rect.y2 + rect.y1) / 2, (rect.x2 + rect.x1) / 2, rect.y2 };
+		chibi[1].rect = { (rect.x2 + rect.x1) / 2, (rect.y2 + rect.y1) / 2, rect.x2, rect.y2 };
+		chibi[2].rect = { rect.x1, rect.y1, (rect.x2 + rect.x1) / 2, (rect.y2 + rect.y1) / 2 };
+		chibi[3].rect = { (rect.x2 + rect.x1) / 2, rect.y1, rect.x2, (rect.y2 + rect.y1) / 2 };
+	}
+
+	void vanishRect();
+
+	void moveFourWays();
+
+	void moveDiagonal();
+
+	void moveOneWays();
+
+	void moveEightWays();
+
+	RectClass* chibi{};	//	사라질 때 나타날 작은 사각형들 포인터
+
+protected:
 	Rect rect;
-	Rect* chibi{};	//	사라질 때 나타날 작은 사각형들 포인터
 	GLclampf r, g, b;
-	int vanish;		//	0 : 노멀, 1 : 사라지는 중, 2 : 사라짐
+	int lengthChibi{};
+
+private:
+	int vanish; 	//	0 : 노멀, 1 : 사라지는 중, 2 : 사라짐
 };
 
-RectClass* rc;
+class ChibiRect : public RectClass {
+	ChibiRect() {
+		randomColors();
+	}
+
+
+};
+
+RectClass::RectClass()
+{
+	//	굳이 x y 따로 해봄 :D
+	std::uniform_real_distribution<float> size(0.1f, 0.4f);
+
+	float sizeX = size(dre);
+	float sizeY = size(dre);
+
+	std::uniform_real_distribution<float> haniX(-1.0f, 1.0f - sizeX);
+	std::uniform_real_distribution<float> haniY(-1.0f, 1.0f - sizeY);
+
+	float cX = haniX(dre);
+	float cY = haniY(dre);
+
+	rect = { cX, cY, cX + sizeX, cY + sizeY };
+	vanish = 0;
+	randomColors();
+}
+
+void RectClass::vanishRect()
+{
+	vanish = 1;
+
+	std::uniform_int_distribution<> uid(0, 3);
+
+	//int anime = uid(dre);
+	int anime = 0;
+
+	if (anime == 0)
+		moveFourWays();
+
+	else if (anime == 1)
+		moveDiagonal();
+
+	else if (anime == 2)
+		moveOneWays();
+
+	else if (anime == 3)
+		moveEightWays();
+}
+
+void RectClass::moveFourWays()
+{
+	lengthChibi = 4;
+	chibi = new RectClass[lengthChibi];
+	chibi[0].rect = { rect.x1, (rect.y2 + rect.y1) / 2, (rect.x2 + rect.x1) / 2, rect.y2 };
+	chibi[1].rect = { (rect.x2 + rect.x1) / 2, (rect.y2 + rect.y1) / 2, rect.x2, rect.y2 };
+	chibi[2].rect = { rect.x1, rect.y1, (rect.x2 + rect.x1) / 2, (rect.y2 + rect.y1) / 2 };
+	chibi[3].rect = { (rect.x2 + rect.x1) / 2, rect.y1, rect.x2, (rect.y2 + rect.y1) / 2 };
+
+	//for (int i = 0; i < lengthChibi; ++i)
+	//	chibi[i].colorRGB(r, g, b);
+		//std::cout << chibi[i].rect.x1 << ' ' << chibi[i].rect.y1 << ' ' << chibi[i].rect.x2 << ' ' << chibi[i].rect.y2 << '\n';
+
+	float dx = 10.0f / WINDOW_WIDTH;
+	float dy = 10.0f / WINDOW_HEIGHT;
+
+	glutPostRedisplay();
+	//while (true) {
+	//	chibi[0].rect.moveRect(-0.05f, 0.05f);
+	//	chibi[1].rect.moveRect(0.05f, 0.05f);
+	//	chibi[2].rect.moveRect(-0.05f, -0.05f);
+	//	chibi[3].rect.moveRect(0.05f, -0.05f);
+	//
+	//	chibi[0].rect.shrinkRect(0.02f);
+	//	chibi[1].rect.shrinkRect(0.02f);
+	//	chibi[2].rect.shrinkRect(0.02f);
+	//	chibi[3].rect.shrinkRect(0.02f);
+	//
+	//	if ((chibi[0].rect.x2 - chibi[0].rect.x1) * 10 <= rect.x2 - rect.x1) {
+	//		vanish = 2;
+	//		lengthChibi = 0;
+	//		delete[] chibi;
+	//		break;
+	//	}
+	//
+	//	glutPostRedisplay();
+	//}
+}
+
+void RectClass::moveDiagonal()
+{
+
+}
+
+void RectClass::moveOneWays()
+{
+
+}
+
+void RectClass::moveEightWays()
+{
+
+}
+
+RectClass* rc{};
 
 void Mouse(int button, int state, int x, int y);
 
@@ -133,6 +250,12 @@ void main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 	else
 		std::cout << "GLEW Initialized\n";
 
+	RectClass rr;
+	rr.makeChibis();
+	for (int i = 0; i < rr.getLengthChibi(); ++i) {
+		rr.chibi[i].drawRect();
+	}
+
 	glutDisplayFunc(drawScene); // 출력 함수의 지정
 	glutMouseFunc(Mouse);
 	glutKeyboardFunc(KeyBoard);
@@ -149,6 +272,12 @@ GLvoid drawScene() //--- 콜백 함수: 그리기 콜백 함수
 		for (int i = 0; i < maxSize; ++i) {
 			if (rc[i].isVanishing() == 0)
 				rc[i].drawRect();
+
+			else if (rc[i].isVanishing() == 1) {
+				for (int j = 0; j < rc[i].getLengthChibi(); ++j) {
+					rc[i].chibi[j].drawRect();
+				}
+			}
 		}
 	}
 
@@ -168,8 +297,11 @@ void Mouse(int button, int state, int x, int y)
 		transCoord(x, y, openglX, openglY);		//	윈도우 좌표를 OpenGL 좌표로 변환
 
 		for (int i = maxSize - 1; i >= 0; --i) {
-			if (rc[i].isVanishing() && rc[i].isClicked(openglX, openglY)) {
+			if (rc[i].isVanishing() == 0 && rc[i].isClicked(openglX, openglY)) {
+				rc[i].vanishRect();
 
+				std::cout << i << " Clicked" << '\n';
+				break;
 			}
 		}
 	}
