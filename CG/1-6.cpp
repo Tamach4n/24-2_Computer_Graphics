@@ -33,7 +33,7 @@ struct Rect {
 		y2 += dy;
 	}
 };
-
+//	자식 클래스 2개 나눠 하면 훨 좋을 것 같지만 아쉬운거지
 class RectClass {
 public:
 	RectClass();
@@ -137,7 +137,7 @@ int RectClass::vanishRect()
 	std::uniform_int_distribution<> uid(0, 3);
 
 	//int anime = uid(dre);
-	int anime = 0;
+	int anime = 1;
 
 	if (anime == 0) {
 		lengthChibi = 4;
@@ -152,14 +152,26 @@ int RectClass::vanishRect()
 			chibi[i].colorRGB(r, g, b);
 	}
 
-	else if (anime == 1)
+	else if (anime == 1) {
+		chibi = new RectClass[lengthChibi];
 		lengthChibi = 4;
 
-	else if (anime == 2)
-		lengthChibi = 4;
 
-	else if (anime == 3)
+	}
+
+	else if (anime == 2) {
+		lengthChibi = 4;
+		chibi = new RectClass[lengthChibi];
+
+
+	}
+
+	else if (anime == 3) {
 		lengthChibi = 8;
+		chibi = new RectClass[lengthChibi];
+
+
+	}
 
 	return anime;
 }
@@ -325,15 +337,15 @@ void VanishRect(int i)
 		break;
 
 	case 1:
-
+		rc[i].moveDiagonal();
 		break;
 
 	case 2:
-
+		rc[i].moveOneWays();
 		break;
 
 	case 3:
-
+		rc[i].moveEightWays();
 		break;
 	}
 
