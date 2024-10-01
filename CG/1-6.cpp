@@ -69,10 +69,10 @@ public:
 		vanish = state;
 	}
 
-	void colorRGB(GLclampf& cR, GLclampf& cG, GLclampf& cB) {
-		cR = r;
-		cG = g;
-		cB = b;
+	void colorRGB(GLclampf cR, GLclampf cG, GLclampf cB) {
+		r = cR;
+		g = cG;
+		b = cB;
 	}
 
 	void moveRect(GLfloat dx, GLfloat dy) {
@@ -82,18 +82,7 @@ public:
 		rect.y2 += dy;
 	}
 
-	void makeChibis() {
-		vanish = 1;
-		std::cout << "makeChibis" << '\n';
-		lengthChibi = 4;
-		chibi = new RectClass[lengthChibi];
-		chibi[0].rect = { rect.x1, (rect.y2 + rect.y1) / 2, (rect.x2 + rect.x1) / 2, rect.y2 };
-		chibi[1].rect = { (rect.x2 + rect.x1) / 2, (rect.y2 + rect.y1) / 2, rect.x2, rect.y2 };
-		chibi[2].rect = { rect.x1, rect.y1, (rect.x2 + rect.x1) / 2, (rect.y2 + rect.y1) / 2 };
-		chibi[3].rect = { (rect.x2 + rect.x1) / 2, rect.y1, rect.x2, (rect.y2 + rect.y1) / 2 };
-	}
-
-	void vanishRect();
+	int vanishRect();
 
 	void moveFourWays();
 
@@ -141,7 +130,7 @@ RectClass::RectClass()
 	randomColors();
 }
 
-void RectClass::vanishRect()
+int RectClass::vanishRect()
 {
 	vanish = 1;
 
@@ -150,56 +139,52 @@ void RectClass::vanishRect()
 	//int anime = uid(dre);
 	int anime = 0;
 
-	if (anime == 0)
-		moveFourWays();
+	if (anime == 0) {
+		lengthChibi = 4;
+		chibi = new RectClass[lengthChibi];
+
+		chibi[0].rect = { rect.x1, (rect.y2 + rect.y1) / 2, (rect.x2 + rect.x1) / 2, rect.y2 };
+		chibi[1].rect = { (rect.x2 + rect.x1) / 2, (rect.y2 + rect.y1) / 2, rect.x2, rect.y2 };
+		chibi[2].rect = { rect.x1, rect.y1, (rect.x2 + rect.x1) / 2, (rect.y2 + rect.y1) / 2 };
+		chibi[3].rect = { (rect.x2 + rect.x1) / 2, rect.y1, rect.x2, (rect.y2 + rect.y1) / 2 };
+
+		for (int i = 0; i < lengthChibi; ++i)
+			chibi[i].colorRGB(r, g, b);
+	}
 
 	else if (anime == 1)
-		moveDiagonal();
+		lengthChibi = 4;
 
 	else if (anime == 2)
-		moveOneWays();
+		lengthChibi = 4;
 
 	else if (anime == 3)
-		moveEightWays();
+		lengthChibi = 8;
+
+	return anime;
 }
 
 void RectClass::moveFourWays()
 {
-	lengthChibi = 4;
-	chibi = new RectClass[lengthChibi];
-	chibi[0].rect = { rect.x1, (rect.y2 + rect.y1) / 2, (rect.x2 + rect.x1) / 2, rect.y2 };
-	chibi[1].rect = { (rect.x2 + rect.x1) / 2, (rect.y2 + rect.y1) / 2, rect.x2, rect.y2 };
-	chibi[2].rect = { rect.x1, rect.y1, (rect.x2 + rect.x1) / 2, (rect.y2 + rect.y1) / 2 };
-	chibi[3].rect = { (rect.x2 + rect.x1) / 2, rect.y1, rect.x2, (rect.y2 + rect.y1) / 2 };
+	float dx = 20.0f / WINDOW_WIDTH;
+	float dy = 20.0f / WINDOW_HEIGHT;
 
-	//for (int i = 0; i < lengthChibi; ++i)
-	//	chibi[i].colorRGB(r, g, b);
-		//std::cout << chibi[i].rect.x1 << ' ' << chibi[i].rect.y1 << ' ' << chibi[i].rect.x2 << ' ' << chibi[i].rect.y2 << '\n';
+	chibi[0].rect.moveRect(-dx, dy);
+	chibi[1].rect.moveRect(dx, dy);
+	chibi[2].rect.moveRect(-dx, -dy);
+	chibi[3].rect.moveRect(dx, -dy);
 
-	float dx = 10.0f / WINDOW_WIDTH;
-	float dy = 10.0f / WINDOW_HEIGHT;
+	chibi[0].rect.shrinkRect(0.01f);
+	chibi[1].rect.shrinkRect(0.01f);
+	chibi[2].rect.shrinkRect(0.01f);
+	chibi[3].rect.shrinkRect(0.01f);
 
-	glutPostRedisplay();
-	//while (true) {
-	//	chibi[0].rect.moveRect(-0.05f, 0.05f);
-	//	chibi[1].rect.moveRect(0.05f, 0.05f);
-	//	chibi[2].rect.moveRect(-0.05f, -0.05f);
-	//	chibi[3].rect.moveRect(0.05f, -0.05f);
-	//
-	//	chibi[0].rect.shrinkRect(0.02f);
-	//	chibi[1].rect.shrinkRect(0.02f);
-	//	chibi[2].rect.shrinkRect(0.02f);
-	//	chibi[3].rect.shrinkRect(0.02f);
-	//
-	//	if ((chibi[0].rect.x2 - chibi[0].rect.x1) * 10 <= rect.x2 - rect.x1) {
-	//		vanish = 2;
-	//		lengthChibi = 0;
-	//		delete[] chibi;
-	//		break;
-	//	}
-	//
-	//	glutPostRedisplay();
-	//}
+	if (abs(chibi[0].rect.x2 - chibi[0].rect.x1) * 8.f <= abs(rect.x2 - rect.x1)
+		|| abs(chibi[0].rect.y2 - chibi[0].rect.y1) * 8.f <= abs(rect.y2 - rect.y1)) {
+		vanish = 2;
+		lengthChibi = 0;
+		delete[] chibi;
+	}
 }
 
 void RectClass::moveDiagonal()
@@ -228,6 +213,8 @@ void transCoord(int wx, int wy, float& ox, float& oy) {
 	oy = 1.0f - 2.0f * wy / WINDOW_HEIGHT;
 }
 
+void VanishRect(int i);
+
 bool timer = false;
 
 void main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정 
@@ -249,12 +236,6 @@ void main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 
 	else
 		std::cout << "GLEW Initialized\n";
-
-	RectClass rr;
-	rr.makeChibis();
-	for (int i = 0; i < rr.getLengthChibi(); ++i) {
-		rr.chibi[i].drawRect();
-	}
 
 	glutDisplayFunc(drawScene); // 출력 함수의 지정
 	glutMouseFunc(Mouse);
@@ -298,7 +279,8 @@ void Mouse(int button, int state, int x, int y)
 
 		for (int i = maxSize - 1; i >= 0; --i) {
 			if (rc[i].isVanishing() == 0 && rc[i].isClicked(openglX, openglY)) {
-				rc[i].vanishRect();
+				//rc[i].vanishRect();
+				glutTimerFunc(200, VanishRect, i);
 
 				std::cout << i << " Clicked" << '\n';
 				break;
@@ -328,4 +310,35 @@ void KeyBoard(unsigned char key, int x, int y)
 		delete[] rc;
 		glutLeaveMainLoop();
 	}
+}
+
+void VanishRect(int i)
+{
+	static int anime;
+
+	if (0 == rc[i].isVanishing())
+		anime = rc[i].vanishRect();	
+
+	switch (anime) {
+	case 0:
+		rc[i].moveFourWays();
+		break;
+
+	case 1:
+
+		break;
+
+	case 2:
+
+		break;
+
+	case 3:
+
+		break;
+	}
+
+	glutPostRedisplay();
+
+	if (2 != rc[i].isVanishing())
+		glutTimerFunc(200, VanishRect, i);
 }
