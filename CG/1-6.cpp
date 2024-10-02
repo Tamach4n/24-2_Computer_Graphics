@@ -124,10 +124,10 @@ int RectClass::vanishRect()
 {
 	vanish = 1;
 
-	std::uniform_int_distribution<> uid(0, 1);
+	std::uniform_int_distribution<> uid(0, 3);
 
-	int anime = uid(dre);
-	//int anime = 2;
+	//int anime = uid(dre);
+	int anime = 2;
 
 	if (anime == 0) {
 		lengthChibi = 4;
@@ -226,7 +226,24 @@ void RectClass::moveDiagonal()
 
 void RectClass::moveOneWays()
 {
+	float d = 20.f / WINDOW_HEIGHT;
 
+	chibi[0].rect.moveRect(d, 0);
+	chibi[1].rect.moveRect(d, 0);
+	chibi[2].rect.moveRect(d, 0);
+	chibi[3].rect.moveRect(d, 0);
+
+	chibi[0].rect.shrinkRect(0.01f);
+	chibi[1].rect.shrinkRect(0.01f);
+	chibi[2].rect.shrinkRect(0.01f);
+	chibi[3].rect.shrinkRect(0.01f);
+
+	if (abs(chibi[0].rect.x2 - chibi[0].rect.x1) * 8.f <= abs(rect.x2 - rect.x1)
+		|| abs(chibi[0].rect.y2 - chibi[0].rect.y1) * 8.f <= abs(rect.y2 - rect.y1)) {
+		vanish = 2;
+		lengthChibi = 0;
+		delete[] chibi;
+	}
 }
 
 void RectClass::moveEightWays()
