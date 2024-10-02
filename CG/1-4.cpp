@@ -102,6 +102,8 @@ void Mouse(int button, int state, int x, int y);
 
 void KeyBoard(unsigned char key, int x, int y);
 
+void Timer(int key);
+
 void transCoord(int wx, int wy, float& ox, float& oy) {
 	ox = 2.0f * wx / WINDOW_WIDTH - 1.0f;
 	oy = 1.0f - 2.0f * wy / WINDOW_HEIGHT;
@@ -172,30 +174,23 @@ void Mouse(int button, int state, int x, int y)
 		std::uniform_real_distribution<float> randX(openglX - 0.5f, openglX + 0.5f);
 		std::uniform_real_distribution<float> randY(openglY - 0.5f, openglY + 0.5f);
 
-		rc = new RectClass[SZ]({ randX(dre), randY(dre) }, { randX(dre), randY(dre) },
-			{ randX(dre), randY(dre) }, { randX(dre), randY(dre) }, { randX(dre), randY(dre) });
-	}
+		rc = new RectClass[SZ]({ randX(dre), randY(dre) }, 
+			{ randX(dre), randY(dre) }, { randX(dre), randY(dre) }, 
+			{ randX(dre), randY(dre) }, { randX(dre), randY(dre) });
 
-	glutPostRedisplay();
+		glutPostRedisplay();
+	}
 }
 
 void KeyBoard(unsigned char key, int x, int y)
 {
 	switch (key) {
 	case '1':
-
-		break;
-
 	case '2':
-
-		break;
-
 	case '3':
-
-		break;
-
 	case '4':
-
+		timer = true;
+		glutTimerFunc(200, Timer, key);
 		break;
 
 	case 's':
@@ -207,7 +202,9 @@ void KeyBoard(unsigned char key, int x, int y)
 		break;
 
 	case 'r':
+		timer = false;
 		delete[] rc;
+		rc = nullptr;
 		glutPostRedisplay();
 		break;
 
@@ -216,4 +213,28 @@ void KeyBoard(unsigned char key, int x, int y)
 		glutLeaveMainLoop();
 		break;
 	}
+}
+
+void Timer(int key)
+{
+	switch (key) {
+	case 49:
+		std::cout << key << '\n';
+		break;
+
+	case 50:
+
+		break;
+
+	case 51:
+
+		break;
+
+	case 52:
+
+		break;
+	}
+
+	if(timer)
+		glutTimerFunc(200, Timer, key);
 }
