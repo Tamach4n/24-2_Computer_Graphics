@@ -4,8 +4,8 @@
 #include <gl/freeglut_ext.h>
 #include <random>
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 800.f
+#define WINDOW_HEIGHT 600.f
 #define WH 0.1f
 
 std::random_device rd;

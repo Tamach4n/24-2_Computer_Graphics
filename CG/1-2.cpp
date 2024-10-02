@@ -4,8 +4,8 @@
 #include <gl/freeglut_ext.h>
 #include <random>
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 800.f
+#define WINDOW_HEIGHT 600.f
 
 std::random_device rd;
 std::default_random_engine dre(rd());
@@ -32,7 +32,7 @@ public:
 		randomColors();
 	}
 
-	bool isClicked(bool rectangle,float mx, float my) const {
+	bool isClicked(bool rectangle, float mx, float my) const {
 		if(rectangle)
 			return (mx >= rect.x1 && mx <= rect.x2 && my >= rect.y1 && my <= rect.y2);
 
@@ -52,7 +52,7 @@ public:
 	}
 
 	void resizeRect(float size) {
-		if (!(rect.x2 - rect.x1 < 0.2 || rect.y2 - rect.y1 < 0.2)) {
+		if (size >= 0 || (!(rect.x2 - rect.x1 < 0.2 || rect.y2 - rect.y1 < 0.2))) {
 			rect.x1 -= size;
 			rect.y1 -= size;
 			rect.x2 += size;
