@@ -94,21 +94,11 @@ public:
 
 	RectClass* chibi{};	//	사라질 때 나타날 작은 사각형들 포인터
 
-protected:
+private:
 	Rect rect;
 	GLclampf r, g, b;
 	int lengthChibi{};
-
-private:
 	int vanish; 	//	0 : 노멀, 1 : 사라지는 중, 2 : 사라짐
-};
-
-class ChibiRect : public RectClass {
-	ChibiRect() {
-		randomColors();
-	}
-
-
 };
 
 RectClass::RectClass()
@@ -134,10 +124,10 @@ int RectClass::vanishRect()
 {
 	vanish = 1;
 
-	std::uniform_int_distribution<> uid(0, 3);
+	std::uniform_int_distribution<> uid(0, 1);
 
-	//int anime = uid(dre);
-	int anime = 1;
+	int anime = uid(dre);
+	//int anime = 2;
 
 	if (anime == 0) {
 		lengthChibi = 4;
@@ -153,17 +143,29 @@ int RectClass::vanishRect()
 	}
 
 	else if (anime == 1) {
-		chibi = new RectClass[lengthChibi];
 		lengthChibi = 4;
+		chibi = new RectClass[lengthChibi];
 
+		chibi[0].rect = { rect.x1, (rect.y2 + rect.y1) / 2, (rect.x2 + rect.x1) / 2, rect.y2 };
+		chibi[1].rect = { (rect.x2 + rect.x1) / 2, (rect.y2 + rect.y1) / 2, rect.x2, rect.y2 };
+		chibi[2].rect = { rect.x1, rect.y1, (rect.x2 + rect.x1) / 2, (rect.y2 + rect.y1) / 2 };
+		chibi[3].rect = { (rect.x2 + rect.x1) / 2, rect.y1, rect.x2, (rect.y2 + rect.y1) / 2 };
 
+		for (int i = 0; i < lengthChibi; ++i)
+			chibi[i].colorRGB(r, g, b);
 	}
 
 	else if (anime == 2) {
 		lengthChibi = 4;
 		chibi = new RectClass[lengthChibi];
 
+		chibi[0].rect = { rect.x1, (rect.y2 + rect.y1) / 2, (rect.x2 + rect.x1) / 2, rect.y2 };
+		chibi[1].rect = { (rect.x2 + rect.x1) / 2, (rect.y2 + rect.y1) / 2, rect.x2, rect.y2 };
+		chibi[2].rect = { rect.x1, rect.y1, (rect.x2 + rect.x1) / 2, (rect.y2 + rect.y1) / 2 };
+		chibi[3].rect = { (rect.x2 + rect.x1) / 2, rect.y1, rect.x2, (rect.y2 + rect.y1) / 2 };
 
+		for (int i = 0; i < lengthChibi; ++i)
+			chibi[i].colorRGB(r, g, b);
 	}
 
 	else if (anime == 3) {
@@ -177,6 +179,29 @@ int RectClass::vanishRect()
 }
 
 void RectClass::moveFourWays()
+{
+	float dx = 20.0f / WINDOW_WIDTH;
+	float dy = 20.0f / WINDOW_HEIGHT;
+
+	chibi[0].rect.moveRect(-dx, 0);
+	chibi[1].rect.moveRect(0, dy);
+	chibi[2].rect.moveRect(0, -dy);
+	chibi[3].rect.moveRect(dx, 0);
+
+	chibi[0].rect.shrinkRect(0.01f);
+	chibi[1].rect.shrinkRect(0.01f);
+	chibi[2].rect.shrinkRect(0.01f);
+	chibi[3].rect.shrinkRect(0.01f);
+
+	if (abs(chibi[0].rect.x2 - chibi[0].rect.x1) * 8.f <= abs(rect.x2 - rect.x1)
+		|| abs(chibi[0].rect.y2 - chibi[0].rect.y1) * 8.f <= abs(rect.y2 - rect.y1)) {
+		vanish = 2;
+		lengthChibi = 0;
+		delete[] chibi;
+	}
+}
+
+void RectClass::moveDiagonal()
 {
 	float dx = 20.0f / WINDOW_WIDTH;
 	float dy = 20.0f / WINDOW_HEIGHT;
@@ -197,11 +222,6 @@ void RectClass::moveFourWays()
 		lengthChibi = 0;
 		delete[] chibi;
 	}
-}
-
-void RectClass::moveDiagonal()
-{
-
 }
 
 void RectClass::moveOneWays()
@@ -226,8 +246,6 @@ void transCoord(int wx, int wy, float& ox, float& oy) {
 }
 
 void VanishRect(int i);
-
-bool timer = false;
 
 void main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정 
 {	//--- 윈도우 생성하기
@@ -324,7 +342,7 @@ void KeyBoard(unsigned char key, int x, int y)
 	}
 }
 
-void VanishRect(int i)
+void VanishRect(int i)	//	타이머 함수
 {
 	static int anime;
 
