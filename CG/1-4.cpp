@@ -42,6 +42,14 @@ public:
 	RectClass(GLfloat x, GLfloat y) :x(x), y(y)
 	{
 		rect = { x - WH, y - WH, x + WH, y + WH };
+
+		if (rect.x1 < -1.f) rect.move(-1.f - rect.x1, 0);
+		if (rect.y1 < -1.f)	rect.move(0, -1.f - rect.y1);
+		if (rect.x2 > 1.f)	rect.move(1.f - rect.x2, 0);
+		if (rect.y2 > 1.f)	rect.move(0, 1.f - rect.y2);
+
+		std::cout << rect.x1 << " " << rect.y1 << " " << rect.x2 << " " << rect.y2 << '\n';
+
 		draw = true;
 		randomColors();
 	}
@@ -179,8 +187,8 @@ void Mouse(int button, int state, int x, int y)
 
 		transCoord(x, y, openglX, openglY);		//	윈도우 좌표를 OpenGL 좌표로 변환
 
-		std::uniform_real_distribution<float> randX(openglX - 0.5f, openglX + 0.5f);
-		std::uniform_real_distribution<float> randY(openglY - 0.5f, openglY + 0.5f);
+		std::uniform_real_distribution<float> randX(openglX - 0.4f, openglX + 0.4f);
+		std::uniform_real_distribution<float> randY(openglY - 0.4f, openglY + 0.4f);
 
 		rc = new RectClass[SZ]({ randX(dre), randY(dre) }, 
 			{ randX(dre), randY(dre) }, { randX(dre), randY(dre) }, 
@@ -197,36 +205,39 @@ void KeyBoard(unsigned char key, int x, int y)
 	case '2':
 	case '3':
 	case '4':
-		timer = true;
+		timer = !timer;
 		glutTimerFunc(200, Timer, key);
 		break;
 
 	case 's':
 		timer = false;
+		glutPostRedisplay();
 		break;
 
 	case 'm':
 
+		glutPostRedisplay();
 		break;
 
 	case 'r':
 		timer = false;
 		delete[] rc;
-		rc = nullptr;
+		rc = nullptr; 
+		glutPostRedisplay();
 		break;
 
 	case 'q':
+		timer = false;
 		delete[] rc;
 		glutLeaveMainLoop();
 		break;
 	}
-
-	glutPostRedisplay();
 }
 
 void Timer(int key)
 {
 	if (!timer)	return;
+
 	switch (key) {
 	case 49:	//	1
 		for (int i = 0; i < SZ; ++i) {
