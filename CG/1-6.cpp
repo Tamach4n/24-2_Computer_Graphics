@@ -126,8 +126,7 @@ int RectClass::vanishRect()
 
 	std::uniform_int_distribution<> uid(0, 3);
 
-	//int anime = uid(dre);
-	int anime = 3;
+	int anime = uid(dre);
 
 	if (anime == 0) {
 		lengthChibi = 4;
@@ -174,7 +173,6 @@ int RectClass::vanishRect()
 
 		float w = (rect.x2 - rect.x1) / 4.0f;
 		float h = (rect.y2 - rect.y1) / 4.0f;
-		std::cout << w << " " << h << '\n';
 
 		chibi[0].rect = { rect.x1, (rect.y2 + rect.y1) / 2, rect.x1 + w, rect.y2 };
 		chibi[1].rect = { rect.x1 + w, (rect.y2 + rect.y1) / 2, (rect.x2 + rect.x1) / 2, rect.y2 };
@@ -186,8 +184,8 @@ int RectClass::vanishRect()
 		chibi[6].rect = { (rect.x2 + rect.x1) / 2, rect.y1, rect.x2 - w, (rect.y2 + rect.y1) / 2 };
 		chibi[7].rect = { rect.x2 - w, rect.y1, rect.x2, (rect.y2 + rect.y1) / 2 };
 
-		//for (int i = 0; i < lengthChibi; ++i)
-		//	chibi[i].colorRGB(r, g, b);
+		for (int i = 0; i < lengthChibi; ++i)
+			chibi[i].colorRGB(r, g, b);
 	}
 
 	return anime;
@@ -213,6 +211,7 @@ void RectClass::moveFourWays()
 		vanish = 2;
 		lengthChibi = 0;
 		delete[] chibi;
+		std::cout << " Vanished" << '\n';
 	}
 }
 
@@ -236,6 +235,7 @@ void RectClass::moveDiagonal()
 		vanish = 2;
 		lengthChibi = 0;
 		delete[] chibi;
+		std::cout << " Vanished" << '\n';
 	}
 }
 
@@ -258,20 +258,33 @@ void RectClass::moveOneWays()
 		vanish = 2;
 		lengthChibi = 0;
 		delete[] chibi;
+		std::cout << " Vanished" << '\n';
 	}
 }
 
 void RectClass::moveEightWays()
 {
+	float dx = 20.0f / WINDOW_WIDTH;
+	float dy = 20.0f / WINDOW_HEIGHT;
+
+	chibi[0].rect.moveRect(-dx, 0);
+	chibi[1].rect.moveRect(-dx, dy);
+	chibi[2].rect.moveRect(0, dy);
+	chibi[3].rect.moveRect(dx, dy);
+	chibi[4].rect.moveRect(-dx, -dy);
+	chibi[5].rect.moveRect(0, -dy);
+	chibi[6].rect.moveRect(dx, -dy);
+	chibi[7].rect.moveRect(dx, 0);
+
 	for (int i = 0; i < lengthChibi; ++i)
-		//chibi[i].rect.shrinkRect(0.005f);
-		std::cout << "1" << '\n';
+		chibi[i].rect.shrinkRect(0.005f);
 
 	if (abs(chibi[0].rect.x2 - chibi[0].rect.x1) * 8.f <= abs(rect.x2 - rect.x1) ||
 		abs(chibi[0].rect.y2 - chibi[0].rect.y1) * 8.f <= abs(rect.y2 - rect.y1)) {
 		vanish = 2;
 		lengthChibi = 0;
 		delete[] chibi;
+		std::cout << " Vanished" << '\n';
 	}
 }
 
