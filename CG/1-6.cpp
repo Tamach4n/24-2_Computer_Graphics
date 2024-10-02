@@ -19,14 +19,14 @@ int maxSize{};
 struct Rect {
 	GLfloat x1, y1, x2, y2;
 
-	void shrinkRect(GLfloat size) {
+	void shrink(GLfloat size) {
 		x1 += size;
 		y1 += size;
 		x2 -= size;
 		y2 -= size;
 	}
 
-	void moveRect(GLfloat dx, GLfloat dy) {
+	void move(GLfloat dx, GLfloat dy) {
 		x1 += dx;
 		y1 += dy;
 		x2 += dx;
@@ -73,13 +73,6 @@ public:
 		r = cR;
 		g = cG;
 		b = cB;
-	}
-
-	void moveRect(GLfloat dx, GLfloat dy) {
-		rect.x1 += dx;
-		rect.y1 += dy;
-		rect.x2 += dx;
-		rect.y2 += dy;
 	}
 
 	int vanishRect();
@@ -196,15 +189,15 @@ void RectClass::moveFourWays()
 	float dx = 20.0f / WINDOW_WIDTH;
 	float dy = 20.0f / WINDOW_HEIGHT;
 
-	chibi[0].rect.moveRect(-dx, 0);
-	chibi[1].rect.moveRect(0, dy);
-	chibi[2].rect.moveRect(0, -dy);
-	chibi[3].rect.moveRect(dx, 0);
+	chibi[0].rect.move(-dx, 0);
+	chibi[1].rect.move(0, dy);
+	chibi[2].rect.move(0, -dy);
+	chibi[3].rect.move(dx, 0);
 
-	chibi[0].rect.shrinkRect(0.01f);
-	chibi[1].rect.shrinkRect(0.01f);
-	chibi[2].rect.shrinkRect(0.01f);
-	chibi[3].rect.shrinkRect(0.01f);
+	chibi[0].rect.shrink(0.01f);
+	chibi[1].rect.shrink(0.01f);
+	chibi[2].rect.shrink(0.01f);
+	chibi[3].rect.shrink(0.01f);
 
 	if (abs(chibi[0].rect.x2 - chibi[0].rect.x1) * 8.f <= abs(rect.x2 - rect.x1)
 		|| abs(chibi[0].rect.y2 - chibi[0].rect.y1) * 8.f <= abs(rect.y2 - rect.y1)) {
@@ -220,15 +213,15 @@ void RectClass::moveDiagonal()
 	float dx = 20.0f / WINDOW_WIDTH;
 	float dy = 20.0f / WINDOW_HEIGHT;
 
-	chibi[0].rect.moveRect(-dx, dy);
-	chibi[1].rect.moveRect(dx, dy);
-	chibi[2].rect.moveRect(-dx, -dy);
-	chibi[3].rect.moveRect(dx, -dy);
+	chibi[0].rect.move(-dx, dy);
+	chibi[1].rect.move(dx, dy);
+	chibi[2].rect.move(-dx, -dy);
+	chibi[3].rect.move(dx, -dy);
 
-	chibi[0].rect.shrinkRect(0.01f);
-	chibi[1].rect.shrinkRect(0.01f);
-	chibi[2].rect.shrinkRect(0.01f);
-	chibi[3].rect.shrinkRect(0.01f);
+	chibi[0].rect.shrink(0.01f);
+	chibi[1].rect.shrink(0.01f);
+	chibi[2].rect.shrink(0.01f);
+	chibi[3].rect.shrink(0.01f);
 
 	if (abs(chibi[0].rect.x2 - chibi[0].rect.x1) * 8.f <= abs(rect.x2 - rect.x1)
 		|| abs(chibi[0].rect.y2 - chibi[0].rect.y1) * 8.f <= abs(rect.y2 - rect.y1)) {
@@ -243,15 +236,15 @@ void RectClass::moveOneWays()
 {
 	float d = 20.f / WINDOW_HEIGHT;
 
-	chibi[0].rect.moveRect(d, 0);
-	chibi[1].rect.moveRect(d, 0);
-	chibi[2].rect.moveRect(d, 0);
-	chibi[3].rect.moveRect(d, 0);
+	chibi[0].rect.move(d, 0);
+	chibi[1].rect.move(d, 0);
+	chibi[2].rect.move(d, 0);
+	chibi[3].rect.move(d, 0);
 
-	chibi[0].rect.shrinkRect(0.01f);
-	chibi[1].rect.shrinkRect(0.01f);
-	chibi[2].rect.shrinkRect(0.01f);
-	chibi[3].rect.shrinkRect(0.01f);
+	chibi[0].rect.shrink(0.01f);
+	chibi[1].rect.shrink(0.01f);
+	chibi[2].rect.shrink(0.01f);
+	chibi[3].rect.shrink(0.01f);
 
 	if (abs(chibi[0].rect.x2 - chibi[0].rect.x1) * 8.f <= abs(rect.x2 - rect.x1) ||
 		abs(chibi[0].rect.y2 - chibi[0].rect.y1) * 8.f <= abs(rect.y2 - rect.y1)) {
@@ -267,17 +260,17 @@ void RectClass::moveEightWays()
 	float dx = 20.0f / WINDOW_WIDTH;
 	float dy = 20.0f / WINDOW_HEIGHT;
 
-	chibi[0].rect.moveRect(-dx, 0);
-	chibi[1].rect.moveRect(-dx, dy);
-	chibi[2].rect.moveRect(0, dy);
-	chibi[3].rect.moveRect(dx, dy);
-	chibi[4].rect.moveRect(-dx, -dy);
-	chibi[5].rect.moveRect(0, -dy);
-	chibi[6].rect.moveRect(dx, -dy);
-	chibi[7].rect.moveRect(dx, 0);
+	chibi[0].rect.move(-dx, 0);
+	chibi[1].rect.move(-dx, dy);
+	chibi[2].rect.move(0, dy);
+	chibi[3].rect.move(dx, dy);
+	chibi[4].rect.move(-dx, -dy);
+	chibi[5].rect.move(0, -dy);
+	chibi[6].rect.move(dx, -dy);
+	chibi[7].rect.move(dx, 0);
 
 	for (int i = 0; i < lengthChibi; ++i)
-		chibi[i].rect.shrinkRect(0.005f);
+		chibi[i].rect.shrink(0.005f);
 
 	if (abs(chibi[0].rect.x2 - chibi[0].rect.x1) * 8.f <= abs(rect.x2 - rect.x1) ||
 		abs(chibi[0].rect.y2 - chibi[0].rect.y1) * 8.f <= abs(rect.y2 - rect.y1)) {
