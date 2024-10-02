@@ -18,13 +18,6 @@ GLvoid Reshape(int w, int h);
 struct Rect {
 	GLfloat x1, y1, x2, y2;
 
-	void shrink(GLfloat size) {
-		x1 += size;
-		y1 += size;
-		x2 -= size;
-		y2 -= size;
-	}
-
 	void move(GLfloat dx, GLfloat dy) {
 		x1 += dx;
 		y1 += dy;
@@ -89,9 +82,25 @@ public:
 		b = urd(dre);
 	}
 
+	void resize(GLfloat size) {
+		std::uniform_real_distribution<float> urdSize(0.05f, 0.3f);
+
+		float wh = urdSize(dre);
+
+		rect = { x - wh, y - wh, x + wh, y + wh };
+	}
+
+	void moveDiagonal() {
+		float dx = 20.f / WINDOW_WIDTH;
+		float dy = 20.f / WINDOW_HEIGHT;
+
+		
+	}
+
 private:
 	GLfloat x, y;
 	Rect rect;
+	Rect* manu = nullptr;
 	GLclampf r, g, b;
 	bool draw;
 };
@@ -150,9 +159,8 @@ GLvoid drawScene() //--- 콜백 함수: 그리기 콜백 함수
 
 	if (rc != nullptr) {
 		for (int i = 0; i < SZ; ++i) {
-			if (rc[i].isDrawn())
-				rc[i].drawRect();
-		}
+			rc[i].drawRect();
+		}			
 	}
 
 	glutSwapBuffers(); // 화면에 출력하기
@@ -205,7 +213,6 @@ void KeyBoard(unsigned char key, int x, int y)
 		timer = false;
 		delete[] rc;
 		rc = nullptr;
-		glutPostRedisplay();
 		break;
 
 	case 'q':
@@ -213,28 +220,44 @@ void KeyBoard(unsigned char key, int x, int y)
 		glutLeaveMainLoop();
 		break;
 	}
+
+	glutPostRedisplay();
 }
 
 void Timer(int key)
 {
+	if (!timer)	return;
 	switch (key) {
-	case 49:
-		std::cout << key << '\n';
+	case 49:	//	1
+		for (int i = 0; i < SZ; ++i) {
+			//rc[i]
+		}
+
 		break;
 
 	case 50:
+		for (int i = 0; i < SZ; ++i) {
+			//rc[i]
+		}
 
 		break;
 
 	case 51:
+		for (int i = 0; i < SZ; ++i) {
+			rc[i].resize(0.05f);
+		}
 
 		break;
 
 	case 52:
+		for (int i = 0; i < SZ; ++i) {
+			rc[i].randomColors();
+		}
 
 		break;
 	}
 
-	if(timer)
-		glutTimerFunc(200, Timer, key);
+	glutPostRedisplay();
+
+	glutTimerFunc(200, Timer, key);
 }
