@@ -21,20 +21,10 @@ struct Rect {
 
 class RectClass {
 public:
-	RectClass() {
-		std::uniform_real_distribution<float> hani(-1.0f, 0.8f);
-
-		float cX = hani(dre);
-		float cY = hani(dre);
-
-		rect = { cX, cY, cX + WH, cY + WH };
-		draw = true;
-		randomColors();
-	}
-
 	RectClass(GLfloat x, GLfloat y) :x(x), y(y)
 	{
 		rect = { x - WH, y - WH, x + WH, y + WH };
+		manu = rect;
 
 		if (rect.x1 < -1.f) moveRect(-1.f - rect.x1, 0);
 		if (rect.y1 < -1.f)	moveRect(0, -1.f - rect.y1);
@@ -73,6 +63,8 @@ public:
 		rect.y1 += dy;
 		rect.x2 += dx;
 		rect.y2 += dy;
+
+		std::cout << "x: " << x << ", y: " << y << '\n';
 	}
 
 	void randomColors() {
@@ -106,22 +98,45 @@ public:
 			dy = -dy;
 	}
 
+	void checkColision() {
+		if (isColliding() == -1)	//	충돌 체크
+			dx = -dx;
+
+		if (isColliding() == 1)
+			dy = -dy;
+	}
+
 	void moveDiagonal() {		
 		moveRect(dx, dy);	//	이동
+		checkColision();
+	}
 
-		if (isColliding() == -1) {	//	충돌 체크
-			dx = -dx;
+	void moveZigzag() {
+		static bool phase = false;
+		float tempY;
+
+		if (!phase) {
+			tempY = 0;
+			phase = 1;
 		}
 
-		if (isColliding() == 1) {
-			dy = -dy;
+		else {
+			tempY = dy;
+			phase = 0;
 		}
+
+		moveRect(dx, tempY);	//	이동
+		checkColision();
+	}
+
+	void overWrite() {
+		rect = manu;
 	}
 
 private:
 	GLfloat x, y;
 	Rect rect;
-	Rect* manu = nullptr;
+	Rect manu;
 	GLclampf r, g, b;
 	bool draw;
 
@@ -224,12 +239,15 @@ void KeyBoard(unsigned char key, int x, int y)
 			rc[i].setMove();
 
 		t1 = !t1;
-		glutTimerFunc(100, Timer, 1);
+		glutTimerFunc(50, Timer, 1);
 		break;
 
 	case '2':
+		for (int i = 0; i < SZ; ++i)
+			rc[i].setMove();
+
 		t2 = !t2;
-		glutTimerFunc(200, Timer, 2);
+		glutTimerFunc(50, Timer, 2);
 		break;
 
 	case '3':
@@ -248,6 +266,8 @@ void KeyBoard(unsigned char key, int x, int y)
 		break;
 
 	case 'm':
+		for (int i = 0; i < SZ; ++i)
+			rc[i].overWrite();
 
 		glutPostRedisplay();
 		break;
@@ -281,7 +301,7 @@ void Timer(int key)
 
 	case 2:
 		for (int i = 0; i < SZ; ++i) {
-			//rc[i]
+			rc[i].moveZigzag();
 		}
 
 		break;
@@ -303,6 +323,5 @@ void Timer(int key)
 
 	glutPostRedisplay();
 
-	//if(t1||t2||t3||t4)
 	glutTimerFunc(200, Timer, key);
 }
