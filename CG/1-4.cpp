@@ -17,13 +17,6 @@ GLvoid Reshape(int w, int h);
 
 struct Rect {
 	GLfloat x1, y1, x2, y2;
-
-	void move(GLfloat dx, GLfloat dy) {
-		x1 += dx;
-		y1 += dy;
-		x2 += dx;
-		y2 += dy;
-	}
 };
 
 class RectClass {
@@ -43,10 +36,10 @@ public:
 	{
 		rect = { x - WH, y - WH, x + WH, y + WH };
 
-		if (rect.x1 < -1.f) rect.move(-1.f - rect.x1, 0);
-		if (rect.y1 < -1.f)	rect.move(0, -1.f - rect.y1);
-		if (rect.x2 > 1.f)	rect.move(1.f - rect.x2, 0);
-		if (rect.y2 > 1.f)	rect.move(0, 1.f - rect.y2);
+		if (rect.x1 < -1.f) moveRect(-1.f - rect.x1, 0);
+		if (rect.y1 < -1.f)	moveRect(0, -1.f - rect.y1);
+		if (rect.x2 > 1.f)	moveRect(1.f - rect.x2, 0);
+		if (rect.y2 > 1.f)	moveRect(0, 1.f - rect.y2);
 
 		std::cout << rect.x1 << " " << rect.y1 << " " << rect.x2 << " " << rect.y2 << '\n';
 
@@ -54,17 +47,14 @@ public:
 		randomColors();
 	}
 
-	bool isClicked(float mx, float my) const {
-		return (mx >= rect.x1 && mx <= rect.x2 && my >= rect.y1 && my <= rect.y2);
-	}
+	int isColliding() const {
+		if (rect.x1 <= -1.f || rect.x2 >= 1.f)
+			return -1;
 
-	bool isDrawn() const {
-		return draw;
-	}
+		else if (rect.y1 <= -1.f || rect.y2 >= 1.f)
+			return 1;
 
-	bool isColliding(const RectClass& other) const {
-		return (rect.x1 < other.rect.x2 && rect.x2 > other.rect.x1
-			&& rect.y1 < other.rect.y2 && rect.y2 > other.rect.y1);
+		else return 0;
 	}
 
 	void drawRect() const {
@@ -72,12 +62,13 @@ public:
 		glRectf(rect.x1, rect.y1, rect.x2, rect.y2);
 	}
 
-
 	void setRect(GLfloat x, GLfloat y) {
 		rect = { x - WH, y - WH, x + WH, y + WH };
 	}
 
 	void moveRect(float dx, float dy) {
+		x += dx;
+		y += dy;
 		rect.x1 += dx;
 		rect.y1 += dy;
 		rect.x2 += dx;
@@ -90,19 +81,41 @@ public:
 		b = urd(dre);
 	}
 
-	void resize(GLfloat size) {
-		std::uniform_real_distribution<float> urdSize(0.05f, 0.3f);
+	void randomResize(GLfloat size) {
+		std::uniform_real_distribution<float> urdSize(0.1f, 0.25f);
 
 		float wh = urdSize(dre);
 
 		rect = { x - wh, y - wh, x + wh, y + wh };
 	}
 
-	void moveDiagonal() {
-		float dx = 20.f / WINDOW_WIDTH;
-		float dy = 20.f / WINDOW_HEIGHT;
+	void setMove() {
+		std::uniform_int_distribution<> uid_dir(0, 3);
 
-		
+		int dir = uid_dir(dre);
+
+		if (dir == 0)
+			dx = -dx;
+
+		else if (dir == 2) {
+			dx = -dx;
+			dy = -dy;
+		}
+
+		else if (dir == 3)
+			dy = -dy;
+	}
+
+	void moveDiagonal() {		
+		moveRect(dx, dy);	//	이동
+
+		if (isColliding() == -1) {	//	충돌 체크
+			dx = -dx;
+		}
+
+		if (isColliding() == 1) {
+			dy = -dy;
+		}
 	}
 
 private:
@@ -111,6 +124,9 @@ private:
 	Rect* manu = nullptr;
 	GLclampf r, g, b;
 	bool draw;
+
+	float dx = 10.f / WINDOW_WIDTH;
+	float dy = 10.f / WINDOW_HEIGHT;
 };
 
 RectClass* rc;
@@ -129,7 +145,7 @@ void transCoord(int wx, int wy, float& ox, float& oy) {
 
 GLclampf r = 46 / 255.f, g = 46 / 255.f, b = 46 / 255.f;
 
-bool timer = false;
+bool t1{}, t2{}, t3{}, t4{};
 int selected;
 int oldX, oldY;
 
@@ -200,17 +216,34 @@ void Mouse(int button, int state, int x, int y)
 
 void KeyBoard(unsigned char key, int x, int y)
 {
+	if (rc == nullptr)	return;
+
 	switch (key) {
 	case '1':
+		for (int i = 0; i < SZ; ++i)
+			rc[i].setMove();
+
+		t1 = !t1;
+		glutTimerFunc(100, Timer, key);
+		break;
+
 	case '2':
+		t2 = !t2;
+		glutTimerFunc(200, Timer, key);
+		break;
+
 	case '3':
+		t3 = !t3;
+		glutTimerFunc(200, Timer, key);
+		break;
+
 	case '4':
-		timer = !timer;
+		t4 = !t4;
 		glutTimerFunc(200, Timer, key);
 		break;
 
 	case 's':
-		timer = false;
+		t1 = t2 = t3 = t4 = false;
 		glutPostRedisplay();
 		break;
 
@@ -220,14 +253,14 @@ void KeyBoard(unsigned char key, int x, int y)
 		break;
 
 	case 'r':
-		timer = false;
+		t1 = t2 = t3 = t4 = false;
 		delete[] rc;
 		rc = nullptr; 
 		glutPostRedisplay();
 		break;
 
 	case 'q':
-		timer = false;
+		t1 = t2 = t3 = t4 = false;
 		delete[] rc;
 		glutLeaveMainLoop();
 		break;
@@ -236,12 +269,12 @@ void KeyBoard(unsigned char key, int x, int y)
 
 void Timer(int key)
 {
-	if (!timer)	return;
+	if (t1 && t2 && t3 && t4)	return;
 
 	switch (key) {
 	case 49:	//	1
 		for (int i = 0; i < SZ; ++i) {
-			//rc[i]
+			rc[i].moveDiagonal();
 		}
 
 		break;
@@ -255,7 +288,7 @@ void Timer(int key)
 
 	case 51:
 		for (int i = 0; i < SZ; ++i) {
-			rc[i].resize(0.05f);
+			rc[i].randomResize(0.05f);
 		}
 
 		break;
