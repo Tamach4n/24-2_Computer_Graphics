@@ -224,22 +224,22 @@ void KeyBoard(unsigned char key, int x, int y)
 			rc[i].setMove();
 
 		t1 = !t1;
-		glutTimerFunc(100, Timer, key);
+		glutTimerFunc(100, Timer, 1);
 		break;
 
 	case '2':
 		t2 = !t2;
-		glutTimerFunc(200, Timer, key);
+		glutTimerFunc(200, Timer, 2);
 		break;
 
 	case '3':
 		t3 = !t3;
-		glutTimerFunc(200, Timer, key);
+		glutTimerFunc(200, Timer, 3);
 		break;
 
 	case '4':
 		t4 = !t4;
-		glutTimerFunc(200, Timer, key);
+		glutTimerFunc(200, Timer, 4);
 		break;
 
 	case 's':
@@ -255,7 +255,7 @@ void KeyBoard(unsigned char key, int x, int y)
 	case 'r':
 		t1 = t2 = t3 = t4 = false;
 		delete[] rc;
-		rc = nullptr; 
+		rc = nullptr;
 		glutPostRedisplay();
 		break;
 
@@ -269,31 +269,31 @@ void KeyBoard(unsigned char key, int x, int y)
 
 void Timer(int key)
 {
-	if (t1 && t2 && t3 && t4)	return;
+	if (t1 == 0 && t2 == 0 && t3 == 0 && t4 == 0)	return;		//	타이머 활성화 상태일 경우만 실행
 
 	switch (key) {
-	case 49:	//	1
+	case 1:	//	1
 		for (int i = 0; i < SZ; ++i) {
 			rc[i].moveDiagonal();
 		}
 
 		break;
 
-	case 50:
+	case 2:
 		for (int i = 0; i < SZ; ++i) {
 			//rc[i]
 		}
 
 		break;
 
-	case 51:
+	case 3:
 		for (int i = 0; i < SZ; ++i) {
 			rc[i].randomResize(0.05f);
 		}
 
 		break;
 
-	case 52:
+	case 4:
 		for (int i = 0; i < SZ; ++i) {
 			rc[i].randomColors();
 		}
@@ -303,5 +303,6 @@ void Timer(int key)
 
 	glutPostRedisplay();
 
+	//if(t1||t2||t3||t4)
 	glutTimerFunc(200, Timer, key);
 }
