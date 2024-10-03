@@ -8,6 +8,7 @@
 #define WINDOW_HEIGHT 600.f
 #define SZ 5
 #define WH 0.2f
+
 std::random_device rd;
 std::default_random_engine dre(rd());
 std::uniform_real_distribution<float> urd(0.0f, 1.0f);	//	실수 난수 생성 (float or double)
@@ -293,31 +294,27 @@ void Timer(int key)
 
 	switch (key) {
 	case 1:	//	1
-		for (int i = 0; i < SZ; ++i) {
+		for (int i = 0; i < SZ; ++i) 
 			rc[i].moveDiagonal();
-		}
-
+		
 		break;
 
 	case 2:
-		for (int i = 0; i < SZ; ++i) {
+		for (int i = 0; i < SZ; ++i) 
 			rc[i].moveZigzag();
-		}
-
+		
 		break;
 
 	case 3:
-		for (int i = 0; i < SZ; ++i) {
+		for (int i = 0; i < SZ; ++i) 
 			rc[i].randomResize(0.05f);
-		}
-
+		
 		break;
 
 	case 4:
-		for (int i = 0; i < SZ; ++i) {
+		for (int i = 0; i < SZ; ++i) 
 			rc[i].randomColors();
-		}
-
+		
 		break;
 	}
 
