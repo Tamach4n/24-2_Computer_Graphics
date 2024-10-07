@@ -15,11 +15,7 @@ private:
 	int width;
 	int height;
 
-	std::pair<float, float>* select[11];
-	std::list<std::pair<float, float>> pointList;
-	std::list<std::pair<float, float>> lineList;
-	std::list<std::pair<float, float>> triangleList;
-	std::list<std::pair<float, float>> rectangleList;
+	std::list<std::pair<float, float>>* triangleList[4];
 
 	int selectPolygon;	// 0 : 점, 1 : 삼각형, 2 : 사각형
 	int end;

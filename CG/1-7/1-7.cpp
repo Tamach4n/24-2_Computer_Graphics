@@ -110,6 +110,7 @@ void Scene::keyboard(unsigned char key)
 
 		end = 0; 
 		pointList.clear();
+		lineList.clear();
 		triangleList.clear();
 		rectangleList.clear();
 		break;
