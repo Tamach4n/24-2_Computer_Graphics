@@ -4,21 +4,18 @@
 #include <gl/freeglut_ext.h>
 #include <string>
 #include <list>
+#include "Quadrant.h"
 
 class Scene
 {
 private:
-	GLuint pointShader;
 	GLuint triangleShader;
-	GLuint rectangleShader;
 
 	int width;
 	int height;
 
-	std::list<std::pair<float, float>> triangleList[4];
-
-	int selectPolygon;	// 0 : 점, 1 : 삼각형, 2 : 사각형
-	int end;
+	int drawMode;
+	Quadrant* quadrant;
 
 public:
 	// 게임 로직에서, update, draw..., 키 입력
@@ -37,13 +34,9 @@ public:
 	void mouse(int button, int state, int x, int y);
 
 	void setWindowSize(int winWidth, int winHeight);
-
-	int getEnd();
-	int selectShape();
-	void moveShape(int dx, int dy);
+	//int getMode();
 
 private:
 	GLuint makeShader(std::string vertexFilename, std::string fragmentFilename);
 	std::string readFile(std::string filename);
 };
-

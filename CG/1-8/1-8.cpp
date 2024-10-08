@@ -1,16 +1,16 @@
 #include <iostream>
 #include <fstream>
 #include <random>
-#include "Scene.h"
+#include "1-8.h"
 
-std::random_device rd;
-std::default_random_engine dre(rd());
+//std::random_device rd;
+//std::default_random_engine dre(rd());
 
 Scene::Scene(int winWidth, int winHeight)
 	: width{ winWidth }, height{ winHeight }
 {
-	selectPolygon = -1;
-	end = 0;
+	drawMode = 1;
+	quadrant = new Quadrant[4];
 }
 
 void Scene::initialize()
@@ -34,13 +34,11 @@ void Scene::draw()
 		if (uPosLoc < 0)
 			std::cerr << "triangle uPos 찾지 못함" << std::endl;
 
-		for (int i = 0; i < triangleList->size(); ++i) {
-			for (const auto& p : triangleList[i]) {
-				glUniform2f(uPosLoc, p.first, p.second);
-				glUniform4f(uColorLoc, urd(dre), urd(dre), urd(dre), 1.0);
-				//glUniform3f(uColorLoc, 1.f, 0.f, 1.f);
-				glDrawArrays(GL_TRIANGLES, 0, 3);
-			}
+		if(uColorLoc<0)
+			std::cerr << "triangle vColor 찾지 못함" << std::endl;
+
+		for (int i = 0; i < 4; ++i) {
+			quadrant[i].draw(drawMode, uPosLoc, uColorLoc);
 		}
 	}
 }
@@ -49,25 +47,26 @@ void Scene::keyboard(unsigned char key)
 {
 	switch (key) {
 	case 27:	// ESC Key
+		delete[] quadrant;
 		glutLeaveMainLoop();
 		break;
 
 	case 'c':
 		std::cout << "ALL CLEAR" << '\n';
+		delete[] quadrant;
+		quadrant = new Quadrant[4];
+		//for (int i = 0; i < triangleList->size(); ++i) {
+		//	triangleList[i].clear();
+		//}
 
-		for (int i = 0; i < triangleList->size(); ++i) {
-			triangleList[i].clear();
-		}
-
-		end = 0;
 		break;
 
 	case 'a':
-		
+		drawMode = 0;
 		break;
 
 	case 'b':
-
+		drawMode = 1;
 		break;
 
 	default:
@@ -98,15 +97,16 @@ void Scene::mouse(int button, int state, int x, int y)
 		switch (button) {
 		case GLUT_LEFT_BUTTON: 
 		{
-			if (triangleList[0].size() >= 4) {
-				std::cout << "Zannen: More Than 4" << '\n';
+			if (quadrant[0].getListSize() >= 3) {
+				std::cout << "Zannen: More Than 3" << '\n';
 				break;
 			}
 
 			float xPos = static_cast<float>(x) / width * 2.f - 1.f;
 			float yPos = -(static_cast<float>(y) / height * 2.f - 1.f);
 
-			triangleList[0].push_back({ xPos, yPos });
+			//triangleList[0].push_back({ xPos, yPos });
+			quadrant[0].insert(xPos, yPos);
 			break;
 		}
 
@@ -123,6 +123,11 @@ void Scene::setWindowSize(int winWidth, int winHeight)
 	width = winWidth;
 	height = winHeight;
 }
+
+//int Scene::getMode()
+//{
+//	return drawMode;
+//}
 
 GLuint Scene::makeShader(std::string vertexFilename, std::string fragmentFilename)
 {
@@ -214,34 +219,4 @@ std::string Scene::readFile(std::string filename)
 	}
 
 	return str;
-}
-
-int Scene::getEnd()
-{
-	return end;
-}
-
-int Scene::selectShape()
-{
-	std::uniform_int_distribution<> uid(0, end - 1);
-
-	return uid(dre);
-}
-
-void Scene::moveShape(int dirX, int dirY)
-{
-	if (getEnd() == 0) {
-		std::cout << "No Shapes" << '\n';
-		return;
-	}
-
-	int sel = selectShape();
-
-	std::cout << sel << '\n';
-
-	GLfloat disX = 0.05f;
-	GLfloat disY = 0.05f;
-
-	//select[sel]->first += disX * dirX;
-	//select[sel]->second += disY * dirY;
 }

@@ -107,7 +107,7 @@ void Scene::keyboard(unsigned char key)
 			select[i]->second = 0.f;
 		}
 
-		end = 0; 
+		end = 0;
 		pointList.clear();
 		lineList.clear();
 		triangleList.clear();
@@ -115,27 +115,20 @@ void Scene::keyboard(unsigned char key)
 		break;
 
 	case 'w':
-	{
 		moveShape(0, 1);
 		break;
-	}
 
 	case 'a':
-	{
 		moveShape(-1, 0);
 		break;
-	}
 
 	case 's':
-	{
 		moveShape(0, -1);
 		break;
-	}
 
-	case 'd': {
+	case 'd':
 		moveShape(1, 0);
 		break;
-	}
 
 	default:
 		break;
