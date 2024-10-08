@@ -320,5 +320,5 @@ void Timer(int key)
 
 	glutPostRedisplay();
 
-	glutTimerFunc(200, Timer, key);
+	glutTimerFunc(60, Timer, key);
 }

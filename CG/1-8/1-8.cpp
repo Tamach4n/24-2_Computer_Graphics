@@ -15,7 +15,7 @@ Scene::Scene(int winWidth, int winHeight)
 
 void Scene::initialize()
 {
-	triangleShader = makeShader("C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\1-8\\triangle_vertex.glsl", "C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\1-7\\fragment.glsl");
+	triangleShader = makeShader("C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\1-8\\triangle_vertex.glsl", "C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\1-8\\fragment.glsl");
 }
 
 void Scene::update()
@@ -25,48 +25,22 @@ void Scene::update()
 void Scene::draw()
 {
 	{
-		glUseProgram(pointShader);
-		glPointSize(5.f);
+		std::uniform_real_distribution<float> urd(0.f, 1.f);
 
-		GLint uPosLoc = glGetUniformLocation(pointShader, "uPos");
-
-		if (uPosLoc < 0)
-			std::cerr << "point uPos 찾지 못함" << std::endl;
-
-		for (const auto& p : pointList) {
-			glUniform2f(uPosLoc, p.first, p.second);
-			glDrawArrays(GL_POINTS, 0, 1);
-		}
-	}
-	{
 		glUseProgram(triangleShader);
-		GLint uPosLoc = glGetUniformLocation(\
-			triangleShader, "uPos");
+		GLint uPosLoc = glGetUniformLocation(triangleShader, "uPos");
+		GLint uColorLoc = glGetUniformLocation(triangleShader, "vColor");
 
 		if (uPosLoc < 0)
 			std::cerr << "triangle uPos 찾지 못함" << std::endl;
 
-		for (const auto& p : triangleList) {
-			glUniform2f(uPosLoc, p.first, p.second);
-			glDrawArrays(GL_TRIANGLES, 0, 3);
-		}
-	}
-	{
-		glUseProgram(rectangleShader);
-		GLint uPosLoc = glGetUniformLocation(rectangleShader, "uPos");
-
-		if (uPosLoc < 0)
-			std::cerr << "rectangle uPos 찾지 못함" << std::endl;
-
-		for (const auto& p : rectangleList) {
-			glUniform2f(uPosLoc, p.first, p.second);
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-		}
-
-		for (const auto& p : lineList) {
-			glUniform2f(uPosLoc, p.first, p.second);
-			glLineWidth(2.f);
-			glDrawArrays(GL_LINES, 3, 2);
+		for (int i = 0; i < triangleList->size(); ++i) {
+			for (const auto& p : triangleList[i]) {
+				glUniform2f(uPosLoc, p.first, p.second);
+				glUniform4f(uColorLoc, urd(dre), urd(dre), urd(dre), 1.0);
+				//glUniform3f(uColorLoc, 1.f, 0.f, 1.f);
+				glDrawArrays(GL_TRIANGLES, 0, 3);
+			}
 		}
 	}
 }
@@ -78,62 +52,23 @@ void Scene::keyboard(unsigned char key)
 		glutLeaveMainLoop();
 		break;
 
-	case 'p':
-		std::cout << "Mode: Point\n";
-		selectPolygon = 0;
-		break;
-
-	case 'l':
-		std::cout << "Mode: Line\n";
-		selectPolygon = 1;
-		break;
-
-	case 't':
-		std::cout << "Mode: Triangle\n";
-		selectPolygon = 2;
-		break;
-
-	case 'r':
-		std::cout << "Mode: Rectangle\n";
-		selectPolygon = 3;
-		break;
-
 	case 'c':
 		std::cout << "ALL CLEAR" << '\n';
 
-		for (int i = 0; i < end; ++i) {
-			select[i]->first = 0.f;
-			select[i]->second = 0.f;
+		for (int i = 0; i < triangleList->size(); ++i) {
+			triangleList[i].clear();
 		}
 
 		end = 0;
-		pointList.clear();
-		triangleList.clear();
-		rectangleList.clear();
 		break;
-
-	case 'w':
-	{
-		moveShape(0, 1);
-		break;
-	}
 
 	case 'a':
-	{
-		moveShape(-1, 0);
+		
 		break;
-	}
 
-	case 's':
-	{
-		moveShape(0, -1);
-		break;
-	}
+	case 'b':
 
-	case 'd': {
-		moveShape(1, 0);
 		break;
-	}
 
 	default:
 		break;
@@ -159,76 +94,27 @@ void Scene::mouse(int button, int state, int x, int y)
 	constexpr int WHEEL_UP = 3;
 	constexpr int WHEEL_DOWN = 4;
 
-	switch (state) {
-	case GLUT_DOWN:
+	if (state == GLUT_DOWN) {
 		switch (button) {
-		case GLUT_LEFT_BUTTON: {
-			if (end >= 10) {
-				std::cout << "Zannen: More Than 10" << '\n';
+		case GLUT_LEFT_BUTTON: 
+		{
+			if (triangleList[0].size() >= 4) {
+				std::cout << "Zannen: More Than 4" << '\n';
 				break;
 			}
 
-			if (selectPolygon >= 0) {
-				float xPos = static_cast<float>(x) / width * 2.f - 1.f;
-				float yPos = -(static_cast<float>(y) / height * 2.f - 1.f);
+			float xPos = static_cast<float>(x) / width * 2.f - 1.f;
+			float yPos = -(static_cast<float>(y) / height * 2.f - 1.f);
 
-				switch (selectPolygon) {
-				case 0:
-					pointList.push_back({ xPos, yPos });
-					select[end] = &pointList.back();
-					break;
-
-				case 1:
-					lineList.push_back({ xPos,yPos });
-					select[end] = &lineList.back();
-					break;
-
-				case 2:
-					triangleList.push_back({ xPos, yPos });
-					select[end] = &triangleList.back();
-					break;
-
-				case 3:
-					rectangleList.push_back({ xPos, yPos });
-					select[end] = &rectangleList.back();
-					break;
-				}
-
-				std::cout << end + 1 << " : " << select[end]->first << ", " << select[end]->second << '\n';
-				++end;
-			}
-
+			triangleList[0].push_back({ xPos, yPos });
 			break;
 		}
-
-		case GLUT_MIDDLE_BUTTON:
-			break;
 
 		case GLUT_RIGHT_BUTTON:
-			break;
 
-		case WHEEL_UP:
-			break;
-
-		case WHEEL_DOWN:
 			break;
 		}
 
-		break;
-
-	case GLUT_UP:
-		switch (button) {
-		case GLUT_LEFT_BUTTON:
-			break;
-
-		case GLUT_RIGHT_BUTTON:
-			break;
-
-		case GLUT_MIDDLE_BUTTON:
-			break;
-		}
-
-		break;
 	}
 }
 
@@ -356,6 +242,6 @@ void Scene::moveShape(int dirX, int dirY)
 	GLfloat disX = 0.05f;
 	GLfloat disY = 0.05f;
 
-	select[sel]->first += disX * dirX;
-	select[sel]->second += disY * dirY;
+	//select[sel]->first += disX * dirX;
+	//select[sel]->second += disY * dirY;
 }

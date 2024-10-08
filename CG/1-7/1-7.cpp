@@ -28,7 +28,7 @@ void Scene::draw()
 {
 	{
 		glUseProgram(pointShader);
-		glPointSize(5.f);
+		glPointSize(3.f);
 
 		GLint uPosLoc = glGetUniformLocation(pointShader, "uPos");
 
@@ -42,9 +42,8 @@ void Scene::draw()
 	}
 	{
 		glUseProgram(triangleShader);
-		GLint uPosLoc = glGetUniformLocation(\
-			triangleShader, "uPos");
-
+		GLint uPosLoc = glGetUniformLocation(triangleShader, "uPos");
+		
 		if (uPosLoc < 0)
 			std::cerr << "triangle uPos 찾지 못함" << std::endl;
 
