@@ -10,7 +10,8 @@ Scene::Scene(int winWidth, int winHeight)
 	: width{ winWidth }, height{ winHeight }
 {
 	drawMode = 1;
-	quadrant = new Quadrant[4];
+	quadrant = new Quadrant[4]{ Quadrant(0.f, 0.f, 1.f, 1.f), Quadrant(-1.f, 0.f, 0.f, 1.f),
+		Quadrant(-1.f, -1.f, 0.f, 0.f), Quadrant(0.f, -1.f, 1.f, 0.f) };
 }
 
 void Scene::initialize()
@@ -34,12 +35,11 @@ void Scene::draw()
 		if (uPosLoc < 0)
 			std::cerr << "triangle uPos 찾지 못함" << std::endl;
 
-		if(uColorLoc<0)
+		if (uColorLoc < 0)
 			std::cerr << "triangle vColor 찾지 못함" << std::endl;
 
-		for (int i = 0; i < 4; ++i) {
+		for (int i = 0; i < 4; ++i)
 			quadrant[i].draw(drawMode, uPosLoc, uColorLoc);
-		}
 	}
 }
 
@@ -95,23 +95,37 @@ void Scene::mouse(int button, int state, int x, int y)
 
 	if (state == GLUT_DOWN) {
 		switch (button) {
-		case GLUT_LEFT_BUTTON: 
+		case GLUT_LEFT_BUTTON:
 		{
-			if (quadrant[0].getListSize() >= 3) {
-				std::cout << "Zannen: More Than 3" << '\n';
-				break;
-			}
-
 			float xPos = static_cast<float>(x) / width * 2.f - 1.f;
 			float yPos = -(static_cast<float>(y) / height * 2.f - 1.f);
 
-			//triangleList[0].push_back({ xPos, yPos });
-			quadrant[0].insert(xPos, yPos);
+			for (int i = 0; i < 4; ++i) {
+				if (quadrant[i].isClicked(xPos, yPos)) {
+					quadrant[i].clearShapes();
+					quadrant[i].insert(xPos, yPos);
+					break;
+				}
+			}
+
 			break;
 		}
 
 		case GLUT_RIGHT_BUTTON:
+			float xPos = static_cast<float>(x) / width * 2.f - 1.f;
+			float yPos = -(static_cast<float>(y) / height * 2.f - 1.f);
 
+			for (int i = 0; i < 4; ++i) {
+				if (quadrant[i].isClicked(xPos, yPos)) {
+					if (quadrant[i].getListSize() >= 3) {
+						std::cout << "Zannen: More Than 3" << '\n';
+						break;
+					}
+
+					quadrant[i].insert(xPos, yPos);
+					break;
+				}
+			}
 			break;
 		}
 

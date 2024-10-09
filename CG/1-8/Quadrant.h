@@ -16,16 +16,22 @@ struct Triangle {
 
 class Quadrant {
 public:
+	Quadrant();
+
+	Quadrant(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
+
 	void draw(int mode, GLuint pos, GLuint color);
 
-	bool isClicked(const float& mx, const float& my);
+	void clearShapes();
+
+	bool isClicked(const float& mx, const float& my) const;
 
 	int getListSize();
 
 	void insert(float x, float y);
 
 private:
-	//Rect rect;
+	Rect rect;
 	std::list<Triangle> triangle;
 };
 

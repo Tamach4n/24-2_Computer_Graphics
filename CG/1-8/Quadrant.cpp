@@ -4,6 +4,16 @@
 std::random_device rd;
 std::default_random_engine dre(rd());
 
+Quadrant::Quadrant()
+{
+	rect = {};
+}
+
+Quadrant::Quadrant(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
+{
+	rect = { x1,y1,x2,y2 };
+}
+
 void Quadrant::draw(int mode, GLuint pos, GLuint color)
 {
 	for (const auto& a : triangle) {
@@ -20,9 +30,14 @@ void Quadrant::draw(int mode, GLuint pos, GLuint color)
 	}
 }
 
-bool Quadrant::isClicked(const float& mx, const float& my)
+void Quadrant::clearShapes()
 {
-	return 1;
+	triangle.clear();
+}
+
+bool Quadrant::isClicked(const float& mx, const float& my) const
+{
+	return (mx > rect.x1 && mx<rect.x2 && my>rect.y1 && my < rect.y2);
 }
 
 int Quadrant::getListSize()
