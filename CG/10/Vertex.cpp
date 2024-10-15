@@ -32,14 +32,14 @@ Vertex::Vertex(const float* verts, unsigned int numVerts, const unsigned int* in
 }
 
 Vertex::Vertex(std::vector<float> verts, const unsigned int* indices, unsigned int numIndices)
-	:numVerts(verts.size() / 2), numIndices(numIndices)
+	:numVerts(static_cast<unsigned int>(verts.size() / 2)), numIndices(numIndices)
 {
 	glGenVertexArrays(1, &vertexArray);
 	glBindVertexArray(vertexArray);
 
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(float), verts.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, static_cast<unsigned int>(verts.size()) * sizeof(float), verts.data(), GL_STATIC_DRAW);
 
 	glGenBuffers(1, &indexBuffer);
 

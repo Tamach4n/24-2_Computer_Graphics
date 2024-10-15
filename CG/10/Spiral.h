@@ -10,13 +10,22 @@ class Spiral
 {
 public:
 	Spiral();
-
+	Spiral(float x, float y);
 	Spiral(const Spiral& other);
 
-	void update(int mode);
+	bool update(int mode);
 	void draw(Shader* shader, int mode) const;
-	void setMode(int mode);
+	void setDir();
 
 private:
-	int curVerts;
+	float xPos, yPos;
+	float angle;
+	float radius;
+	float angleSpeed;
+	float radiusGrowth;
+	bool step;
+	int dir;
+
+	std::vector<std::pair<float, float>> pointVec;
+	std::random_device rd;
 };
