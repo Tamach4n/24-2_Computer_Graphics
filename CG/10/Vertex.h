@@ -1,12 +1,14 @@
 #pragma once
 #include <vector>
+#include <GL/glew.h>
+#include <iostream>
 
 class Vertex {
 public:
 	Vertex(const float* verts, unsigned int numVerts, 
 		const unsigned int* indices, unsigned int numIndices);
 
-	Vertex(std::vector<float> verts, const unsigned int* indices, unsigned int numIndices);
+	Vertex(const std::vector<float>& verts);
 
 	~Vertex();
 

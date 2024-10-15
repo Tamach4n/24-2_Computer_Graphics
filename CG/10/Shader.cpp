@@ -21,6 +21,9 @@ bool Shader::Load(const std::string& vertName, const std::string& fragName)
 	glAttachShader(shaderProgram, fragShader);
 	glLinkProgram(shaderProgram);
 
+	//glDeleteShader(vertexShader);
+	//glDeleteShader(fragShader);
+
 	if (!isValidProgram())
 		return false;
 

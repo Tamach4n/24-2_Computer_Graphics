@@ -13,18 +13,12 @@ public:
 	Spiral(float x, float y);
 	Spiral(const Spiral& other);
 
-	bool update(int mode);
+	void update(int size);
 	void draw(Shader* shader, int mode) const;
-	void setDir();
 
 private:
 	float xPos, yPos;
-	float angle;
-	float radius;
-	float angleSpeed;
-	float radiusGrowth;
-	bool step;
-	int dir;
+	int curr;
 
 	std::vector<std::pair<float, float>> pointVec;
 	std::random_device rd;

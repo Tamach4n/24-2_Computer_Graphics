@@ -3,6 +3,9 @@
 #include <chrono>
 #include "Scene.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 Scene::Scene(int winWidth, int winHeight)
 	: width{ winWidth }, height{ winHeight }
 {
@@ -17,9 +20,11 @@ bool Scene::initialize()
 		return false;
 	}
 
+	spiralVec.clear();
+	verts.clear();
+	
 	createSpriteVerts();
 
-	
 	randomRGB();
 	
 	return true;
@@ -27,19 +32,15 @@ bool Scene::initialize()
 
 void Scene::update()
 {
-	if (curSpiral >= spiralVec.size())
-		return; 
+	if (spiralVec.empty())
+		return;
+
+	std::cout << "Scene::update" << '\n';
 	
-	static bool startDraw = true;
+	int count = verts.size() / 2;
 
-	if (startDraw) {
-		randomRGB();
-		startDraw = false;
-	}
-
-	if (!spiralVec[curSpiral].update(selectMode)) {
-		++curSpiral;
-		startDraw = true;
+	for (int i = 0; i < spiralVec.size(); ++i) {
+		spiralVec[i].update(count);
 	}
 }
 
@@ -69,27 +70,22 @@ void Scene::keyboard(unsigned char key)
 		break;
 
 	case'1':
-		curSpiral = 0;
 		setSpiralVec(1);
 		break;
 
 	case '2':
-		curSpiral = 0;
 		setSpiralVec(2);
 		break;
 
 	case'3':
-		curSpiral = 0;
 		setSpiralVec(3);
 		break;
 
 	case '4':
-		curSpiral = 0;
 		setSpiralVec(4);
 		break;
 
 	case '5':
-		curSpiral = 0;
 		setSpiralVec(5);
 		break;		
 	}
@@ -131,6 +127,11 @@ void Scene::mouse(int button, int state, int x, int y)
 			curSpiral = 0;
 			spiralVec.clear();
 			spiralVec.push_back(Spiral(mx, my));
+
+			delete spriteVertex;
+			createSpriteVerts();
+
+			randomRGB();
 			break;
 
 		case GLUT_MIDDLE_BUTTON:
@@ -176,6 +177,13 @@ void Scene::setWindowSize(int winWidth, int winHeight)
 
 void Scene::setSpiralVec(int size)
 {
+	curSpiral = 0; 
+
+	randomRGB();
+
+	delete spriteVertex;
+	createSpriteVerts();
+
 	if (!spiralVec.empty())
 		spiralVec.clear();
 
@@ -196,18 +204,45 @@ void Scene::randomRGB()
 //	---------------------------------
 void Scene::createSpriteVerts()
 {
-	float vertices[] = {
-		0.0f, 0.2f, 0.f,	0.f, 1.f, 1.f,
-		-0.1f, 0.f, 0.f,	0.f, 1.f, 1.f,
-		0.1f, 0.0f, 0.f,	0.f, 1.f, 1.f
-	};
+	float angle = 0.f;
+	float radius = 0.f;
+	float angleSpeed = 0.3f;
+	float radiusGrowth = 0.003f;
+	float xPos = 0.f;
+	float newX = 0.f;
+	float newY = 0.f;
+	int count = 0;
+	std::uniform_int_distribution<> uid(0, 1);
+	int dir = uid(rd) * 2 - 1;
 
-	unsigned int indices[] = {
-		0, 1, 2
-	};
+	verts.clear();
 
-	spriteVertex = new Vertex(vertices, 3, indices, 3);
+	while (angle <= 4 * M_PI) {
+		newX = dir * (radius * cos(angle));
+		newY = radius * sin(angle);
+		std::cout << "Angle: " << angle << " newX: " << newX << " newY: " << newY << '\n';
+		verts.push_back(newX);
+		verts.push_back(newY);
+		
+		angle += angleSpeed;
+		radius += radiusGrowth;
+	}
 
+	angle = -angle;
+	xPos += (dir == 1) ? 2 * radius : -2 * radius;
+
+	while (angle <= 0.f) {
+		newX = -dir * (radius * cos(angle)) + xPos;
+		newY = radius * sin(angle);
+		std::cout << "Angle: " << angle << " newX: " << newX << " newY: " << newY << '\n';
+		verts.push_back(newX);
+		verts.push_back(newY);
+		
+		angle += angleSpeed;
+		radius -= radiusGrowth;
+	}
+	std::cout << verts.size() / 2 << '\n';
+	spriteVertex = new Vertex(verts);
 }
 //	---------------------------------
 
@@ -219,4 +254,6 @@ bool Scene::loadShaders()
 		return false;
 
 	spriteShader->setActive();
+
+	return true;
 }
