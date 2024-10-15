@@ -17,8 +17,8 @@ Spiral::Spiral()
 
 	angle = 0.f;
 	radius = 0.f;
-	angleSpeed = 0.1f;
-	radiusGrowth = 0.001f;
+	angleSpeed = 0.3f;
+	radiusGrowth = 0.003f;
 	step = false;
 	
 	setDir();
@@ -31,8 +31,8 @@ Spiral::Spiral(float x, float y)
 
 	angle = 0.f;
 	radius = 0.f;
-	angleSpeed = 0.1f;
-	radiusGrowth = 0.001f;
+	angleSpeed = 0.3f;
+	radiusGrowth = 0.003f;
 	step = false;
 
 	setDir();
@@ -128,7 +128,7 @@ void Spiral::draw(Shader* shader, int mode) const
 
 	// Draw the points
 	GLuint color = glGetUniformLocation(shader->GetshaderProgram(), "vColor");
-	glUniform4f(color, 0.5f, 0.5f, 0.5f, 1.f);
+	glUniform3f(color, 1.f, 1.f, 1.f);
 
 	if (mode == 0)
 		glDrawArrays(GL_POINTS, 0, pointVec.size());
