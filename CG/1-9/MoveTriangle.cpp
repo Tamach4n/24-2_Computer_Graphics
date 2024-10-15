@@ -167,7 +167,6 @@ void MoveTriangle::draw(GLuint shaderID, GLuint* VAO) const
 	glUniform2f(uLoc, posX, posY);
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);
-
 }
 
 void MoveTriangle::setMode(int mode)
