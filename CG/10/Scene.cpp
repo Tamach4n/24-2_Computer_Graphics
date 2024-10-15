@@ -32,7 +32,7 @@ void Scene::update()
 {
 	if (!spiralVec.empty()) {
 		for (int i = 0; i < spiralVec.size(); ++i)
-			spiralVec[i].update(selectMode);
+			spiralVec[i].update(verts.size() / 2);
 	}
 }
 
@@ -174,62 +174,60 @@ void Scene::randomRGB()
 //	---------------------------------
 void Scene::createSpriteVerts()
 {
-	float vertices[] = {
-		0.0f, 0.2f, 0.f,	0.f, 1.f, 1.f,
-		-0.1f, 0.f, 0.f,	0.f, 1.f, 1.f,
-		0.1f, 0.0f, 0.f,	0.f, 1.f, 1.f
-	};
+	//float vertices[] = {
+	//	0.0f, 0.2f, 0.f,	0.f, 1.f, 1.f,
+	//	-0.1f, 0.f, 0.f,	0.f, 1.f, 1.f,
+	//	0.1f, 0.0f, 0.f,	0.f, 1.f, 1.f
+	//};
+	//
+	//unsigned int indices[] = {
+	//	0, 1, 2
+	//};
+	//
+	//spriteVertex = new Vertex(vertices, 3, indices, 3);
 
-	unsigned int indices[] = {
-		0, 1, 2
-	};
+	//-----------------------------------------------------
 
-	spriteVertex = new Vertex(vertices, 3, indices, 3);
+	{
+		float angle = 0.f;
+		float radius = 0.f;
+		float angleSpeed = 0.1f;
+		float radiusGrowth = 0.001f;
+		float xPos = 0.126f;
+		float newX = 0.f;
+		float newY = 0.f;
+	
+		for (; angle >= 4 * M_PI; angle += angleSpeed) {
+			angle += angleSpeed;
+			radius += radiusGrowth;
+	
+			newX = radius * cos(angle) - xPos;
+			newY = radius * sin(angle);
+	
+			verts.push_back(newX);
+			verts.push_back(newY);
+		}
+	
+		angle = -angle;
+	
+		for (; angle >= 0.f; angle += angleSpeed) {
+			angle += angleSpeed;
+			radius -= radiusGrowth;
+	
+			newX = radius * cos(angle) + xPos;
+			newY = radius * sin(angle);
+	
+			verts.push_back(newX);
+			verts.push_back(newY);
+		}
 
-	//{
-	//	float angle = 0.f;
-	//	float radius = 0.f;
-	//	float angleSpeed = 0.1f;
-	//	float radiusGrowth = 0.001f;
-	//	float xPos=
-	//	float newX = 0.f;
-	//	float newY = 0.f;
-	//
-	//	std::vector<float> vertices;
-	//
-	//	for (; angle >= 4 * M_PI; angle += angleSpeed) {
-	//		angle += angleSpeed;
-	//		radius += radiusGrowth;
-	//
-	//		newX = radius * cos(angle);
-	//		newY = radius * sin(angle);
-	//
-	//		vertices.push_back(newX);
-	//		vertices.push_back(newY);
-	//	}
-	//
-	//	angle = -angle;
-	//	angleSpeed;
-	//
-	//	for (; angle >= 0.f; angle += angleSpeed) {
-	//		angle += angleSpeed;
-	//		radius -= radiusGrowth;
-	//
-	//		newX = radius * cos(angle);
-	//		newY = radius * sin(angle);
-	//
-	//		vertices.push_back(newX);
-	//		vertices.push_back(newY);
-	//	}
-	//
-	//	angleSpeed = 0.f;
-	//	radius = 0.f;
-	//
-	//	if (angle >= 4 * M_PI) {
-	//		
-	//		xPos += 2 * radius;
-	//	}
-	//}
+		unsigned int inddices[] = { 0, 1 };
+	
+		angleSpeed = 0.f;
+		radius = 0.f;
+
+		spriteVertex = new Vertex(verts, inddices, 2);
+	}
 
 	//GLuint VBO, VAO;
 	//glGenVertexArrays(1, &VAO);

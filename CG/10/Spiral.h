@@ -18,13 +18,5 @@ public:
 	void setMode(int mode);
 
 private:
-	float xPos, yPos;
-	float angle;
-	float radius;
-	float angleSpeed;
-	float radiusGrowth;
-	bool step;
-
-	std::vector<std::pair<float, float>> pointVec;
-	std::random_device rd;
+	int curVerts;
 };

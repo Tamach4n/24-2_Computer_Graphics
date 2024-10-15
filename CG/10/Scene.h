@@ -40,6 +40,8 @@ private:
 	//Spiral spirals;
 	std::vector<Spiral> spiralVec;
 
+	std::vector<float> verts;
+
 	int selectMode;		//	점, 선
 	//int sizeSpirals;	//	스파이럴 개수
 

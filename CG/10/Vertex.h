@@ -1,9 +1,12 @@
 #pragma once
+#include <vector>
 
 class Vertex {
 public:
 	Vertex(const float* verts, unsigned int numVerts, 
 		const unsigned int* indices, unsigned int numIndices);
+
+	Vertex(std::vector<float> verts, const unsigned int* indices, unsigned int numIndices);
 
 	~Vertex();
 
