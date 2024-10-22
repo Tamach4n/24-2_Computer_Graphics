@@ -13,7 +13,7 @@ void MotionFunc(int, int);
 void TimerFunc(int);
 
 // 전역 변수
-constexpr int winWidth = 800, winHeight = 600;
+constexpr int winWidth = 800, winHeight = 800;
 
 Scene g_scene{ winWidth, winHeight };
 
@@ -24,7 +24,7 @@ int main(int argc, char** argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);	// 디스플레이 모드 설정
 	glutInitWindowPosition(100, 100);				// 윈도우의 위치 지정
 	glutInitWindowSize(winWidth, winHeight);			// 윈도우의 크기 지정
-	glutCreateWindow("Triangle Program!");				// 윈도우 생성 (윈도우 이름)
+	glutCreateWindow("14");				// 윈도우 생성 (윈도우 이름)
 
 	//--- GLEW 초기화하기
 	glewExperimental = GL_TRUE;
@@ -41,24 +41,30 @@ int main(int argc, char** argv)
 	glClearColor(1.f, 1.f, 1.f, 1.f);		// 클리어 색상 (아무것도 안했을 때)
 
 	// 초기 설정들
-	g_scene.initialize();
+	std::cout << std::boolalpha;
+	bool init = g_scene.initialize();
 
-	//glEnable(GL_CULL_FACE);			// 컬링 활성화
+	if (init) {
+		//glEnable(GL_CULL_FACE);             // 컬링 활성화
+		//glCullFace(GL_BACK);                // 뒷면을 컬링
+		//glFrontFace(GL_CCW);                // 앞면을 반시계 방향으로 정의
+		glEnable(GL_DEPTH_TEST);
 
-	// 콜백 함수들
-	glutKeyboardFunc(KeyboardFunc);		// 일반 키보드 (abcde..)
-	glutKeyboardUpFunc(KeyboardUpFunc);	// 일반 키보드가 떼졌을 때
-	glutSpecialFunc(SpecialFunc);		// 특수 키보드 (F1 ~ F12, HOME, CTRL, ALT 등등..)
-	glutSpecialUpFunc(SpecialUpFunc);	// 특수 키보드가 떼졌을 때
+		// 콜백 함수들
+		glutKeyboardFunc(KeyboardFunc);		// 일반 키보드 (abcde..)
+		glutKeyboardUpFunc(KeyboardUpFunc);	// 일반 키보드가 떼졌을 때
+		glutSpecialFunc(SpecialFunc);		// 특수 키보드 (F1 ~ F12, HOME, CTRL, ALT 등등..)
+		glutSpecialUpFunc(SpecialUpFunc);	// 특수 키보드가 떼졌을 때
 
-	glutMouseFunc(MouseFunc);			// 마우스 입력 (좌클릭, 우클릭, 휠클릭... 
-	glutMotionFunc(MotionFunc);			// 화면 누르고 드래그
+		glutMouseFunc(MouseFunc);			// 마우스 입력 (좌클릭, 우클릭, 휠클릭... 
+		glutMotionFunc(MotionFunc);			// 화면 누르고 드래그
 
-	glutDisplayFunc(DisplayFunc);		// 출력 함수의 지정
-	glutReshapeFunc(ReshapeFunc);		// 화면 크기가 변경되었을 때....
-	glutTimerFunc(16, TimerFunc, 0);	// 16ms --> 초당 60번
+		glutDisplayFunc(DisplayFunc);		// 출력 함수의 지정
+		glutReshapeFunc(ReshapeFunc);		// 화면 크기가 변경되었을 때....
+		glutTimerFunc(16, TimerFunc, 0);	// 16ms --> 초당 60번
 
-	glutMainLoop(); // 이벤트 처리 시작
+		glutMainLoop(); // 이벤트 처리 시작
+	}
 }
 
 // 전역변수를 최소화!
