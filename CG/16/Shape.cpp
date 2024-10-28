@@ -3,11 +3,12 @@
 Shape::Shape()
 {
 	std::cout << "Shape()" << '\n';
-	xPos = yPos = 0.f;
+	xPos = yPos = zPos = 0.f;
 	xDeg = 30.f;
 	yDeg = -30.f;
-	xRot = yRot = 0.f;
-	xDir = yDir = 0.f;
+	zDeg = 0.f;
+	xRot = yRot = zRot = 0.f;
+	xDir = yDir = zDir = 0.f;
 	isLine = false;
 	state = false;
 	rotation = true;
@@ -16,13 +17,14 @@ Shape::Shape()
 }
 
 Shape::Shape(float x, float y)
-	:xPos(x), yPos(y)
+	:xPos(x), yPos(y), zPos(0)
 {
 	std::cout << "Shape(float x, float y)" << '\n';
 	xDeg = 30.f;
 	yDeg = -30.f;
-	xRot = yRot = 0.f;
-	xDir = yDir = 0.f;
+	zDeg = 0.f;
+	xRot = yRot = zRot = 0.f;
+	xDir = yDir = zDir = 0.f;
 	isLine = false;
 	state = false;
 	rotation = true;
@@ -33,23 +35,23 @@ Shape::Shape(float x, float y)
 Shape::Shape(const Shape& other)
 {
 	std::cout << "Shape(const Shape& other)" << '\n';
-	xPos = other.xPos;
-	yPos = other.yPos;
-	zPos = other.zPos;
-	isLine = other.isLine;
-	mode = other.mode;
-	rotation = other.rotation;
-	state = other.state;
-	xDeg = other.xDeg;
-	yDeg = other.yDeg;
-	zDeg = other.zDeg;
-	xDir = other.xDir;
-	yDir = other.yDir;
-	zDir = other.zDir;
-	xRot = other.xRot;
-	yRot = other.yRot;
-	zRot = other.zRot;
-	funcPtr = other.funcPtr;
+	this->xPos = other.xPos;
+	this->yPos = other.yPos;
+	this->zPos = other.zPos;
+	this->isLine = other.isLine;
+	this->mode = other.mode;
+	this->rotation = other.rotation;
+	this->state = other.state;
+	this->xDeg = other.xDeg;
+	this->yDeg = other.yDeg;
+	this->zDeg = other.zDeg;
+	this->xDir = other.xDir;
+	this->yDir = other.yDir;
+	this->zDir = other.zDir;
+	this->xRot = other.xRot;
+	this->yRot = other.yRot;
+	this->zRot = other.zRot;
+	this->funcPtr = other.funcPtr;
 }
 
 void Shape::clearBuffer()

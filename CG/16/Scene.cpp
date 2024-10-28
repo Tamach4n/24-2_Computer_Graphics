@@ -18,13 +18,14 @@ bool Scene::initialize()
 		return false;
 	}
 
-	shapes.push_back(Shape());
-	shapes.push_back(Shape(0.5f, 0.0f));
-	shapes.push_back(Shape(-0.5f, 0.0f));
+	shapes.clear();
+	shapes.push_back(new Shape());
+	shapes.push_back(new Shape(0.5f, 0.0f));
+	shapes.push_back(new Shape(-0.5f, 0.0f));
 
-	shapes[0].initAxisVerts();
-	shapes[1].initConeVerts();
-	shapes[2].initCubeVerts();
+	shapes[0]->initAxisVerts();
+	shapes[1]->initConeVerts();
+	shapes[2]->initCubeVerts();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	
@@ -34,7 +35,7 @@ bool Scene::initialize()
 void Scene::update()
 {
 	for (int i = 0; i < shapes.size(); ++i)
-		shapes[i].Update();
+		shapes[i]->Update();
 }
 
 void Scene::draw()
@@ -51,8 +52,8 @@ void Scene::draw()
 
 	else {
 		for (int i = 0; i < shapes.size(); ++i) {
-			shapes[i].setActive(spriteShader);
-			shapes[i].Draw();
+			shapes[i]->setActive(spriteShader);
+			shapes[i]->Draw();
 		}
 	}
 }
@@ -62,22 +63,22 @@ void Scene::keyboard(unsigned char key)
 	switch (key) {
 	case '1':
 		std::cout << "1" << "\n";
-		shapes[1].setMode(1);
-		shapes[2].setMode(1);
-		shapes.push_back(Shape());
-		shapes[3].initSpiralVerts();
+		shapes[1]->setMode(1);
+		shapes[2]->setMode(1);
+		shapes.push_back(new Shape());
+		shapes[3]->initSpiralVerts();
 		break;
 
 	case '2':
 		std::cout << "2" << "\n";
-		shapes[1].setState(false);
-		shapes[2].setState(true);
+		shapes[1]->setState(false);
+		shapes[2]->setState(true);
 		break;
 
 	case '3':
 		std::cout << "3" << "\n";
-		shapes[1].setState(true);
-		shapes[2].setState(true);
+		shapes[1]->setState(true);
+		shapes[2]->setState(true);
 		break;
 
 	case '4':
@@ -85,70 +86,6 @@ void Scene::keyboard(unsigned char key)
 		break;
 
 	case '5':
-		break;
-
-	case 'x':
-		shapes[0].setState(false);
-		shapes[1].setMawari(true);
-		shapes[2].setMawari(true);
-		shapes[1].setRotation(1, 0);
-		shapes[2].setRotation(1, 0);
-		break;
-
-	case 'X':
-		shapes[0].setState(false);
-		shapes[1].setMawari(true);
-		shapes[2].setMawari(true);
-		shapes[1].setRotation(-1, 0);
-		shapes[2].setRotation(-1, 0);
-		break;
-
-	case 'y':
-		shapes[0].setState(false);
-		shapes[1].setMawari(true);
-		shapes[2].setMawari(true);
-		shapes[1].setRotation(0, 1);
-		shapes[2].setRotation(0, 1);
-		break;
-
-	case 'Y':
-		shapes[0].setState(false);
-		shapes[1].setMawari(true);
-		shapes[2].setMawari(true);
-		shapes[1].setRotation(0, -1);
-		shapes[2].setRotation(0, -1);
-		break;
-
-	case 'r':
-		for (int i = 0; i < shapes.size(); ++i) {
-			shapes[i].setState(true);
-			shapes[i].setMawari(false);
-			shapes[i].setRotation(0, 1);
-		}
-
-		break;
-
-	case 'R':
-		for (int i = 0; i < shapes.size(); ++i) {
-			shapes[i].setState(true);
-			shapes[i].setMawari(false);
-			shapes[i].setRotation(0, -1);
-		}
-
-		break;
-
-	case 'c':
-		shapes[1].changeShape();
-		shapes[2].changeShape();
-		break;
-
-	case 's':
-		shapes[0].setPos(0.f, 0.f);
-		shapes[1].setPos(0.5f, 0.0f);
-		shapes[2].setPos(-0.5f, 0.0f);
-		shapes[0].Reset();
-		shapes[1].Reset();
-		shapes[2].Reset();
 		break;
 	}
 }
