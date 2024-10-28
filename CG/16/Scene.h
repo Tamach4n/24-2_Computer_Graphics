@@ -42,7 +42,7 @@ private:
 
 	class Shader* spriteShader;
 
-	class Shape* shapes;
+	std::vector<Shape> shapes;
 
 	void randomRGB();
 

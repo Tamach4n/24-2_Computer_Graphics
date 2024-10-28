@@ -18,9 +18,12 @@ bool Scene::initialize()
 		return false;
 	}
 
-	shapes = new Shape[3]{ Shape(), Shape(0.5f, 0.0f), Shape(-0.5f, 0.0f) };
+	shapes.push_back(Shape());
+	shapes.push_back(Shape(0.5f, 0.0f));
+	shapes.push_back(Shape(-0.5f, 0.0f));
+
 	shapes[0].initAxisVerts();
-	shapes[1].initSphereVerts();
+	shapes[1].initConeVerts();
 	shapes[2].initCubeVerts();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -30,9 +33,8 @@ bool Scene::initialize()
 
 void Scene::update()
 {
-	shapes[0].Update(spriteShader);
-	shapes[1].Update(spriteShader);
-	shapes[2].Update(spriteShader);
+	for (int i = 0; i < shapes.size(); ++i)
+		shapes[i].Update();
 }
 
 void Scene::draw()
@@ -48,7 +50,7 @@ void Scene::draw()
 		std::cout << "uLoc not found" << '\n';
 
 	else {
-		for (int i = 0; i < 3; ++i) {
+		for (int i = 0; i < shapes.size(); ++i) {
 			shapes[i].setActive(spriteShader);
 			shapes[i].Draw();
 		}
@@ -60,8 +62,10 @@ void Scene::keyboard(unsigned char key)
 	switch (key) {
 	case '1':
 		std::cout << "1" << "\n";
-		shapes[1].setState(true);
-		shapes[2].setState(false);
+		shapes[1].setMode(1);
+		shapes[2].setMode(1);
+		shapes.push_back(Shape());
+		shapes[3].initSpiralVerts();
 		break;
 
 	case '2':
@@ -74,6 +78,13 @@ void Scene::keyboard(unsigned char key)
 		std::cout << "3" << "\n";
 		shapes[1].setState(true);
 		shapes[2].setState(true);
+		break;
+
+	case '4':
+
+		break;
+
+	case '5':
 		break;
 
 	case 'x':
@@ -109,7 +120,7 @@ void Scene::keyboard(unsigned char key)
 		break;
 
 	case 'r':
-		for (int i = 0; i < 3; ++i) {
+		for (int i = 0; i < shapes.size(); ++i) {
 			shapes[i].setState(true);
 			shapes[i].setMawari(false);
 			shapes[i].setRotation(0, 1);
@@ -118,7 +129,7 @@ void Scene::keyboard(unsigned char key)
 		break;
 
 	case 'R':
-		for (int i = 0; i < 3; ++i) {
+		for (int i = 0; i < shapes.size(); ++i) {
 			shapes[i].setState(true);
 			shapes[i].setMawari(false);
 			shapes[i].setRotation(0, -1);

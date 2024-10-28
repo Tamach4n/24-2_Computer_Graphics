@@ -8,9 +8,11 @@ Shape::Shape()
 	yDeg = -30.f;
 	xRot = yRot = 0.f;
 	xDir = yDir = 0.f;
-	isAxis = false;
+	isLine = false;
 	state = false;
 	rotation = true;
+	mode = 0;
+	funcPtr = nullptr;
 }
 
 Shape::Shape(float x, float y)
@@ -21,15 +23,33 @@ Shape::Shape(float x, float y)
 	yDeg = -30.f;
 	xRot = yRot = 0.f;
 	xDir = yDir = 0.f;
-	isAxis = false;
+	isLine = false;
 	state = false;
 	rotation = true;
+	mode = 0;
+	funcPtr = nullptr;
 }
 
 Shape::Shape(const Shape& other)
 {
+	std::cout << "Shape(const Shape& other)" << '\n';
 	xPos = other.xPos;
 	yPos = other.yPos;
+	zPos = other.zPos;
+	isLine = other.isLine;
+	mode = other.mode;
+	rotation = other.rotation;
+	state = other.state;
+	xDeg = other.xDeg;
+	yDeg = other.yDeg;
+	zDeg = other.zDeg;
+	xDir = other.xDir;
+	yDir = other.yDir;
+	zDir = other.zDir;
+	xRot = other.xRot;
+	yRot = other.yRot;
+	zRot = other.zRot;
+	funcPtr = other.funcPtr;
 }
 
 void Shape::clearBuffer()
@@ -50,12 +70,32 @@ void Shape::initAxisVerts()
 		0.0f, 0.0f, 1.0f,   0.0f, 1.0f, 0.0f
 	};
 
-	isAxis = true;
+	isLine = true;
 	shapeVertex = new Vertex(VAO, 6);
+}
+
+void Shape::initSpiralVerts()
+{
+	std::vector<float> VAO;
+	float r = 0.0f;
+	float angle = 0.0f;
+
+	for (int i = 0; i < 1080; ++i) {
+		angle = i * M_PI / 180.f;
+		VAO.push_back(r * cos(angle));
+		VAO.push_back(0.0f);
+		VAO.push_back(r * sin(angle));
+		r += 0.01f;
+	}
+
+	isLine = true;
+	shapeVertex = new Vertex(VAO);
 }
 
 void Shape::initCubeVerts()
 {	
+	std::cout << "initCubeVerts()" << '\n';
+
 	float VAO[] = {
 		-0.5f, -0.5f, -0.5f,   0.1f, 0.1f, 0.1f,
 		 0.5f, -0.5f, -0.5f,   1.0f, 0.0f, 0.0f,
@@ -83,6 +123,8 @@ void Shape::initCubeVerts()
 		3, 2, 6, 6, 7, 3
 	};
 
+	isLine = false;
+	state = true;
 	shapeVertex = new Vertex(VAO, 8, VBO, 36);
 }
 
@@ -140,6 +182,8 @@ void Shape::initConeVerts()
 		VBO.push_back(i + 1);
 	}
 
+	isLine = false;
+	state = true;
 	shapeVertex = new Vertex(VAO, VBO);
 }
 
@@ -191,7 +235,8 @@ void Shape::initSphereVerts()
 		}
 	}
 
-	isAxis = false;
+	isLine = false;
+	state = true;
 	shapeVertex = new Vertex(VAO, VBO);
 }
 
@@ -251,6 +296,36 @@ void Shape::setDirection(float x, float y)
 	yDir = y;
 }
 
+void Shape::setMode(int m)
+{
+	mode = m;
+
+	switch (m) {
+	case 1:
+		funcPtr = &Shape::Spiral;
+		break;
+
+	case 2:
+		funcPtr = &Shape::changePos;
+		break;
+
+	case 3:
+		funcPtr = &Shape::Orbit;
+		break;
+
+	case 4:
+		funcPtr = &Shape::changePos3d;
+		break;
+
+	case 5:
+		funcPtr = &Shape::Rotation;
+		break;
+
+	default:
+		break;
+	}
+}
+
 void Shape::Reset()
 {
 	xRot = yRot = xDir = yDir = 0.f;
@@ -258,6 +333,26 @@ void Shape::Reset()
 	yDeg = -30.f;
 	state = false;
 	rotation = true;
+}
+
+void Shape::Spiral(int i)
+{
+}
+
+void Shape::changePos(int i)
+{
+}
+
+void Shape::Orbit(int size)
+{
+}
+
+void Shape::changePos3d(int i)
+{
+}
+
+void Shape::Rotation(int size)
+{
 }
 
 void Shape::changeShape()
@@ -277,44 +372,25 @@ void Shape::changeShape()
 		initSphereVerts();
 }
 
-void Shape::Update(Shader* s)
+void Shape::Update()
 {
 	if (state) {
 		xPos += xDir;
 		yPos += yDir;
+		zPos += zDir;
 		xDeg += xRot;
-		yDeg += yRot;
 		//xDeg += 1.f;
+		yDeg += yRot;
 		//yDeg += 1.f;
 
-		//GLuint uLoc = glGetUniformLocation(s->GetshaderProgram(), "modelTransform");
-		//
-		//if (uLoc < 0)
-		//	std::cout << "uLoc not found" << '\n';
-		//
-		//else {
-		//	glm::mat4 Rx = glm::rotate(glm::mat4(1.f), glm::radians(xDeg), glm::vec3(1.f, 0.f, 0.f));	//	radians(degree) : degree to radian
-		//	glm::mat4 Ry = glm::rotate(glm::mat4(1.f), glm::radians(yDeg), glm::vec3(0.f, 1.f, 0.f));
-		//	glm::mat4 Tx = glm::translate(glm::mat4(1.f), glm::vec3(xPos, 0.f, 0.f));
-		//	glm::mat4 Ty = glm::translate(glm::mat4(1.f), glm::vec3(0.f, yPos, 0.f));
-		//	glm::mat4 S = glm::scale(glm::mat4(1.f), glm::vec3(0.5f));
-		//
-		//	if (rotation) {
-		//		glm::mat4 SRT = Ty * Tx * Ry * Rx * S;
-		//		glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(SRT));
-		//	}
-		//
-		//	else {
-		//		glm::mat4 STR = Ry * Rx * Ty * Tx * S;
-		//		glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(STR));
-		//	}
-		//}
+		if (funcPtr != nullptr)
+			(this->*funcPtr)(0);
 	}
 }
 
 void Shape::Draw()
 {
-	if (isAxis)
+	if (isLine)
 		glDrawArrays(GL_LINES, 0, 6);
 
 	else

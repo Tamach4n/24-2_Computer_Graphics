@@ -9,7 +9,6 @@
 Scene::Scene(int winWidth, int winHeight)
 	: width{ winWidth }, height{ winHeight }
 {
-	selectMode = 1;
 
 	r = g = b = 0.9f;
 }
