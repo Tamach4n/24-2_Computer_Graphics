@@ -31,15 +31,17 @@ public:
 
 	void setWindowSize(int winWidth, int winHeight);
 
+	void checkSize();
+	void removeShape();
+
 private:
 	int width;
 	int height;
 
 	GLclampf r, g, b;
 
-	bool hsr;			//	은면 제거 - Hidden Surface Removal
-	bool drawMode;		//	0: 와이어, 1: 솔리드
-
+	int* index;
+	
 	class Shader* spriteShader;
 
 	std::vector<Shape*> shapes;

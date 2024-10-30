@@ -23,7 +23,7 @@ Vertex::Vertex(const float* verts, unsigned int numVerts, const unsigned int* in
 }
 
 Vertex::Vertex(const float* verts, unsigned int numVerts)
-	: numVerts(numVerts), indexBuffer(0), numIndices(0)
+	: numVerts(numVerts), indexBuffer(0), numIndices(numVerts)
 {
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -62,7 +62,7 @@ Vertex::Vertex(const std::vector<float>& verts, const std::vector<unsigned int>&
 }
 
 Vertex::Vertex(const std::vector<float>& verts)
-	:numVerts(static_cast<unsigned int>(verts.size() / 6)), numIndices(0)
+	:numVerts(static_cast<unsigned int>(verts.size() / 6)), indexBuffer(0), numIndices(verts.size() / 6)
 {
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);

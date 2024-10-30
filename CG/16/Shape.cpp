@@ -4,31 +4,44 @@ Shape::Shape()
 {
 	std::cout << "Shape()" << '\n';
 	xPos = yPos = zPos = 0.f;
-	xDeg = 30.f;
-	yDeg = -30.f;
+	xDeg = 0.f;
+	yDeg = 0.f;
 	zDeg = 0.f;
 	xRot = yRot = zRot = 0.f;
 	xDir = yDir = zDir = 0.f;
 	isLine = false;
+	isLines = false;
 	state = false;
 	rotation = true;
+	moving = false;
 	mode = 0;
+	countMove = 0;
+	speed = 0;
+	size = 0.25f;
+	dS = 0.f;
 	funcPtr = nullptr;
 }
 
 Shape::Shape(float x, float y)
-	:xPos(x), yPos(y), zPos(0)
+	:xPos(x), yPos(y), zPos(0.f)
 {
 	std::cout << "Shape(float x, float y)" << '\n';
-	xDeg = 30.f;
-	yDeg = -30.f;
+	xDeg = 0.f;
+	yDeg = 0.f;
 	zDeg = 0.f;
 	xRot = yRot = zRot = 0.f;
-	xDir = yDir = zDir = 0.f;
+	xDir = yDir = zDir = 0.0f;
+	//zDir = 0.005;
 	isLine = false;
+	isLines = false;
 	state = false;
 	rotation = true;
+	moving = false;
 	mode = 0;
+	countMove = 0;
+	speed = 0;
+	size = 0.25f;
+	dS = 0.f;
 	funcPtr = nullptr;
 }
 
@@ -39,7 +52,10 @@ Shape::Shape(const Shape& other)
 	this->yPos = other.yPos;
 	this->zPos = other.zPos;
 	this->isLine = other.isLine;
+	this->isLines = other.isLines;
 	this->mode = other.mode;
+	this->moving = other.moving;
+	this->countMove = other.countMove;
 	this->rotation = other.rotation;
 	this->state = other.state;
 	this->xDeg = other.xDeg;
@@ -51,6 +67,9 @@ Shape::Shape(const Shape& other)
 	this->xRot = other.xRot;
 	this->yRot = other.yRot;
 	this->zRot = other.zRot;
+	this->speed = other.speed;
+	this->size = other.size;
+	this->dS = other.dS;
 	this->funcPtr = other.funcPtr;
 }
 
@@ -62,35 +81,49 @@ void Shape::clearBuffer()
 void Shape::initAxisVerts()
 {
 	float VAO[] = {
-		-1.0f, 0.0f, 0.0f,  1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+		-5.0f, 0.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+		5.0f, 0.0f, 0.0f,   1.0f, 0.0f, 0.0f,
 
-		0.0f, -1.0f, 0.0f,  0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+		0.0f, -5.0f, 0.0f,  0.0f, 0.0f, 1.0f,
+		0.0f, 5.0f, 0.0f,   0.0f, 0.0f, 1.0f,
 
-		0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 1.0f,   0.0f, 1.0f, 0.0f
+		0.0f, 0.0f, -5.0f,  0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 5.0f,   0.0f, 1.0f, 0.0f
 	};
 
 	isLine = true;
+	isLines = false;
 	shapeVertex = new Vertex(VAO, 6);
 }
 
 void Shape::initSpiralVerts()
 {
+	std::cout << "Shape::initSpiralVerts()" << '\n';
 	std::vector<float> VAO;
 	float r = 0.0f;
 	float angle = 0.0f;
 
 	for (int i = 0; i < 1080; ++i) {
 		angle = i * M_PI / 180.f;
+		r = i * 4.f / 1000.f;
+
 		VAO.push_back(r * cos(angle));
 		VAO.push_back(0.0f);
 		VAO.push_back(r * sin(angle));
-		r += 0.01f;
+		VAO.push_back(0.0f);
+		VAO.push_back(0.0f);
+		VAO.push_back(0.0f);
+
+		//r += 0.005f;
 	}
 
-	isLine = true;
+	for (int i = 0; i < VAO.size(); i += 6) {
+		std::cout << "X: " << VAO[i] << " Y: " << VAO[static_cast<std::vector<float, std::allocator<float>>::size_type>(i) + 1] << 
+			" Z: " << VAO[static_cast<std::vector<float, std::allocator<float>>::size_type>(i) + 2] << '\n';
+	}
+
+	isLine = false;
+	isLines = true;
 	shapeVertex = new Vertex(VAO);
 }
 
@@ -126,6 +159,7 @@ void Shape::initCubeVerts()
 	};
 
 	isLine = false;
+	isLines = false;
 	state = true;
 	shapeVertex = new Vertex(VAO, 8, VBO, 36);
 }
@@ -185,6 +219,7 @@ void Shape::initConeVerts()
 	}
 
 	isLine = false;
+	isLines = false;
 	state = true;
 	shapeVertex = new Vertex(VAO, VBO);
 }
@@ -236,8 +271,9 @@ void Shape::initSphereVerts()
 			VBO.push_back(first + 1);
 		}
 	}
-
+	
 	isLine = false;
+	isLines = false;
 	state = true;
 	shapeVertex = new Vertex(VAO, VBO);
 }
@@ -254,17 +290,17 @@ void Shape::setActive(Shader* shader)
 	else {
 		glm::mat4 Rx = glm::rotate(glm::mat4(1.f), glm::radians(xDeg), glm::vec3(1.f, 0.f, 0.f));	//	radians(degree) : degree to radian
 		glm::mat4 Ry = glm::rotate(glm::mat4(1.f), glm::radians(yDeg), glm::vec3(0.f, 1.f, 0.f));
-		glm::mat4 Tx = glm::translate(glm::mat4(1.f), glm::vec3(xPos, 0.f, 0.f));
-		glm::mat4 Ty = glm::translate(glm::mat4(1.f), glm::vec3(0.f, yPos, 0.f));
-		glm::mat4 S = glm::scale(glm::mat4(1.f), glm::vec3(0.5f));
+		glm::mat4 Rz = glm::rotate(glm::mat4(1.f), glm::radians(zDeg), glm::vec3(0.f, 0.f, 1.f));
+		glm::mat4 T = glm::translate(glm::mat4(1.f), glm::vec3(xPos, yPos, zPos));
+		glm::mat4 S = glm::scale(glm::mat4(1.f), glm::vec3(size));
 
 		if (rotation) {
-			glm::mat4 SRT = Ty * Tx * Ry * Rx * S;
+			glm::mat4 SRT = T * Rz * Ry * Rx * S;
 			glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(SRT));
 		}
 
 		else {
-			glm::mat4 STR = Ry * Rx * Ty * Tx * S;
+			glm::mat4 STR = Rz * Ry * Rx * T * S;
 			glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(STR));
 		}
 	}
@@ -280,22 +316,25 @@ void Shape::setMawari(bool rot)
 	rotation = rot;
 }
 
-void Shape::setPos(float x, float y)
+void Shape::setPos(float x, float y, float z)
 {
 	xPos = x;
 	yPos = y;
+	zPos = z;
 }
 
-void Shape::setRotation(float x, float y)
+void Shape::setRotation(float x, float y, float z)
 {
 	xRot = x;
 	yRot = y;
+	zRot = z;
 }
 
-void Shape::setDirection(float x, float y)
+void Shape::setDirection(float x, float y, float z)
 {
 	xDir = x;
 	yDir = y;
+	zDir = z;
 }
 
 void Shape::setMode(int m)
@@ -305,22 +344,27 @@ void Shape::setMode(int m)
 	switch (m) {
 	case 1:
 		funcPtr = &Shape::Spiral;
+		moving = true;
 		break;
 
 	case 2:
 		funcPtr = &Shape::changePos;
+		moving = true;
 		break;
 
 	case 3:
 		funcPtr = &Shape::Orbit;
+		moving = true;
 		break;
 
 	case 4:
 		funcPtr = &Shape::changePos3d;
+		moving = true;
 		break;
 
 	case 5:
 		funcPtr = &Shape::Rotation;
+		moving = true;
 		break;
 
 	default:
@@ -328,33 +372,116 @@ void Shape::setMode(int m)
 	}
 }
 
+void Shape::setSpeed(int s)
+{
+	//std::uniform_int_distribution<int> uid(1, 4);
+	speed = s;
+	//speed = uid(rd);
+}
+
+void Shape::setSize(float s)
+{
+	dS = s;
+}
+
 void Shape::Reset()
 {
-	xRot = yRot = xDir = yDir = 0.f;
-	xDeg = 30.f;
-	yDeg = -30.f;
-	state = false;
+	xRot = yRot = zRot = 0.f;
+	xDir = yDir = zDir = 0.f;
+	xDeg = yDeg = zDeg = 0.f;
+	size = 0.25f;
+	dS = 0.f;
+	mode = 0;
+	funcPtr = nullptr;
+	state = true;
 	rotation = true;
+	moving = false;
 }
 
 void Shape::Spiral(int i)
 {
+	if (!moving)
+		return;
+
+	float angle = (speed * countMove * M_PI / 180.f);
+	float r = (speed * countMove * 1.f / 1000.f);
+
+	xPos = r * cos(angle);
+	zPos = r * sin(angle);
+
+	++countMove;
+
+	if (countMove >= 1080 / speed) {
+		moving = false;
+		countMove = 0;
+		mode = 0;
+		funcPtr = nullptr;
+	}
 }
 
 void Shape::changePos(int i)
 {
+	if (!moving)
+		return;
+
+	if (i == static_cast<int>(xPos)) {
+		std::cout << "µµÂø!" << '\n';
+		xDir = 0.f;
+		mode = 0;
+		funcPtr = nullptr;
+	}
 }
 
 void Shape::Orbit(int size)
 {
+	if (!moving)
+		return;
+
+	if (static_cast<int>(yDeg) >= 180) {
+		std::cout << "µµÂø!" << '\n';
+		yRot = 0.f;
+		yDeg = 0.f;
+		mode = 0;
+		funcPtr = nullptr;
+		rotation = true;
+	}
 }
 
 void Shape::changePos3d(int i)
 {
+	if (!moving)
+		return;
+
+	std::cout << yPos << '\n';
+
+	if (xPos >= -0.005f && xPos <= 0.005f) {
+		yDir = -yDir;
+	}
+
+	if (static_cast<int>(xPos) == i) {
+		std::cout << "µµÂø!" << '\n';
+		xDir = yDir = 0.f;
+		mode = 0;
+		funcPtr = nullptr;
+	}
 }
 
-void Shape::Rotation(int size)
+void Shape::Rotation(int i)
 {
+	if (!moving)
+		return;
+
+	std::cout << yDeg << '\n';
+
+	if (size <= 0.1 || size >= 1) {
+		std::cout << "Mou Genkai" << '\n';
+		yRot = 0.f;
+		size = 0.25f;
+		dS = 0.f;
+		rotation = true;
+		mode = 0;
+		funcPtr = nullptr;
+	}
 }
 
 void Shape::changeShape()
@@ -374,26 +501,29 @@ void Shape::changeShape()
 		initSphereVerts();
 }
 
-void Shape::Update()
+void Shape::Update(int i)
 {
 	if (state) {
 		xPos += xDir;
 		yPos += yDir;
 		zPos += zDir;
 		xDeg += xRot;
-		//xDeg += 1.f;
 		yDeg += yRot;
-		//yDeg += 1.f;
+		zDeg += zRot;
+		size += dS;
 
-		if (funcPtr != nullptr)
-			(this->*funcPtr)(0);
+		if (moving)
+			(this->*funcPtr)(i);
 	}
 }
 
 void Shape::Draw()
 {
 	if (isLine)
-		glDrawArrays(GL_LINES, 0, 6);
+		glDrawArrays(GL_LINES, 0, shapeVertex->getNumVerts());
+
+	else if(isLines)
+		glDrawArrays(GL_LINE_STRIP, 0, shapeVertex->getNumVerts());
 
 	else
 		glDrawElements(GL_TRIANGLES, shapeVertex->getNumIndices(), GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));

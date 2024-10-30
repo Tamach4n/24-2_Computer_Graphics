@@ -28,23 +28,25 @@ public:
 	void setActive(Shader* shader);
 	void setState(bool st);
 	void setMawari(bool rot);
-	void setPos(float x, float y);
-	void setRotation(float x, float y);
-	void setDirection(float x, float y);
+	void setPos(float x, float y, float z);
+	void setRotation(float x, float y, float z);
+	void setDirection(float x, float y, float z);
 	void setMode(int m);
+	void setSpeed(int i);
+	void setSize(float s);
 	void Reset();
 
 	void Spiral(int i);
 	void changePos(int i);
 	void Orbit(int size);
 	void changePos3d(int i);
-	void Rotation(int size);
+	void Rotation(int i);
 
 	void changeShape();
 
 	bool getState() const { return rotation; }
 
-	void Update();
+	void Update(int i);
 
 	void Draw();
 
@@ -53,7 +55,14 @@ private:
 	bool state;
 	bool rotation;	//	1: 자전, 0: 공전
 	bool isLine;
+	bool isLines;
+	bool moving;
 	int mode;
+	int countMove;
+	float speed;
+
+	float size;
+	float dS;
 
 	void (Shape::* funcPtr)(int i);
 	

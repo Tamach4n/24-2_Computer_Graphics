@@ -212,11 +212,14 @@ void Shape::setActive(Shader* shader)
 		glm::mat4 S = glm::scale(glm::mat4(1.f), glm::vec3(0.5f));
 
 		if (rotation) {
+			GLuint pos = glGetUniformLocation(shader->GetshaderProgram(), "pos");
+			//glUniform3f(pos, xPos, yPos, 0.f);
+
 			glm::mat4 SRT = Ty * Tx * Ry * Rx * S;
 			glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(SRT));
 		}
 
-		else {
+		else {			
 			glm::mat4 STR = Ry * Rx * Ty * Tx * S;
 			glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(STR));
 		}
