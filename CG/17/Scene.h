@@ -48,6 +48,7 @@ private:
 	
 	class Shader* spriteShader;
 
+	Shape* axisShape;
 	Shape* shape;
 
 	void randomRGB();

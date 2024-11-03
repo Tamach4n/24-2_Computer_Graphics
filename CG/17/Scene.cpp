@@ -19,6 +19,8 @@ bool Scene::initialize()
 	hsr = true;
 	Proj = true;
 
+	axisShape = new Shape();
+	axisShape->initAxisVerts();
 	shape = new Cube();
 	shape->initVerts();
 
@@ -57,6 +59,8 @@ void Scene::draw()
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
+		axisShape->setActive(spriteShader);
+		axisShape->Draw();
 		shape->setActive(spriteShader);
 		shape->Draw();
 	}

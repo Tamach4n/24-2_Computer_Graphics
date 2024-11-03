@@ -37,6 +37,20 @@ void Cube::initVerts()
 
 void Cube::Update()
 {
+	if (rotateY)
+		yDeg += yDir;
+
+	if (animeUpFace)
+		;
+
+	if (animeFrontFace)
+		;
+
+	if (animeSideFace)
+		;
+
+	if (animeBackFace)
+		;
 }
 
 void Cube::Draw()
