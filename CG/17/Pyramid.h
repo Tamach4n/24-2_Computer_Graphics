@@ -7,9 +7,11 @@ public:
 
 	void Update() override;
 
-	void Draw() override;
+	void Draw(GLuint shaderProgram) override;
 
 	void openFace() override;
+
+	void setAnimeMode(int mode) override;
 
 private:
 	bool animeSideFaces;

@@ -17,10 +17,26 @@ void Pyramid::Update()
 		;
 }
 
-void Pyramid::Draw()
+void Pyramid::Draw(GLuint shaderProgram)
 {
 }
 
 void Pyramid::openFace()
 {
+}
+
+void Pyramid::setAnimeMode(int mode)
+{
+	switch (mode) {
+	case 1:
+		animeSideFaces = !animeSideFaces;
+		break;
+
+	case 2:
+		animeOnceFace = !animeOnceFace;
+		break;
+
+	default:
+		break;
+	}
 }

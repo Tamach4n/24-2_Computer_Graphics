@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <glew.h>
+#include <gl/glew.h>
 #include <iostream>
 
 class Vertex {

@@ -2,8 +2,8 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <random>
-#include "glew.h"
-#include <glut.h>
+#include "gl/glew.h"
+#include <gl/glut.h>
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
 #include "Vertex.h"
@@ -26,6 +26,8 @@ public:
 	virtual void setPos(float x, float y, float z);
 	virtual void setRotation(float x, float y, float z);
 	virtual void setDirection(float x, float y, float z);
+	virtual void setAnimeMode(int mode);
+	virtual void drawFace(GLuint uLoc, glm::mat4 srt, GLsizei count, int start);
 	virtual void Reset();
 
 	virtual void rotation();
@@ -35,7 +37,7 @@ public:
 
 	virtual void Update();
 
-	virtual void Draw();
+	virtual void Draw(GLuint shaderProgram);
 
 protected:
 	Vertex* shapeVertex;

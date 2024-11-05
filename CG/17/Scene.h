@@ -1,7 +1,7 @@
 #pragma once
-#include <glew.h> // 필요한 헤더파일 include
-#include <freeglut.h>
-#include <freeglut_ext.h>
+#include <gl/glew.h> // 필요한 헤더파일 include
+#include <gl/freeglut.h>
+#include <gl/freeglut_ext.h>
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
 

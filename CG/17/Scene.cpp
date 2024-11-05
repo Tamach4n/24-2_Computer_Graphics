@@ -19,19 +19,21 @@ bool Scene::initialize()
 	hsr = true;
 	Proj = true;
 
+	shapeMode = 1;
 	axisShape = new Shape();
 	axisShape->initAxisVerts();
 	shape = new Cube();
 	shape->initVerts();
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	
 	return true;
 }
 
 void Scene::update()
 {
-	
+	axisShape->Update();
+	shape->Update();
 }
 
 void Scene::draw()
@@ -54,21 +56,45 @@ void Scene::draw()
 		glm::vec3 camUp = glm::vec3(0.f, 1.f, 0.f);
 
 		glm::mat4 view = glm::lookAt(camPos, camAt, camUp);
-		glm::mat4 proj = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 50.f);
+		glm::mat4 proj = glm::mat4(1.f);
+
+		if (Proj)
+			proj = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 50.f);
+
+		else
+			proj = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -100.f, 100.0f);
 
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
 		axisShape->setActive(spriteShader);
-		axisShape->Draw();
+		axisShape->Draw(spriteShader->GetshaderProgram());
 		shape->setActive(spriteShader);
-		shape->Draw();
+		shape->Draw(spriteShader->GetshaderProgram());
 	}
 }
 
 void Scene::keyboard(unsigned char key)
 {
 	switch (key) {
+	case '1':
+		if (2 == shapeMode) {
+			shapeMode = 1;
+			delete shape;
+			shape = new Cube();
+		}
+
+		break;
+
+	case '2':
+		if (1 == shapeMode) {
+			shapeMode = 2;
+			delete shape;
+			shape = new Pyramid();
+		}
+
+		break;
+
 	case 'h':
 		hsr = !hsr; 
 		
@@ -85,24 +111,31 @@ void Scene::keyboard(unsigned char key)
 		break;
 
 	case 't':
+		shape->setAnimeMode(1);
 		break;
 
 	case 'f':
+		shape->setAnimeMode(2);
 		break;
 
 	case 's':
+		shape->setAnimeMode(3);
 		break;
 
 	case 'b':
+		shape->setAnimeMode(4);
 		break;
 
 	case 'o':
+		shape->setAnimeMode(1);
 		break;
 
 	case 'r':
+		shape->setAnimeMode(2);
 		break;
 
 	case 'p':
+		Proj = !Proj;
 		break;
 	}
 }
@@ -217,7 +250,7 @@ bool Scene::loadShaders()
 {
 	spriteShader = new Shader();
 
-	if (!spriteShader->Load("vertex2.vert", "fragment.frag"))
+	if (!spriteShader->Load("C:\\Users\\worl\\source\\repos\\Computer_Graphics\\vertex2.vert", "C:\\Users\\worl\\source\\repos\\Computer_Graphics\\fragment.frag"))
 		return false;
 
 	spriteShader->setActive();

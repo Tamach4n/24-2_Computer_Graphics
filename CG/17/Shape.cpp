@@ -9,7 +9,7 @@ Shape::Shape()
 	zDeg = 0.f;
 	xRot = yRot = zRot = 0.f;
 	xDir = zDir = 0.f;
-	yDir = 1.f;
+	yDir = 5.f;
 	isLine = false;
 	rotateY = false;
 }
@@ -39,14 +39,14 @@ void Shape::initVerts()
 void Shape::initAxisVerts()
 {
 	float VAO[] = {
-		-1.0f, 0.0f, 0.0f,  1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+		-2.0f, 0.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+		2.0f, 0.0f, 0.0f,   1.0f, 0.0f, 0.0f,
 
-		0.0f, -1.0f, 0.0f,  0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+		0.0f, -2.0f, 0.0f,  0.0f, 0.0f, 1.0f,
+		0.0f, 2.0f, 0.0f,   0.0f, 0.0f, 1.0f,
 
-		0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 1.0f,   0.0f, 1.0f, 0.0f
+		0.0f, 0.0f, -2.0f,  0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 2.0f,   0.0f, 1.0f, 0.0f
 	};
 
 	isLine = true;
@@ -57,21 +57,7 @@ void Shape::setActive(Shader* shader)
 {
 	shapeVertex->setActive();
 
-	GLuint uLoc = glGetUniformLocation(shader->GetshaderProgram(), "modelTransform");
-
-	if (uLoc < 0)
-		std::cout << "uLoc not found" << '\n';
-
-	else {
-		glm::mat4 Rx = glm::rotate(glm::mat4(1.f), glm::radians(xDeg), glm::vec3(1.f, 0.f, 0.f));	//	radians(degree) : degree to radian
-		glm::mat4 Ry = glm::rotate(glm::mat4(1.f), glm::radians(yDeg), glm::vec3(0.f, 1.f, 0.f));
-		glm::mat4 Rz = glm::rotate(glm::mat4(1.f), glm::radians(zDeg), glm::vec3(0.f, 0.f, 1.f));
-		glm::mat4 T = glm::translate(glm::mat4(1.f), glm::vec3(xPos, yPos, zPos));
-		glm::mat4 S = glm::scale(glm::mat4(1.f), glm::vec3(0.5f));
-
-		glm::mat4 SRT = T * Rz * Ry * Rx * S;
-		glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(SRT));
-	}
+	
 }
 
 void Shape::setRotateY()
@@ -100,6 +86,14 @@ void Shape::setDirection(float x, float y, float z)
 	zDir = z;
 }
 
+void Shape::setAnimeMode(int mode)
+{
+}
+
+void Shape::drawFace(GLuint uLoc, glm::mat4 srt, GLsizei count, int start)
+{
+}
+
 void Shape::Reset()
 {
 	xRot = yRot = zRot = 0.f;
@@ -122,8 +116,24 @@ void Shape::Update()
 		yDeg += yDir;
 }
 
-void Shape::Draw()
+void Shape::Draw(GLuint shaderProgram)
 {
+	GLuint uLoc = glGetUniformLocation(shaderProgram, "modelTransform");
+
+	if (uLoc < 0)
+		std::cout << "uLoc not found" << '\n';
+
+	else {
+		glm::mat4 Rx = glm::rotate(glm::mat4(1.f), glm::radians(xDeg), glm::vec3(1.f, 0.f, 0.f));	//	radians(degree) : degree to radian
+		glm::mat4 Ry = glm::rotate(glm::mat4(1.f), glm::radians(yDeg), glm::vec3(0.f, 1.f, 0.f));
+		glm::mat4 Rz = glm::rotate(glm::mat4(1.f), glm::radians(zDeg), glm::vec3(0.f, 0.f, 1.f));
+		glm::mat4 T = glm::translate(glm::mat4(1.f), glm::vec3(xPos, yPos, zPos));
+		glm::mat4 S = glm::scale(glm::mat4(1.f), glm::vec3(0.5f));
+
+		glm::mat4 SRT = T * Rz * Ry * Rx * S;
+		glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(SRT));
+	}
+
 	if (isLine)
 		glDrawArrays(GL_LINES, 0, shapeVertex->getNumVerts());
 
