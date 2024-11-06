@@ -19,10 +19,10 @@ bool Scene::initialize()
 	hsr = true;
 	Proj = true;
 
-	shapeMode = 1;
-	axisShape = new Shape();
+	shapeMode = 2;
+	axisShape = new Shape(0.f, 0.f, 0.f);
 	axisShape->initAxisVerts();
-	shape = new Cube();
+	shape = new Pyramid();
 	shape->initVerts();
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -80,8 +80,7 @@ void Scene::keyboard(unsigned char key)
 	case '1':
 		if (2 == shapeMode) {
 			shapeMode = 1;
-			delete shape;
-			shape = new Cube();
+			changeShape<Cube>();
 		}
 
 		break;
@@ -89,8 +88,7 @@ void Scene::keyboard(unsigned char key)
 	case '2':
 		if (1 == shapeMode) {
 			shapeMode = 2;
-			delete shape;
-			shape = new Pyramid();
+			changeShape<Pyramid>();
 		}
 
 		break;
@@ -111,27 +109,39 @@ void Scene::keyboard(unsigned char key)
 		break;
 
 	case 't':
-		shape->setAnimeMode(1);
+		if (shapeMode == 1)
+			shape->setAnimeMode(1);
+
 		break;
 
 	case 'f':
-		shape->setAnimeMode(2);
+		if (shapeMode == 1)
+			shape->setAnimeMode(2);
+
 		break;
 
 	case 's':
-		shape->setAnimeMode(3);
+		if (shapeMode == 1)
+			shape->setAnimeMode(3);
+
 		break;
 
 	case 'b':
-		shape->setAnimeMode(4);
+		if (shapeMode == 1)
+			shape->setAnimeMode(4);
+
 		break;
 
 	case 'o':
-		shape->setAnimeMode(1);
+		if (shapeMode == 2)
+			shape->setAnimeMode(1);
+
 		break;
 
 	case 'r':
-		shape->setAnimeMode(2);
+		if (shapeMode == 2)
+			shape->setAnimeMode(2);
+
 		break;
 
 	case 'p':
@@ -230,11 +240,6 @@ void Scene::setWindowSize(int winWidth, int winHeight)
 {
 	width = winWidth;
 	height = winHeight;
-}
-
-void Scene::removeShape()
-{
-	delete shape;
 }
 
 void Scene::randomRGB()

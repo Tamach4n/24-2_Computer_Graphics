@@ -14,6 +14,8 @@ class Shape
 public:
 	Shape();
 	Shape(float x, float y, float z);
+	Shape(const Shape& other);
+	Shape& operator=(const Shape& other);
 	~Shape() { delete shapeVertex; }
 
 	virtual void clearBuffer();

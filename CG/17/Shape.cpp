@@ -22,9 +22,51 @@ Shape::Shape(float x, float y, float z)
 	yDeg = 0.f;
 	zDeg = 0.f;
 	xRot = yRot = zRot = 0.f;
-	xDir = yDir = zDir = 0.0f;
+	xDir = zDir = 0.f;
+	yDir = 5.f;
 	isLine = false;
 	rotateY = false;
+}
+
+Shape::Shape(const Shape& other)
+{
+	this->xPos = other.xPos;
+	this->yPos = other.yPos;
+	this->zPos = other.zPos;
+	this->isLine = other.isLine;
+	this->xDeg = other.xDeg;
+	this->yDeg = other.yDeg;
+	this->zDeg = other.zDeg;
+	this->xDir = other.xDir;
+	this->yDir = other.yDir;
+	this->zDir = other.zDir;
+	this->xRot = other.xRot;
+	this->yRot = other.yRot;
+	this->zRot = other.zRot;
+	this->rotateY = other.rotateY;
+}
+
+Shape& Shape::operator=(const Shape& other)
+{
+	if (this != &other) {
+		delete shapeVertex;
+		xPos = other.xPos;
+		yPos = other.yPos;
+		zPos = other.zPos;
+		isLine = other.isLine;
+		xDeg = other.xDeg;
+		yDeg = other.yDeg;
+		zDeg = other.zDeg;
+		xDir = other.xDir;
+		yDir = other.yDir;
+		zDir = other.zDir;
+		xRot = other.xRot;
+		yRot = other.yRot;
+		zRot = other.zRot;
+		rotateY = other.rotateY;
+	}
+
+	return *this;
 }
 
 void Shape::clearBuffer()
@@ -56,8 +98,6 @@ void Shape::initAxisVerts()
 void Shape::setActive(Shader* shader)
 {
 	shapeVertex->setActive();
-
-	
 }
 
 void Shape::setRotateY()

@@ -34,8 +34,6 @@ public:
 
 	void setWindowSize(int winWidth, int winHeight);
 
-	void removeShape();
-
 private:
 	int width;
 	int height;
@@ -54,6 +52,16 @@ private:
 	void randomRGB();
 
 	bool loadShaders();
+
+	template <typename T>
+	void changeShape() {
+		Shape* temp = new Shape(*shape);
+		delete shape;
+		shape = new T();
+		*shape = *temp;
+		delete temp;
+		shape->initVerts();
+	}
 
 	std::random_device rd;
 };

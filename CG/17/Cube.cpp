@@ -1,11 +1,24 @@
 #include "Cube.h"
 
+Cube::Cube() 
+{
+	xPos = yPos = zPos = 0.f;
+	xDeg = 5.f;
+	yDeg = 5.f;
+	zDeg = 0.f;
+	xRot = yRot = zRot = 0.f;
+	xDir = zDir = 0.f;
+	yDir = 5.f;
+	isLine = false;
+	rotateY = false;
+}
+
 void Cube::initVerts()
 {
 	std::cout << "Cube::initVerts()" << '\n';
 
 	float VAO[] = {
-		-0.5f, -0.5f, -0.5f,   0.1f, 0.1f, 0.1f,
+		-0.5f, -0.5f, -0.5f,   0.0f, 0.1f, 0.0f,
 		 0.5f, -0.5f, -0.5f,   1.0f, 0.0f, 0.0f,
 		 0.5f,  0.5f, -0.5f,   0.0f, 1.0f, 0.0f,
 		-0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 1.0f,
@@ -31,8 +44,6 @@ void Cube::initVerts()
 		3, 2, 6, 6, 7, 3
 	};
 
-	isLine = false;
-
 	animeTopFace = false;
 	animeFrontFace = false;
 	animeSideFace = false;
@@ -42,10 +53,10 @@ void Cube::initVerts()
 	isSideOpened = false;
 	isBackOpened = false;
 
-	topAngle = false;
-	frontAngle = false;
-	sideAngle = false;
-	backAngle = false;
+	topAngle = 0.f;
+	frontAngle = 0.f;
+	sideDis = 0.f;
+	backAngle = 0.f;
 
 	shapeVertex = new Vertex(VAO, 8, VBO, 36);
 }
@@ -61,7 +72,7 @@ void Cube::Update()
 	if (animeFrontFace) {
 		if (isFrontOpened) {
 			if (frontAngle > 0.f)
-				frontAngle -= 2.f;
+				frontAngle -= 5.f;
 
 			else {
 				animeFrontFace = false;
@@ -71,7 +82,7 @@ void Cube::Update()
 
 		else {
 			if (frontAngle < 90.f)
-				frontAngle += 2.f;
+				frontAngle += 5.f;
 
 			else {
 				animeFrontFace = false;
@@ -80,11 +91,49 @@ void Cube::Update()
 		}
 	}
 
-	if (animeSideFace)
-		;
+	if (animeSideFace) {
+		if (isSideOpened) {
+			if (sideDis > 0.f)
+				sideDis -= 0.05f;
 
-	if (animeBackFace)
-		;
+			else {
+				animeSideFace = false;
+				isSideOpened = false;
+			}
+		}
+
+		else {
+			if (sideDis < 1.f)
+				sideDis += 0.05f;
+
+			else {
+				animeSideFace = false;
+				isSideOpened = true;
+			}
+		}
+	}
+
+	if (animeBackFace) {
+		if (isBackOpened) {
+			if (backAngle > 0.f)
+				backAngle -= 5.f;
+
+			else {
+				animeBackFace = false;
+				isBackOpened = false;
+			}
+		}
+
+		else {
+			if (backAngle < 90.f)
+				backAngle += 5.f;
+
+			else {
+				animeBackFace = false;
+				isBackOpened = true;
+			}
+		}
+	}
 }
 
 void Cube::Draw(GLuint shaderProgram)
@@ -113,41 +162,53 @@ void Cube::Draw(GLuint shaderProgram)
 			glm::mat4 rot = glm::rotate(unitMat, glm::radians(topAngle), glm::vec3(1.f, 0.f, 0.f));
 			glm::mat4 ret = glm::translate(unitMat, glm::vec3(0.f, 0.5f, 0.f));
 
-			matrix = SRT * ret * rot * mov;
+			matrix = SRT * ret * rot * mov;			
 		}
 
 		drawFace(uLoc, matrix, 6, 30);
 		matrix = SRT;
 
 		//	¾Õ¸é
-		if (animeFrontFace) {
-			;
-		}
+		{
+			glm::mat4 unitMat(1.f);
+			glm::mat4 mov = glm::translate(unitMat, glm::vec3(0.f, 0.5f, -0.5f));
+			glm::mat4 rot = glm::rotate(unitMat, glm::radians(frontAngle), glm::vec3(1.f, 0.f, 0.f));
+			glm::mat4 ret = glm::translate(unitMat, glm::vec3(0.f, -0.5f, 0.5f));
 
-		drawFace(uLoc, matrix, 6, 0);
-		matrix = SRT;
+			matrix = SRT * ret * rot * mov;
+
+			drawFace(uLoc, matrix, 6, 0);
+			matrix = SRT;
+		}
 
 		//	¿·¸é
-		if (animeSideFace) {
-			;
-		}
+		{
+			glm::mat4 unitMat(1.f);
+			glm::mat4 mov = glm::translate(unitMat, glm::vec3(0.f, sideDis, 0.f));
 
-		drawFace(uLoc, matrix, 6, 12);
-		matrix = SRT;
-		drawFace(uLoc, matrix, 6, 18);
-		matrix = SRT;
+			matrix = SRT * mov;
+
+			drawFace(uLoc, matrix, 6, 12);
+			drawFace(uLoc, matrix, 6, 18);
+			matrix = SRT;
+		}
 
 		//	µÞ¸é
-		if (animeBackFace) {
-			;
+		{
+			glm::mat4 unitMat(1.f);
+			glm::mat4 mov = glm::translate(unitMat, glm::vec3(0.f, 0.5f, 0.5f));
+			glm::mat4 rot = glm::rotate(unitMat, glm::radians(-backAngle), glm::vec3(1.f, 0.f, 0.f));
+			glm::mat4 ret = glm::translate(unitMat, glm::vec3(0.f, -0.5f, -0.5f));
+
+			matrix = SRT * ret * rot * mov;
+
+			drawFace(uLoc, matrix, 6, 6);
+			matrix = SRT;
 		}
 
-		drawFace(uLoc, matrix, 6, 6);
-		matrix = SRT;
+		//	¹Ø¸é
 		drawFace(uLoc, matrix, 6, 24);
 	}
-
-	//glDrawElements(GL_TRIANGLES, shapeVertex->getNumIndices(), GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 }
 
 void Cube::drawFace(GLuint uLoc, glm::mat4 srt, GLsizei count, int start)

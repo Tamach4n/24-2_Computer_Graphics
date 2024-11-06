@@ -4,6 +4,7 @@
 class Cube : public Shape
 {
 public:
+	Cube();
 	void initVerts();
 
 	void Update() override;
@@ -27,7 +28,7 @@ private:
 
 	float topAngle;
 	float frontAngle;
-	float sideAngle;
+	float sideDis;
 	float backAngle;
 };
 
