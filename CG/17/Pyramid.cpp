@@ -70,11 +70,13 @@ void Pyramid::Update()
 	}
 
 	if (animeOnceFace) {
+		//	면마다 변화
 		if (curSide < 4) {
 			if (isSidesOpened) {
 				if (angle > 0.f)
 					angle -= 5.f;
 
+				//	다 접히면 각 초기화하고 다음 면으로
 				else {
 					angle = 135.f;
 					++curSide;
@@ -86,6 +88,7 @@ void Pyramid::Update()
 				if (angle < 135.f)
 					angle += 5.f;
 
+				//	다 펼쳐지면 각 초기화하고 다음 면으로
 				else {
 					angle = 0.f;
 					++curSide;
@@ -94,6 +97,7 @@ void Pyramid::Update()
 			}
 		}
 
+		//	4면 다 끝난 경우
 		else {
 			curSide = 0;
 			angle = (isSidesOpened) ? 135.f : 0.f;
@@ -123,7 +127,30 @@ void Pyramid::Draw(GLuint shaderProgram)
 
 		glm::mat4 matrix = SRT;
 
-		glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
+		//glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
+
+		//	앞면
+		{
+
+		}
+
+		//	오른쪽면
+		{
+
+		}
+
+		//	뒷면
+		{
+
+		}
+
+		//	왼쪽면
+		{
+
+		}
+
+		//	밑면
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(12 * sizeof(unsigned int)));
 	}
 }
 
