@@ -19,10 +19,10 @@ bool Scene::initialize()
 	hsr = true;
 	Proj = true;
 
-	shapeMode = 1;
+	shapeMode = 2;
 	axisShape = new Shape(0.f, 0.f, 0.f);
 	axisShape->initAxisVerts();
-	shape = new Cube();
+	shape = new Pyramid();
 	shape->initVerts();
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -255,7 +255,7 @@ bool Scene::loadShaders()
 {
 	spriteShader = new Shader();
 
-	if (!spriteShader->Load("C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\vertex2.vert", "C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\fragment.frag"))
+	if (!spriteShader->Load("C:\\Users\\worl\\source\\repos\\Computer_Graphics\\vertex2.vert", "C:\\Users\\worl\\source\\repos\\Computer_Graphics\\fragment.frag"))
 		return false;
 
 	spriteShader->setActive();

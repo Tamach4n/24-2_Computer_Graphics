@@ -235,18 +235,34 @@ void Cube::setAnimeMode(int mode)
 		break;
 
 	case 2:
-		animeFrontFace = !animeFrontFace;
+		animeFrontFace = true;
+		isFrontOpened = isMoving(frontAngle, isFrontOpened);
 		break;
 
 	case 3:
-		animeSideFace = !animeSideFace;
+		animeSideFace = true;
+		isSideOpened = isMoving(sideDis, isSideOpened);
 		break;
 
 	case 4:
-		animeBackFace = !animeBackFace;
+		animeBackFace = true;
+		isBackOpened = isMoving(backAngle, isBackOpened);
 		break;
 
 	default:
 		break;
 	}
+}
+
+bool Cube::isMoving(const float& cur, bool face)
+{
+	if (cur == sideDis) {
+		if (cur > 0.f && cur < 1.f)
+			return !face;
+	}
+
+	else if (cur > 0.f && cur < 90.f)
+		return !face;
+
+	return face;
 }

@@ -16,6 +16,8 @@ public:
 	
 	void setAnimeMode(int mode) override;
 
+	bool isMoving(const float& cur, bool face);
+
 private:
 	bool animeTopFace;
 	bool animeFrontFace;
@@ -31,4 +33,3 @@ private:
 	float sideDis;
 	float backAngle;
 };
-
