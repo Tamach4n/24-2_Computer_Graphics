@@ -11,8 +11,9 @@
 #include "Vertex.h"	
 #include "shader.h"
 #include "Shape.h"
-#include "Cube.h"
-#include "Pyramid.h"
+#include "Star.h"
+#include "Planet.h"
+#include "Satellite.h"
 
 class Scene
 {
@@ -42,12 +43,12 @@ private:
 
 	bool hsr;		//	은면 제거
 	bool Proj;		//	0: 직각투영, 1: 원근투영
-	int shapeMode;	//	1: 육면체, 2: 사각뿔
+	bool polygonMode;	//	0: 선, 1: 면
 	
 	class Shader* spriteShader;
 
-	Shape* axisShape;
-	Shape* shape;
+	Shape* star;
+	Planet* planet;
 
 	void randomRGB();
 
@@ -55,12 +56,12 @@ private:
 
 	template <typename T>
 	void changeShape() {
-		Shape* temp = new Shape(*shape);
-		delete shape;
-		shape = new T();
-		*shape = *temp;
+		Shape* temp = new Shape(*star);
+		delete star;
+		star = new T();
+		*star = *temp;
 		delete temp;
-		shape->initVerts();
+		star->initVerts();
 	}
 
 	std::random_device rd;

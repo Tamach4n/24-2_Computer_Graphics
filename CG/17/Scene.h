@@ -40,6 +40,12 @@ private:
 
 	GLclampf r, g, b;
 
+	glm::vec3 camPos;
+
+	bool rotCam;
+	float camDeg;
+	float camRad;
+
 	bool hsr;		//	은면 제거
 	bool Proj;		//	0: 직각투영, 1: 원근투영
 	int shapeMode;	//	1: 육면체, 2: 사각뿔

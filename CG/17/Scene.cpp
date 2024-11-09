@@ -19,6 +19,10 @@ bool Scene::initialize()
 	hsr = true;
 	Proj = true;
 
+	camPos = glm::vec3(-2.f, 2.f, 2.f);
+	camDeg = glm::atan(-1);
+	camRad = glm::length(camPos);
+
 	shapeMode = 1;
 	axisShape = new Shape(0.f, 0.f, 0.f);
 	axisShape->initAxisVerts();
@@ -34,6 +38,12 @@ void Scene::update()
 {
 	axisShape->Update();
 	shape->Update();
+
+	if (rotCam) {
+		camDeg += 0.1f;
+		camPos.x = camRad * cos(camDeg);
+		camPos.z = camRad * sin(camDeg);
+	}
 }
 
 void Scene::draw()
@@ -51,7 +61,6 @@ void Scene::draw()
 		std::cout << "projLoc not found" << '\n';
 
 	else {
-		glm::vec3 camPos = glm::vec3(-2.f, 2.f, 2.f);
 		glm::vec3 camAt = glm::vec3(0.f, 0.f, 0.f);
 		glm::vec3 camUp = glm::vec3(0.f, 1.f, 0.f);
 
@@ -146,6 +155,10 @@ void Scene::keyboard(unsigned char key)
 
 	case 'p':
 		Proj = !Proj;
+		break;
+
+	case 'Y':
+		rotCam = !rotCam;
 		break;
 	}
 }

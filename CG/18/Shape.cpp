@@ -2,97 +2,119 @@
 
 Shape::Shape()
 {
-	std::cout << "Shape()" << '\n';
-	xPos = yPos = zPos = 0.f;
-	xDeg = 5.f;
-	yDeg = 5.f;
-	zDeg = 0.f;
-	xRot = yRot = zRot = 0.f;
-	xDir = zDir = 0.f;
-	yDir = 5.f;
-	isLine = false;
+	std::cout << "Shape()" << '\n';;
+	shapeAngle = 0.f;
+	orbitRadius = 0.f;
+	orbitSpeed = 0.f;
 	rotateY = false;
+	rotateX = false;
 }
 
-Shape::Shape(float x, float y, float z)
-	:xPos(x), yPos(y), zPos(z)
+Shape::Shape(float r,float degree)
 {
-	std::cout << "Shape(float x, float y)" << '\n';
-	xDeg = 0.f;
-	yDeg = 0.f;
-	zDeg = 0.f;
-	xRot = yRot = zRot = 0.f;
-	xDir = zDir = 0.f;
-	yDir = 5.f;
-	isLine = false;
+	std::cout << "Shape(float r, float degree)" << '\n';
+	shapeAngle = 0.f;
+	orbitRadius = r;
+	orbitSpeed = 0.f;
+	deg.z = degree;
 	rotateY = false;
+	rotateX = false;
+	orbitVertex = nullptr;
 }
 
 Shape::Shape(const Shape& other)
 {
-	this->xPos = other.xPos;
-	this->yPos = other.yPos;
-	this->zPos = other.zPos;
-	this->isLine = other.isLine;
-	this->xDeg = other.xDeg;
-	this->yDeg = other.yDeg;
-	this->zDeg = other.zDeg;
-	this->xDir = other.xDir;
-	this->yDir = other.yDir;
-	this->zDir = other.zDir;
-	this->xRot = other.xRot;
-	this->yRot = other.yRot;
-	this->zRot = other.zRot;
+	this->pos = other.pos;
+	this->deg = other.deg;
+	this->rot = other.rot;
 	this->rotateY = other.rotateY;
+	this->rotateX = other.rotateX;
+	orbitVertex = nullptr;
 }
 
 Shape& Shape::operator=(const Shape& other)
 {
-	if (this != &other) {
+	/*if (this != &other) {
 		delete shapeVertex;
-		xPos = other.xPos;
-		yPos = other.yPos;
-		zPos = other.zPos;
-		isLine = other.isLine;
-		xDeg = other.xDeg;
-		yDeg = other.yDeg;
-		zDeg = other.zDeg;
-		xDir = other.xDir;
-		yDir = other.yDir;
-		zDir = other.zDir;
-		xRot = other.xRot;
-		yRot = other.yRot;
-		zRot = other.zRot;
+		pos = other.pos;
+		deg = other.deg;
+		dir = other.dir;
 		rotateY = other.rotateY;
-	}
+		rotateZ = other.rotateZ;
+	}*/
 
 	return *this;
+}
+
+Shape::~Shape()
+{
+	delete shapeVertex;
+	delete orbitVertex;
 }
 
 void Shape::clearBuffer()
 {
 	delete shapeVertex;
+	delete orbitVertex;
 }
 
-void Shape::initVerts()
+void Shape::initVerts(float radius, const Position& color)
 {
-}
+	std::vector<float> VAO;
+	std::vector<unsigned int> VBO;
 
-void Shape::initAxisVerts()
-{
-	float VAO[] = {
-		-2.0f, 0.0f, 0.0f,  1.0f, 0.0f, 0.0f,
-		2.0f, 0.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+	const int LATITUDE_SEGMENTS = 20;  // 위도 분할 개수
+	const int LONGITUDE_SEGMENTS = 20;  // 경도 분할 개수
 
-		0.0f, -2.0f, 0.0f,  0.0f, 0.0f, 1.0f,
-		0.0f, 2.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+	// 정점 데이터 생성 (위도와 경도를 따라 분할)
+	for (int i = 0; i <= LATITUDE_SEGMENTS; ++i) {
+		float theta = i * M_PI / LATITUDE_SEGMENTS;  // 위도 각도
+		float sinTheta = sin(theta);
+		float cosTheta = cos(theta);
 
-		0.0f, 0.0f, -2.0f,  0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 2.0f,   0.0f, 1.0f, 0.0f
-	};
+		for (int j = 0; j <= LONGITUDE_SEGMENTS; ++j) {
+			float phi = j * 2.0f * M_PI / LONGITUDE_SEGMENTS;  // 경도 각도
+			float x = cos(phi) * sinTheta;
+			float y = cosTheta;
+			float z = sin(phi) * sinTheta;
+				
+			// 정점 (x, y, z)
+			VAO.push_back(radius * x);
+			VAO.push_back(radius * y);
+			VAO.push_back(radius * z);
 
-	isLine = true;
-	shapeVertex = new Vertex(VAO, 6);
+			if (y == 0.5f) {
+				VAO.push_back(1.0f);
+				VAO.push_back(1.0f);
+				VAO.push_back(1.0f);
+			}
+			else {
+				VAO.push_back(color.x);
+				VAO.push_back(color.y);
+				VAO.push_back(color.z);
+			}
+		}
+	}
+
+	// 인덱스 데이터 생성 (삼각형들로 구성)
+	for (int i = 0; i < LATITUDE_SEGMENTS; ++i) {
+		for (int j = 0; j < LONGITUDE_SEGMENTS; ++j) {
+			int first = (i * (LONGITUDE_SEGMENTS + 1)) + j;
+			int second = first + LONGITUDE_SEGMENTS + 1;
+
+			// 삼각형 1
+			VBO.push_back(first);
+			VBO.push_back(second);
+			VBO.push_back(first + 1); 
+
+			// 삼각형 2
+			VBO.push_back(second);
+			VBO.push_back(second + 1);
+			VBO.push_back(first + 1);
+		}
+	}
+
+	shapeVertex = new Vertex(VAO, VBO);
 }
 
 void Shape::setActive(Shader* shader)
@@ -100,63 +122,99 @@ void Shape::setActive(Shader* shader)
 	shapeVertex->setActive();
 }
 
-void Shape::setRotateY()
-{
+void  Shape::setRotateY() {
 	rotateY = !rotateY;
+}
+
+void  Shape::setRotateZ()
+{
+	rotateX = !rotateX;
+}
+
+void Shape::setMoveX(int st)
+{
+	moveX = st;
+}
+
+void Shape::setMoveY(int st)
+{
+	moveY = st;
+}
+
+void Shape::setMoveZ(int st)
+{
+	moveZ = st;
 }
 
 void Shape::setPos(float x, float y, float z)
 {
-	xPos = x;
-	yPos = y;
-	zPos = z;
+	pos = { x,y,z };
 }
 
 void Shape::setRotation(float x, float y, float z)
 {
-	xRot = x;
-	yRot = y;
-	zRot = z;
+	//rot = { x,y,z };
 }
 
 void Shape::setDirection(float x, float y, float z)
 {
-	xDir = x;
-	yDir = y;
-	zDir = z;
+	rot = { x,y,z };
 }
 
-void Shape::setAnimeMode(int mode)
+void Shape::setMove(float x, float y, float z)
 {
-}
-
-void Shape::drawFace(GLuint uLoc, glm::mat4 srt, GLsizei count, int start)
-{
+	dir.x = x;
+	dir.y = y;
+	dir.z = z;
 }
 
 void Shape::Reset()
 {
-	xRot = yRot = zRot = 0.f;
-	xDir = yDir = zDir = 0.f;
-	xDeg = yDeg = zDeg = 0.f;
-	rotateY = true;
+	pos = rot = deg = {};
 }
 
-void Shape::rotation()
+void Shape::Update(const Position& center)
 {
+	if (moveX) {
+		if (moveX == 1)
+			dir.x += 0.01f;
+
+		else
+			dir.x -= 0.01f;
+	}
+
+	if (moveY) {
+		if (moveY == 1)
+			dir.y += 0.01f;
+
+		else
+			dir.y -= 0.01f;
+	}
+
+	if (moveZ) {
+		if (moveZ == 1)
+			dir.z += 0.01f;
+
+		else
+			dir.z -= 0.01f;
+	}
+
+	shapeAngle += orbitSpeed;
+	pos.x = orbitRadius * cos(shapeAngle) + dir.x;
+	pos.y = dir.y;
+	pos.z = orbitRadius * sin(shapeAngle) + dir.z;
+	//pos += dir;
+
+	if (rotateY) {
+		deg.y += 5.f;
+	}
+
+	if (rotateX) {
+		deg.x += 5.f;
+	}
 }
 
-void Shape::openFace()
-{
-}
-
-void Shape::Update()
-{
-	if (rotateY)
-		yDeg += yDir;
-}
-
-void Shape::Draw(GLuint shaderProgram)
+void Shape::Draw(GLuint shaderProgram, const Position& center)
 {
 	GLuint uLoc = glGetUniformLocation(shaderProgram, "modelTransform");
 
@@ -164,19 +222,15 @@ void Shape::Draw(GLuint shaderProgram)
 		std::cout << "uLoc not found" << '\n';
 
 	else {
-		glm::mat4 Rx = glm::rotate(glm::mat4(1.f), glm::radians(xDeg), glm::vec3(1.f, 0.f, 0.f));	//	radians(degree) : degree to radian
-		glm::mat4 Ry = glm::rotate(glm::mat4(1.f), glm::radians(yDeg), glm::vec3(0.f, 1.f, 0.f));
-		glm::mat4 Rz = glm::rotate(glm::mat4(1.f), glm::radians(zDeg), glm::vec3(0.f, 0.f, 1.f));
-		glm::mat4 T = glm::translate(glm::mat4(1.f), glm::vec3(xPos, yPos, zPos));
+		glm::mat4 Rx = glm::rotate(glm::mat4(1.f), glm::radians(deg.x), glm::vec3(1.f, 0.f, 0.f));	//	radians(degree) : degree to radian
+		glm::mat4 Ry = glm::rotate(glm::mat4(1.f), glm::radians(deg.y), glm::vec3(0.f, 1.f, 0.f));
+		glm::mat4 Rz = glm::rotate(glm::mat4(1.f), glm::radians(deg.z), glm::vec3(0.f, 0.f, 1.f));
+		glm::mat4 T = glm::translate(glm::mat4(1.f), glm::vec3(pos.x, pos.y, pos.z));
 		glm::mat4 S = glm::scale(glm::mat4(1.f), glm::vec3(0.5f));
 
-		glm::mat4 SRT = T * Rz * Ry * Rx * S;
+		glm::mat4 SRT = Rz * Ry * Rx * T * S;
 		glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(SRT));
 	}
 
-	if (isLine)
-		glDrawArrays(GL_LINES, 0, shapeVertex->getNumVerts());
-
-	else
-		glDrawElements(GL_TRIANGLES, shapeVertex->getNumIndices(), GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
+	glDrawElements(GL_TRIANGLES, shapeVertex->getNumIndices(), GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 }

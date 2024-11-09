@@ -6,7 +6,7 @@
 Scene::Scene(int winWidth, int winHeight)
 	: width{ winWidth }, height{ winHeight }
 {
-	r = g = b = 0.9f;
+	r = g = b = 0.1f;
 }
 
 bool Scene::initialize()
@@ -18,22 +18,30 @@ bool Scene::initialize()
 
 	hsr = true;
 	Proj = true;
+	polygonMode = true;
 
-	shapeMode = 2;
-	axisShape = new Shape(0.f, 0.f, 0.f);
-	axisShape->initAxisVerts();
-	shape = new Pyramid();
-	shape->initVerts();
+	star = new Star(0.f, 0.f);
+	star->initVerts(0.6f, Position(1.f, 0.f, 0.f));
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	
+	planet = new Planet[3]{ Planet(1.3f, 0.0f), Planet(1.3f, 45.0f), Planet(1.3f, -45.0f) };
+
+	planet[0].initVerts(0.3f, Position(0.f, 1.f, 0.f));
+	planet[0].initOrbitVerts(star->getPos());
+	planet[1].initVerts(0.3f, Position(0.f, 1.f, 0.f));
+	planet[1].initOrbitVerts(star->getPos()); 
+	planet[2].initVerts(0.3f, Position(0.f, 1.f, 0.f));
+	planet[2].initOrbitVerts(star->getPos());
+
 	return true;
 }
 
 void Scene::update()
 {
-	axisShape->Update();
-	shape->Update();
+	star->Update(Position(0.f, 0.f, 0.f));
+
+	planet[0].Update(star->getPos());
+	planet[1].Update(star->getPos());
+	planet[2].Update(star->getPos());
 }
 
 void Scene::draw()
@@ -51,7 +59,7 @@ void Scene::draw()
 		std::cout << "projLoc not found" << '\n';
 
 	else {
-		glm::vec3 camPos = glm::vec3(-2.f, 2.f, 2.f);
+		glm::vec3 camPos = glm::vec3(0.f, 1.f, 4.f);
 		glm::vec3 camAt = glm::vec3(0.f, 0.f, 0.f);
 		glm::vec3 camUp = glm::vec3(0.f, 1.f, 0.f);
 
@@ -67,32 +75,19 @@ void Scene::draw()
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
-		axisShape->setActive(spriteShader);
-		axisShape->Draw(spriteShader->GetshaderProgram());
-		shape->setActive(spriteShader);
-		shape->Draw(spriteShader->GetshaderProgram());
+		star->setActive(spriteShader);
+		star->Draw(spriteShader->GetshaderProgram(), star->getPos());
+
+		//planet->setActive(spriteShader);
+		planet[0].Draw(spriteShader->GetshaderProgram(), star->getPos());
+		planet[1].Draw(spriteShader->GetshaderProgram(), star->getPos());
+		planet[2].Draw(spriteShader->GetshaderProgram(), star->getPos());
 	}
 }
 
 void Scene::keyboard(unsigned char key)
 {
 	switch (key) {
-	case '1':
-		if (2 == shapeMode) {
-			shapeMode = 1;
-			changeShape<Cube>();
-		}
-
-		break;
-
-	case '2':
-		if (1 == shapeMode) {
-			shapeMode = 2;
-			changeShape<Pyramid>();
-		}
-
-		break;
-
 	case 'h':
 		hsr = !hsr; 
 		
@@ -105,53 +100,102 @@ void Scene::keyboard(unsigned char key)
 		break;
 
 	case 'y':
-		shape->setRotateY();
+	case 'Y':
+		planet[0].setRotateY();
+		planet[1].setRotateY();
+		planet[2].setRotateY();
 		break;
 
-	case 't':
-		if (shapeMode == 1)
-			shape->setAnimeMode(1);
-
+	case 'z':
+	case 'Z':
+		planet[0].setRotateZ();
+		planet[1].setRotateZ();
+		planet[2].setRotateZ();
 		break;
 
-	case 'f':
-		if (shapeMode == 1)
-			shape->setAnimeMode(2);
+	case 'w':
+		star->setMoveY(1);
+		planet[0].setMoveY(1);
+		planet[1].setMoveY(1);
+		planet[2].setMoveY(1);
+		break;
 
+	case 'a':
+		star->setMoveX(-1);
+		planet[0].setMoveX(-1);
+		planet[1].setMoveX(-1);
+		planet[2].setMoveX(-1);
 		break;
 
 	case 's':
-		if (shapeMode == 1)
-			shape->setAnimeMode(3);
-
+		star->setMoveY(-1);
+		planet[0].setMoveY(-1);
+		planet[1].setMoveY(-1);
+		planet[2].setMoveY(-1);
 		break;
 
-	case 'b':
-		if (shapeMode == 1)
-			shape->setAnimeMode(4);
-
+	case 'd':
+		star->setMoveX(1);
+		planet[0].setMoveX(1);
+		planet[1].setMoveX(1);
+		planet[2].setMoveX(1);
 		break;
 
-	case 'o':
-		if (shapeMode == 2)
-			shape->setAnimeMode(1);
-
+	case '+':
+		star->setMoveZ(1);
+		planet[0].setMoveZ(1);
+		planet[1].setMoveZ(1);
+		planet[2].setMoveZ(1);
 		break;
 
-	case 'r':
-		if (shapeMode == 2)
-			shape->setAnimeMode(2);
-
+	case '-':
+		star->setMoveZ(-1);
+		planet[0].setMoveZ(-1);
+		planet[1].setMoveZ(-1);
+		planet[2].setMoveZ(-1);
 		break;
 
 	case 'p':
 		Proj = !Proj;
 		break;
+
+	case 'm':
+	case 'M':
+		polygonMode = !polygonMode;
+
+		if(polygonMode)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		else
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 }
 
 void Scene::keyboardUp(unsigned char key)
 {
+	if (key == 'a' or key == 'd') {
+		std::cout << "Scene::keyboardUp(a d)" << '\n';
+		star->setMoveX(0);
+		planet[0].setMoveX(0);
+		planet[1].setMoveX(0);
+		planet[2].setMoveX(0);
+	}
+
+	else if (key == 'w' or key == 's') {
+		std::cout << "Scene::keyboardUp(w s)" << '\n';
+		star->setMoveY(0);
+		planet[0].setMoveY(0);
+		planet[1].setMoveY(0);
+		planet[2].setMoveY(0);
+	}
+
+	else if (key == '+' or key == '-') {
+		std::cout << "Scene::keyboardUp(+ -)" << '\n';
+		star->setMoveZ(0);
+		planet[0].setMoveZ(0);
+		planet[1].setMoveZ(0);
+		planet[2].setMoveZ(0);
+	}
 }
 
 void Scene::specialKeyboard(int key)
