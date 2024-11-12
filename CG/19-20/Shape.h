@@ -70,6 +70,7 @@ protected:
 	bool isTopRotateNegaY;
 
 	float barrelRotateAngle;
+	float correctionBarrel;
 	bool isBarrelRotatePosiY;
 	bool isBarrelRotateNegaY;
 

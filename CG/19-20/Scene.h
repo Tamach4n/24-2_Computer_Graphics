@@ -58,7 +58,8 @@ private:
 	
 	class Shader* spriteShader;
 
-	Shape* robot;
+	class Shape* crane;
+	class Shape* plat;
 
 	void randomRGB();
 

@@ -57,6 +57,7 @@ void Shape::init()
 	isBarrelRotatePosiY = false;
 	isBarrelRotateNegaY = false;
 	barrelMovePos = 0.f;
+	correctionBarrel = 0.f;
 	isBarrelmovePosiX = false;
 	isBarrelmoveNegaX = false;
 	armRotateAngle = 0.f;
@@ -201,23 +202,42 @@ void Shape::Update()
 	else if (isMoveNegaX)
 		movePos -= 0.005f;
 
-	if (isTopRotatePosiY)
-		topRotateAngle += 3.f;
+	if (isTopRotatePosiY) {
+		if (topRotateAngle < 90.f)
+			topRotateAngle += 3.f;
+	}
 
-	else if (isTopRotateNegaY)
-		topRotateAngle -= 3.f;
+	else if (isTopRotateNegaY) {
+		if (topRotateAngle > 0.f) {
+			topRotateAngle -= 3.f;
 
-	if (isBarrelRotatePosiY)
-		barrelRotateAngle += 3.f;
+		}
+	}
 
-	else if (isBarrelRotateNegaY)
-		barrelRotateAngle -= 3.f;
+	if (isBarrelRotatePosiY) {
+		if (barrelRotateAngle < 90.f) {
+			barrelRotateAngle += 3.f;
+			correctionBarrel += 0.0019;
+		}
+	}
 
-	if (isBarrelmovePosiX)
-		barrelMovePos += 0.005f;
+	else if (isBarrelRotateNegaY) {
+		if (barrelRotateAngle > 0.f) {
+			barrelRotateAngle -= 3.f;
+			correctionBarrel -= 0.0019;
+		}
+	}
 
-	else if (isBarrelmoveNegaX)
-		barrelMovePos -= 0.005f;
+	if (isBarrelmovePosiX) {
+		if (barrelMovePos < 0.0625f)
+			barrelMovePos += 0.005f;
+
+	}
+
+	else if (isBarrelmoveNegaX) {
+		if (barrelMovePos > 0.f)
+			barrelMovePos -= 0.005f;
+	}
 
 	if (isArmRotatePosiZ)
 		armRotateAngle += 3.f;
@@ -289,21 +309,25 @@ void Shape::Draw(GLuint shaderProgram)
 
 		//	포신
 		{
-
 			Ty = glm::translate(unitMat, glm::vec3(0.f, 0.5f, 0.5f));	//	z도 이동한다?!
 			S = glm::scale(unitMat, glm::vec3(0.0625f, 0.0625f, 0.25f));
 
-			movLeft = glm::translate(unitMat, glm::vec3(-0.2f, 0.f, 0.f));
-			movRight = glm::translate(unitMat, glm::vec3(0.2f, 0.f, 0.f));
+			movLeft = glm::translate(unitMat, glm::vec3(-0.2f + barrelMovePos, 0.f, 0.f));
+			movRight = glm::translate(unitMat, glm::vec3(0.2f - barrelMovePos, 0.f, 0.f));
 			moveOnMono = glm::translate(unitMat, glm::vec3(0.f, 0.0625f, 0.25f));
 
+			glm::mat4 t1 = glm::translate(unitMat, glm::vec3(0.f, 0.f, -0.125f));
+			glm::mat4 rotateBarrelLeft = glm::rotate(unitMat, glm::radians(-barrelRotateAngle), glm::vec3(0.f, 1.f, 0.f));
+			glm::mat4 rotateBarrelRight = glm::rotate(unitMat, glm::radians(barrelRotateAngle), glm::vec3(0.f, 1.f, 0.f));
+			glm::mat4 t2 = glm::translate(unitMat, glm::vec3(0.f, 0.f, correctionBarrel));
+
 			//	좌
-			finalMat = moveAll * moveOnMono * movLeft * S * Ty;
+			finalMat = moveAll * moveOnMono * movLeft * t2 * rotateBarrelLeft * S * Ty;
 			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 
 			//	우
-			finalMat = moveAll * moveOnMono * movRight * S * Ty;
+			finalMat = moveAll * moveOnMono * movRight * t2 * rotateBarrelRight * S * Ty;
 			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 		}

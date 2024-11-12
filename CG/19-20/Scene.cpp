@@ -33,14 +33,14 @@ bool Scene::initialize()
 	camDeg = glm::atan(-1);
 	camRad = glm::length(camPos);
 
-	robot = new Shape();
+	crane = new Shape();
 
 	return true;
 }
 
 void Scene::update()
 {
-	robot->Update();
+	crane->Update();
 
 	if (movCamPosiX)
 		camPos.x += 0.01f;
@@ -101,8 +101,8 @@ void Scene::draw()
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
-		robot->setActive(spriteShader);
-		robot->Draw(spriteShader->GetshaderProgram());
+		crane->setActive(spriteShader);
+		crane->Draw(spriteShader->GetshaderProgram());
 	}
 }
 
@@ -110,41 +110,47 @@ void Scene::keyboard(unsigned char key)
 {
 	switch (key) {
 	case 'b':
-		robot->setMoveX(1);
+		crane->setMoveX(1);
 		break;
 
 	case 'B':
-		robot->setMoveX(-1);
+		crane->setMoveX(-1);
 		break;
 
 
 	case 'm':
-		robot->setRotateTop(1);
+		crane->setRotateTop(1);
 		break;
 
 	case 'M':
-		robot->setRotateTop(-1);
+		crane->setRotateTop(-1);
 		break;
 
 
 	case 'f':
+		crane->setMoveBarrel(1);
 		break;
 
 	case 'F':
+		crane->setMoveBarrel(-1);
 		break;
 
 
 	case 'e':
+		crane->setRotateBarrel(1);
 		break;
 
 	case 'E':
+		crane->setRotateBarrel(-1);
 		break;
 
 
 	case 't':
+		crane->setRotateArm(1);
 		break;
 
 	case 'T':
+		crane->setRotateArm(-1);
 		break;
 
 
@@ -199,6 +205,7 @@ void Scene::keyboard(unsigned char key)
 	case 's':
 	case 'S':
 		break;
+
 
 	case 'c':
 	case 'C':
