@@ -30,10 +30,22 @@ bool Scene::initialize()
 	movCamNegaZ = false;
 
 	camPos = glm::vec3(-2.f, 2.f, 2.f);
-	camDeg = glm::atan(-1);
-	camRad = glm::length(camPos);
+	glm::vec3 camAt = glm::vec3(0.f, 0.f, 0.f);
+	glm::vec3 camUp = glm::vec3(0.f, 1.f, 0.f);
 
+	camDir = glm::normalize(camPos - camAt); 
+	camU = glm::normalize(glm::cross(camUp, camDir));
+	camV = glm::cross(camDir, camU);
+
+	camDeg = 135.f;
+	camRad = glm::length(camPos);
+	camPos.x = camRad * cos(glm::radians(camDeg));
+	camPos.z = camRad * sin(glm::radians(camDeg));
+
+	plat = new Shape();
+	plat->initPlatBuffer();
 	crane = new Shape();
+	crane->initBuffer();
 
 	return true;
 }
@@ -56,10 +68,15 @@ void Scene::update()
 
 	//camRad = glm::length(camPos);
 
+	//	공전
 	if (rotCamPosiCenter) {
+		/*glm::vec3 ori = camPos - camDir;*/
 		camDeg += 3.f;
 		camPos.x = camRad * cos(glm::radians(camDeg));
 		camPos.z = camRad * sin(glm::radians(camDeg));
+		/*camDir = glm::normalize(camPos - ori);
+		camU = glm::normalize(glm::cross(camDir, glm::vec3(0.f, 1.f, 0.f)));
+		camV = glm::cross(camDir, camU);*/
 	}
 
 	else if (rotCamNegaCenter) {
@@ -68,7 +85,20 @@ void Scene::update()
 		camPos.z = camRad * sin(glm::radians(camDeg));
 	}
 
-	std::cout << "Length: " << camDeg << ", X: " << camPos.x << ", Z: " << camPos.z << '\n';
+	//	자전
+	if (rotCamPosiSelf) {
+		glm::mat4 R = glm::rotate(glm::mat4(1.f), glm::radians(30.f), camV);
+		camDir = glm::vec3(R * glm::vec4(camDir, 1.f));
+		camU = glm::normalize(glm::cross(camDir, camV));
+	}
+
+	else if (rotCamNegaSelf) {
+		glm::mat4 R = glm::rotate(glm::mat4(1.f), glm::radians(-30.f), camV);
+		camDir = glm::vec3(R * glm::vec4(camDir, 1.f));
+		camU = glm::normalize(glm::cross(camDir, camV));
+	}
+
+	//std::cout << "Length: " << camDeg2 << ", X: " << camPos.x << ", Z: " << camPos.z << '\n';
 }
 
 void Scene::draw()
@@ -86,10 +116,7 @@ void Scene::draw()
 		std::cout << "projLoc not found" << '\n';
 
 	else {
-		glm::vec3 camAt = glm::vec3(0.f, 0.f, 0.f);
-		glm::vec3 camUp = glm::vec3(0.f, 1.f, 0.f);
-
-		glm::mat4 view = glm::lookAt(camPos, camAt, camUp);
+		glm::mat4 view = glm::lookAt(camPos, camPos - camDir, camV);
 		glm::mat4 proj = glm::mat4(1.f);
 
 		if (Proj)
@@ -100,6 +127,9 @@ void Scene::draw()
 
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+
+		plat->setActive(spriteShader);
+		plat->DrawPlat(spriteShader->GetshaderProgram());
 
 		crane->setActive(spriteShader);
 		crane->Draw(spriteShader->GetshaderProgram());
@@ -128,20 +158,20 @@ void Scene::keyboard(unsigned char key)
 
 
 	case 'f':
-		crane->setMoveBarrel(1);
+		crane->setRotateBarrel(1);
 		break;
 
 	case 'F':
-		crane->setMoveBarrel(-1);
+		crane->setRotateBarrel(-1);
 		break;
 
 
 	case 'e':
-		crane->setRotateBarrel(1);
+		crane->setMoveBarrel(1);
 		break;
 
 	case 'E':
-		crane->setRotateBarrel(-1);
+		crane->setMoveBarrel(-1);
 		break;
 
 
@@ -189,32 +219,68 @@ void Scene::keyboard(unsigned char key)
 
 
 	case 'r':
+		rotCamPosiSelf = !rotCamPosiSelf;
+		rotCamNegaSelf = false;
 		break;
 
 	case 'R':
+		rotCamPosiSelf = false;
+		rotCamNegaSelf = !rotCamNegaSelf;
 		break;
 
 
 	case 'a':
+		rotCamPosiSelf = true;
+		rotCamNegaSelf = false;
 		break;
 
 	case 'A':
+		rotCamPosiSelf = false;
+		rotCamNegaSelf = true;
 		break;
 
 
 	case 's':
 	case 'S':
+		crane->setMoveX(0);
+		crane->setMoveBarrel(0);
+		crane->setRotateArm(0);
+		crane->setRotateBarrel(0);
+		crane->setRotateTop(0);
+		rotCamPosiSelf = false;
+		rotCamNegaSelf = false;
+		rotCamPosiCenter = false;
+		rotCamNegaCenter = false;
+		movCamPosiX = false;
+		movCamNegaX = false;
+		movCamPosiZ = false;
+		movCamNegaZ = false;
 		break;
 
 
 	case 'c':
 	case 'C':
+		crane->init();
+		crane->initBuffer();
+		rotCamPosiSelf = false;
+		rotCamNegaSelf = false;
+		rotCamPosiCenter = false;
+		rotCamNegaCenter = false;
+		movCamPosiX = false;
+		movCamNegaX = false;
+		movCamPosiZ = false;
+		movCamNegaZ = false;
 		break;
 	}
 }
 
 void Scene::keyboardUp(unsigned char key)
 {
+	if (key == 'r')
+		rotCamPosiSelf = false;
+
+	else if (key == 'R')
+		rotCamNegaSelf = false;
 }
 
 void Scene::specialKeyboard(int key)

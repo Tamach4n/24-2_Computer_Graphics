@@ -20,8 +20,10 @@ bool Scene::initialize()
 	Proj = true;
 
 	camPos = glm::vec3(-2.f, 2.f, 2.f);
-	camDeg = glm::atan(-1);
+	camDeg = 135.f;
 	camRad = glm::length(camPos);
+	camPos.x = camRad * cos(glm::radians(camDeg));
+	camPos.z = camRad * sin(glm::radians(camDeg));
 
 	shapeMode = 1;
 	axisShape = new Shape(0.f, 0.f, 0.f);
@@ -40,9 +42,9 @@ void Scene::update()
 	shape->Update();
 
 	if (rotCam) {
-		camDeg += 0.1f;
-		camPos.x = camRad * cos(camDeg);
-		camPos.z = camRad * sin(camDeg);
+		camDeg += 3.f;
+		camPos.x = camRad * cos(glm::radians(camDeg));
+		camPos.z = camRad * sin(glm::radians(camDeg));
 	}
 }
 

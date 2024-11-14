@@ -39,6 +39,9 @@ private:
 	GLclampf r, g, b;
 
 	glm::vec3 camPos;
+	glm::vec3 camDir;
+	glm::vec3 camU;
+	glm::vec3 camV;
 
 	bool rotCamPosiSelf;
 	bool rotCamNegaSelf;

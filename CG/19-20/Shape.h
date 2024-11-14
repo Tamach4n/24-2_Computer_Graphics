@@ -36,6 +36,7 @@ public:
 
 	void init();
 	void initBuffer();
+	void initPlatBuffer();
 
 	void setActive(Shader* shader);
 	void setPos(float x, float y, float z);
@@ -57,8 +58,9 @@ public:
 	void Update();
 
 	void Draw(GLuint shaderProgram);
+	void DrawPlat(GLuint shaderProgram);
 
-protected:
+private:
 	Vertex* shapeVertex;
 
 	float movePos;
@@ -75,10 +77,13 @@ protected:
 	bool isBarrelRotateNegaY;
 
 	float barrelMovePos;
+	bool* wait;
+	bool isCombined;
 	bool isBarrelmovePosiX;
 	bool isBarrelmoveNegaX;
 
 	float armRotateAngle;
+	float correctionArm;
 	bool isArmRotatePosiZ;
 	bool isArmRotateNegaZ;
 

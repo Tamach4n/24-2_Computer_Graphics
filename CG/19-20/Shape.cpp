@@ -4,14 +4,12 @@ Shape::Shape()
 {
 	std::cout << "Shape()" << '\n';
 	init();
-	initBuffer();
 }
 
 Shape::Shape(float r,float degree)
 {
 	std::cout << "Shape(float r, float degree)" << '\n';
 	init();
-	initBuffer();
 }
 
 Shape::Shape(const Shape& other)
@@ -58,11 +56,15 @@ void Shape::init()
 	isBarrelRotateNegaY = false;
 	barrelMovePos = 0.f;
 	correctionBarrel = 0.f;
+	wait = nullptr;
+	isCombined = false;
 	isBarrelmovePosiX = false;
 	isBarrelmoveNegaX = false;
 	armRotateAngle = 0.f;
+	correctionArm = 0.f;
 	isArmRotatePosiZ = false;
 	isArmRotateNegaZ = false;
+	clearBuffer();
 }
 
 void Shape::initBuffer()
@@ -95,6 +97,23 @@ void Shape::initBuffer()
 	};
 
 	shapeVertex = new Vertex(VAO, 8, VBO, 36);
+}
+
+void Shape::initPlatBuffer()
+{
+	float VAO[] = {
+		-2.f, 0.f,  2.f,	1.f, 0.f, 0.f,
+		 2.f, 0.f,  2.f,	0.f, 1.f, 0.f,
+		-2.f, 0.f, -2.f,	0.f, 0.f, 1.f,
+		 2.f, 0.f, -2.f,	1.f, 1.f, 0.f
+	};
+
+	unsigned int VBO[] = {
+		0, 1, 2,
+		2, 3, 1
+	};
+
+	shapeVertex = new Vertex(VAO, 4, VBO, 6);
 }
 
 void Shape::setActive(Shader* shader)
@@ -131,9 +150,14 @@ void Shape::setMoveX(int i)
 		isMoveNegaX = false;
 	}
 
-	else {
+	else if (i < 0) {
 		isMoveNegaX = !isMoveNegaX;
 		isMovePosiX = false;
+	}
+
+	else {	//	i == 0
+		isMovePosiX = false;
+		isMoveNegaX = false;
 	}
 }
 
@@ -144,9 +168,14 @@ void Shape::setRotateTop(int i)
 		isTopRotateNegaY = false;
 	}
 
-	else {
+	else if (i < 0) {
 		isTopRotateNegaY = !isTopRotateNegaY;
 		isTopRotatePosiY = false;
+	}
+
+	else {
+		isTopRotatePosiY = false;
+		isTopRotateNegaY = false;
 	}
 }
 
@@ -157,8 +186,13 @@ void Shape::setRotateBarrel(int i)
 		isBarrelRotateNegaY = false;
 	}
 
-	else {
+	else if (i < 0) {
 		isBarrelRotateNegaY = !isBarrelRotateNegaY;
+		isBarrelRotatePosiY = false;
+	}
+
+	else {
+		isBarrelRotateNegaY = false;
 		isBarrelRotatePosiY = false;
 	}
 }
@@ -166,12 +200,27 @@ void Shape::setRotateBarrel(int i)
 void Shape::setMoveBarrel(int i)
 {
 	if (i > 0) {
-		isBarrelmovePosiX = !isBarrelmovePosiX;
-		isBarrelmoveNegaX = false;
+		if (isBarrelRotatePosiY or isBarrelRotateNegaY)
+			wait = &isBarrelmovePosiX;
+
+		else {
+			isBarrelmovePosiX = !isBarrelmovePosiX;
+			isBarrelmoveNegaX = false;
+		}
+	}
+
+	else if (i < 0) {
+		if (isBarrelRotatePosiY or isBarrelRotateNegaY)
+			wait = &isBarrelmoveNegaX;
+
+		else {
+			isBarrelmoveNegaX = !isBarrelmoveNegaX;
+			isBarrelmovePosiX = false;
+		}
 	}
 
 	else {
-		isBarrelmoveNegaX = !isBarrelmoveNegaX;
+		isBarrelmoveNegaX = false;
 		isBarrelmovePosiX = false;
 	}
 }
@@ -183,9 +232,14 @@ void Shape::setRotateArm(int i)
 		isArmRotateNegaZ = false;
 	}
 
-	else {
+	else if (i < 0) {
 		isArmRotateNegaZ = !isArmRotateNegaZ;
 		isArmRotatePosiZ = false;
+	}
+
+	else {
+		isArmRotatePosiZ = false;
+		isArmRotateNegaZ = false;
 	}
 }
 
@@ -219,6 +273,11 @@ void Shape::Update()
 			barrelRotateAngle += 3.f;
 			correctionBarrel += 0.0019;
 		}
+
+		else if (wait) {
+			*wait = !(*wait);
+			wait = nullptr;
+		}
 	}
 
 	else if (isBarrelRotateNegaY) {
@@ -226,24 +285,43 @@ void Shape::Update()
 			barrelRotateAngle -= 3.f;
 			correctionBarrel -= 0.0019;
 		}
+
+		else if (wait) {
+			*wait = !(*wait);
+			wait = nullptr;
+		}
 	}
 
 	if (isBarrelmovePosiX) {
-		if (barrelMovePos < 0.0625f)
+		if (barrelMovePos < 0.195f) {
 			barrelMovePos += 0.005f;
+			isCombined = false;
+		}
 
+		else
+			isCombined = true;
 	}
 
 	else if (isBarrelmoveNegaX) {
-		if (barrelMovePos > 0.f)
+		if (barrelMovePos > 0.f) {
 			barrelMovePos -= 0.005f;
+			isCombined = false;
+		}
 	}
 
-	if (isArmRotatePosiZ)
-		armRotateAngle += 3.f;
+	if (isArmRotatePosiZ) {
+		if (armRotateAngle > -90.f) {
+			armRotateAngle -= 3.f;
+			correctionArm += 0.0019;
+		}
+	}
 
-	else if (isArmRotateNegaZ)
-		armRotateAngle -= 3.f;
+	else if (isArmRotateNegaZ) {
+		if (armRotateAngle < 0.f) {
+			armRotateAngle += 3.f;
+			correctionArm -= 0.0019;
+		}
+	}
 }
 
 void Shape::Draw(GLuint shaderProgram)
@@ -292,17 +370,20 @@ void Shape::Draw(GLuint shaderProgram)
 		{
 			S = glm::scale(unitMat, glm::vec3(0.0625f, 0.25f, 0.0625f));
 
-			movLeft = glm::translate(unitMat, glm::vec3(-0.0625f, 0.f, 0.f));
-			movRight = glm::translate(unitMat, glm::vec3(0.0625f, 0.f, 0.f));
+			movLeft = glm::translate(unitMat, glm::vec3(-0.0625f, correctionArm, 0.f));
+			movRight = glm::translate(unitMat, glm::vec3(0.0625f, correctionArm, 0.f));
 			moveOnMono = glm::translate(unitMat, glm::vec3(0.f, 0.375f, 0.f));
 
+			glm::mat4 rotateArmLeft = glm::rotate(unitMat, glm::radians(-armRotateAngle), glm::vec3(0.f, 0.f, 1.f));
+			glm::mat4 rotateArmRight = glm::rotate(unitMat, glm::radians(armRotateAngle), glm::vec3(0.f, 0.f, 1.f));
+
 			//	ÁÂ
-			finalMat = moveAll * moveOnMono * rotateTopArm * movLeft * S * Ty;
+			finalMat = moveAll * moveOnMono * rotateTopArm * movLeft * rotateArmLeft * S * Ty;
 			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 
 			//	¿ì
-			finalMat = moveAll * moveOnMono * rotateTopArm * movRight * S * Ty;
+			finalMat = moveAll * moveOnMono * rotateTopArm * movRight * rotateArmRight * S * Ty;
 			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 		}
@@ -312,24 +393,40 @@ void Shape::Draw(GLuint shaderProgram)
 			Ty = glm::translate(unitMat, glm::vec3(0.f, 0.5f, 0.5f));	//	zµµ ÀÌµ¿ÇÑ´Ù?!
 			S = glm::scale(unitMat, glm::vec3(0.0625f, 0.0625f, 0.25f));
 
-			movLeft = glm::translate(unitMat, glm::vec3(-0.2f + barrelMovePos, 0.f, 0.f));
-			movRight = glm::translate(unitMat, glm::vec3(0.2f - barrelMovePos, 0.f, 0.f));
+			movLeft = glm::translate(unitMat, glm::vec3(-0.2f + barrelMovePos, 0.f, correctionBarrel));
+			movRight = glm::translate(unitMat, glm::vec3(0.2f - barrelMovePos, 0.f, correctionBarrel));
 			moveOnMono = glm::translate(unitMat, glm::vec3(0.f, 0.0625f, 0.25f));
 
-			glm::mat4 t1 = glm::translate(unitMat, glm::vec3(0.f, 0.f, -0.125f));
 			glm::mat4 rotateBarrelLeft = glm::rotate(unitMat, glm::radians(-barrelRotateAngle), glm::vec3(0.f, 1.f, 0.f));
 			glm::mat4 rotateBarrelRight = glm::rotate(unitMat, glm::radians(barrelRotateAngle), glm::vec3(0.f, 1.f, 0.f));
-			glm::mat4 t2 = glm::translate(unitMat, glm::vec3(0.f, 0.f, correctionBarrel));
 
 			//	ÁÂ
-			finalMat = moveAll * moveOnMono * movLeft * t2 * rotateBarrelLeft * S * Ty;
+			finalMat = moveAll * moveOnMono * movLeft * rotateBarrelLeft * S * Ty;
 			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 
+			if (isCombined)	return;
+
 			//	¿ì
-			finalMat = moveAll * moveOnMono * movRight * t2 * rotateBarrelRight * S * Ty;
+			finalMat = moveAll * moveOnMono * movRight * rotateBarrelRight * S * Ty;
 			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 		}
 	}
+}
+
+void Shape::DrawPlat(GLuint shaderProgram)
+{
+	GLuint uLoc = glGetUniformLocation(shaderProgram, "modelTransform");
+
+	if (uLoc < 0)
+		std::cout << "uLoc not found" << '\n';
+
+	else {
+		glm::mat4 T = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
+
+		glm::mat4 SRT = T;
+		glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(SRT));
+	}
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 }
