@@ -2,6 +2,7 @@
 
 Cube::Cube() 
 {
+	std::cout << "Cube::Cube() " << '\n';
 	xPos = yPos = zPos = 0.f;
 	xDeg = 5.f;
 	yDeg = 5.f;

@@ -36,12 +36,12 @@ bool Scene::initialize()
 	camDeg = 135.f;
 	camRad = glm::length(camPos[0]);
 
-	camPos[0].x = camRad * cos(glm::radians(camDeg));
+	/*camPos[0].x = camRad * cos(glm::radians(camDeg));
 	camPos[1].x = camRad * cos(glm::radians(camDeg));
 	camPos[2].x = camRad * cos(glm::radians(camDeg));
 	camPos[0].z = camRad * sin(glm::radians(camDeg));
 	camPos[1].z = camRad * sin(glm::radians(camDeg));
-	camPos[2].z = camRad * sin(glm::radians(camDeg));
+	camPos[2].z = camRad * sin(glm::radians(camDeg));*/
 
 	glm::vec3 camAt = glm::vec3(0.f, 0.f, 0.f);
 	glm::vec3 camUp = glm::vec3(0.f, 1.f, 0.f);

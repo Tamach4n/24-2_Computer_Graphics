@@ -2,7 +2,7 @@
 
 Shape::Shape()
 {
-	std::cout << "Shape()" << '\n';
+	std::cout << "Shape::Shape()" << '\n';
 	xPos = yPos = zPos = 0.f;
 	xDeg = 5.f;
 	yDeg = 5.f;
