@@ -107,9 +107,14 @@ void Scene::update()
 		camPos[0].z = camRad * sin(glm::radians(camDeg));
 		camPos[1].z = camRad * sin(glm::radians(camDeg));
 		camPos[2].z = camRad * sin(glm::radians(camDeg));
-		/*camDir = glm::normalize(camPos - ori);
-		camU = glm::normalize(glm::cross(camDir, glm::vec3(0.f, 1.f, 0.f)));
-		camV = glm::cross(camDir, camU);*/
+
+		camDir[0] = glm::normalize(camPos[0] - glm::vec3(0.f, 0.f, 0.f));
+		camU[0] = glm::normalize(glm::cross(camDir[0], glm::vec3(0.f, 1.f, 0.f)));
+		//camV[0] = glm::cross(camDir[0], camV[0]);
+		camDir[1] = glm::normalize(camPos[1] - glm::vec3(0.f, 0.f, 0.f));
+		camU[1] = glm::normalize(glm::cross(camDir[1], glm::vec3(0.f, 1.f, 0.f))); 
+		camDir[2] = glm::normalize(camPos[2] - glm::vec3(0.f, 0.f, 0.f));
+		camU[2] = glm::normalize(glm::cross(camDir[2], glm::vec3(0.f, 1.f, 0.f)));
 	}
 
 	else if (rotCamNegaCenter) {
@@ -120,11 +125,18 @@ void Scene::update()
 		camPos[0].z = camRad * sin(glm::radians(camDeg));
 		camPos[1].z = camRad * sin(glm::radians(camDeg));
 		camPos[2].z = camRad * sin(glm::radians(camDeg));
+
+		camDir[0] = glm::normalize(camPos[0] - glm::vec3(0.f, 0.f, 0.f));
+		camU[0] = glm::normalize(glm::cross(camDir[0], glm::vec3(0.f, 1.f, 0.f)));
+		camDir[1] = glm::normalize(camPos[1] - glm::vec3(0.f, 0.f, 0.f));
+		camU[1] = glm::normalize(glm::cross(camDir[1], glm::vec3(0.f, 1.f, 0.f)));
+		camDir[2] = glm::normalize(camPos[2] - glm::vec3(0.f, 0.f, 0.f));
+		camU[2] = glm::normalize(glm::cross(camDir[2], glm::vec3(0.f, 1.f, 0.f)));
 	}
 
 	//	ÀÚÀü
 	if (rotCamPosiSelf) {
-		glm::mat4 R = glm::rotate(glm::mat4(1.f), glm::radians(30.f), camV[0]);
+		glm::mat4 R = glm::rotate(glm::mat4(1.f), glm::radians(3.f), camV[0]);
 		camDir[0] = glm::vec3(R * glm::vec4(camDir[0], 1.f));
 		camU[0] = glm::normalize(glm::cross(camDir[0], camV[0]));
 
@@ -185,7 +197,11 @@ void Scene::drawScene(int mode)
 		glm::mat4 proj;
 
 		if (mode == 0) {
-			view = glm::lookAt(camPos[0], camPos[0] - camDir[0], camV[0]);
+			if(rotCamPosiSelf|| rotCamNegaSelf)
+				view = glm::lookAt(camPos[0], camPos[0] - camDir[0], glm::vec3(0.f,1.f,0.f));
+
+			else
+				view = glm::lookAt(camPos[0], camPos[0] - camDir[0], glm::vec3(0.f, 1.f, 0.f));
 
 			if (Proj)
 				proj = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 50.f);

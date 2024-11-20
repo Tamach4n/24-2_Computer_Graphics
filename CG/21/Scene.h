@@ -12,6 +12,8 @@
 #include "shader.h"
 #include "Shape.h"
 
+class Cbstackle;
+
 class Scene
 {
 public:
@@ -23,7 +25,6 @@ public:
 	void update();
 
 	void draw();
-	void drawScene(int mode);
 
 	void keyboard(unsigned char key);		// press
 	void keyboardUp(unsigned char key);		// release
@@ -39,10 +40,10 @@ private:
 
 	GLclampf r, g, b;
 
-	glm::vec3 camPos[3];
-	glm::vec3 camDir[3];
-	glm::vec3 camU[3];
-	glm::vec3 camV[3];
+	glm::vec3 camPos;
+	glm::vec3 camDir;
+	glm::vec3 camU;
+	glm::vec3 camV;
 
 	bool rotCamPosiSelf;
 	bool rotCamNegaSelf;
@@ -62,8 +63,9 @@ private:
 	
 	class Shader* spriteShader;
 
-	class Shape* crane;
-	class Shape* plat;
+	class Robot* robot;
+	class Cbstackle* obs;
+	class Butai* butai;
 
 	void randomRGB();
 

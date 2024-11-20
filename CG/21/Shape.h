@@ -9,18 +9,8 @@
 #include "Vertex.h"
 #include "Shader.h"
 
-struct Position {
-	float x, y, z;
-
-	Position(float x = 0.f, float y = 0.f, float z = 0.f)
-		:x(x), y(y), z(z) {}
-
-	Position& operator+=(const Position& other) {
-		this->x = this->x + other.x;
-		this->y = this->y + other.y;
-		this->z = this->z + other.z;
-		return *this;
-	}
+enum Direction {
+	Dir_None, Dir_Left, Dir_Right, Dir_Front, Dir_Back
 };
 
 class Shape
@@ -28,71 +18,110 @@ class Shape
 public:
 	Shape();
 	Shape(float r, float degree);
-	Shape(const Shape& other);
-	Shape& operator=(const Shape& other);
 	~Shape();
 
-	void clearBuffer();
+	virtual void clearBuffer();
 
-	void init();
-	void initBuffer();
-	void initPlatBuffer();
+	virtual void init();
+	virtual void initBuffer();
 
-	void setActive(Shader* shader);
-	void setPos(float x, float y, float z);
-	void setRotation(float x, float y, float z);
-	void setDirection(float x, float y, float z);
-	void setMove(float x, float y, float z);
+	virtual void setActive(Shader* shader);
+	//virtual void setPos(float x, float y, float z);
+	//virtual void setRotation(float x, float y, float z);
+	//virtual void setDirection(float x, float y, float z);
+	//virtual void setMove(float x, float y, float z);
 
-	void setMoveX(int i);
-	void setRotateTop(int i);
-	void setRotateBarrel(int i);
-	void setMoveBarrel(int i);
-	void setRotateArm(int i);
-	void Reset();
+	virtual void Reset();
 
-	Position getPos() const { return pos; }
-	Position getDeg() const { return deg; }
-	Position getRot() const { return rot; }
+	virtual void Update();
 
-	void Update();
+	virtual void Draw(GLuint shaderProgram);
 
-	void Draw(GLuint shaderProgram);
-	void DrawPlat(GLuint shaderProgram);
-
-private:
+protected:
 	Vertex* shapeVertex;
-
-	float movePos;
-	bool isMovePosiX;
-	bool isMoveNegaX;
-
-	float topRotateAngle;
-	bool isTopRotatePosiY;
-	bool isTopRotateNegaY;
-
-	float barrelRotateAngle;
-	float correctionBarrel;
-	bool isBarrelRotatePosiY;
-	bool isBarrelRotateNegaY;
-
-	float barrelMovePos;
-	bool* wait;
-	bool isCombined;
-	bool isBarrelmovePosiX;
-	bool isBarrelmoveNegaX;
-
-	float armRotateAngle;
-	float correctionArm;
-	bool isArmRotatePosiZ;
-	bool isArmRotateNegaZ;
-
-	Position pos;
-	Position deg;
-
-	Position rot;
-	Position dir;
 	
 	std::random_device rd;
 };
 
+class Robot : public Shape {
+public:
+	Robot();
+	~Robot() { delete shapeVertex; }
+
+	void init() override;
+	void initBuffer() override;
+
+	void setJump() { isJumping = true; }
+	void setGroundPos(float y);
+	void setDir(Direction d);
+	void adjSpeed(int i);
+
+	glm::vec3 getPos() const { return pos; }
+
+	void Update() override;
+
+	void Draw(GLuint shaderProgram) override;
+	void DrawParts(GLuint shaderProgram);
+
+private:
+	int armRotateLevel;	//	0: idle, 1: 앞으로 최대, 2: 뒤 최대
+	float dArmAngle;
+	float armAngle;
+
+	bool isJumping;
+	bool jumpPeak;
+	float jumpPos;	//	JumpForce?
+
+	glm::vec3 pos;
+	float groundYPos;
+	//glm::vec3 deg;	//	로봇이 바라볼 각도
+
+	float Angle;
+	//glm::vec3 rot;
+	glm::vec3 dir;	//	이동 단위
+	float speed;
+};
+
+class Cbstacle : public Shape {
+public:
+	Cbstacle();
+	~Cbstacle() { delete shapeVertex; }
+
+	void init() override;
+	void initBuffer() override;
+
+	void setState(bool st);
+
+	glm::vec3 getPos() const { return pos; }
+	bool getState() const { return isSteppedOn; }
+
+	void Update() override;
+
+	void Draw(GLuint shaderProgram) override;
+	void DrawParts(GLuint shaderProgram);
+
+private:
+	bool isSteppedOn;
+	float fumi;	//	밟힌 정도, footPressure
+	glm::vec3 pos;
+};
+
+class Butai : public Shape {
+public:
+	Butai();
+	~Butai() { delete shapeVertex; }
+
+	void init() override;
+	void initBuffer() override;
+
+	void setOpen();
+
+	void Update() override;
+
+	void Draw(GLuint shaderProgram) override;
+
+private:
+	bool isOpening;
+	bool isOpened;
+	float doorPos;
+};

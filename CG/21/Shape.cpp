@@ -12,27 +12,6 @@ Shape::Shape(float r,float degree)
 	init();
 }
 
-Shape::Shape(const Shape& other)
-{
-	this->pos = other.pos;
-	this->deg = other.deg;
-	this->rot = other.rot;
-}
-
-Shape& Shape::operator=(const Shape& other)
-{
-	/*if (this != &other) {
-		delete shapeVertex;
-		pos = other.pos;
-		deg = other.deg;
-		dir = other.dir;
-		rotateY = other.rotateY;
-		rotateZ = other.rotateZ;
-	}*/
-
-	return *this;
-}
-
 Shape::~Shape()
 {
 	delete shapeVertex;
@@ -45,25 +24,6 @@ void Shape::clearBuffer()
 
 void Shape::init()
 {
-	movePos = 0.f;
-	isMovePosiX = false;
-	isMoveNegaX = false;
-	topRotateAngle = 0.f;
-	isTopRotatePosiY = false;
-	isTopRotateNegaY = false;
-	barrelRotateAngle = 0.f;
-	isBarrelRotatePosiY = false;
-	isBarrelRotateNegaY = false;
-	barrelMovePos = 0.f;
-	correctionBarrel = 0.f;
-	wait = nullptr;
-	isCombined = false;
-	isBarrelmovePosiX = false;
-	isBarrelmoveNegaX = false;
-	armRotateAngle = 0.f;
-	correctionArm = 0.f;
-	isArmRotatePosiZ = false;
-	isArmRotateNegaZ = false;
 	clearBuffer();
 }
 
@@ -99,233 +59,22 @@ void Shape::initBuffer()
 	shapeVertex = new Vertex(VAO, 8, VBO, 36);
 }
 
-void Shape::initPlatBuffer()
-{
-	float VAO[] = {
-		-2.f, 0.f,  2.f,	1.f, 0.f, 0.f,
-		 2.f, 0.f,  2.f,	0.f, 1.f, 0.f,
-		-2.f, 0.f, -2.f,	0.f, 0.f, 1.f,
-		 2.f, 0.f, -2.f,	1.f, 1.f, 0.f
-	};
-
-	unsigned int VBO[] = {
-		0, 1, 2,
-		2, 3, 1
-	};
-
-	shapeVertex = new Vertex(VAO, 4, VBO, 6);
-}
-
 void Shape::setActive(Shader* shader)
 {
 	shapeVertex->setActive();
 }
 
-void Shape::setPos(float x, float y, float z)
-{
-	pos = { x,y,z };
-}
-
-void Shape::setRotation(float x, float y, float z)
-{
-	//rot = { x,y,z };
-}
-
-void Shape::setDirection(float x, float y, float z)
-{
-	rot = { x,y,z };
-}
-
-void Shape::setMove(float x, float y, float z)
-{
-	dir.x = x;
-	dir.y = y;
-	dir.z = z;
-}
-
-void Shape::setMoveX(int i)
-{
-	if (i > 0) {
-		isMovePosiX = !isMovePosiX;
-		isMoveNegaX = false;
-	}
-
-	else if (i < 0) {
-		isMoveNegaX = !isMoveNegaX;
-		isMovePosiX = false;
-	}
-
-	else {	//	i == 0
-		isMovePosiX = false;
-		isMoveNegaX = false;
-	}
-}
-
-void Shape::setRotateTop(int i)
-{
-	if (i > 0) {
-		isTopRotatePosiY = !isTopRotatePosiY;
-		isTopRotateNegaY = false;
-	}
-
-	else if (i < 0) {
-		isTopRotateNegaY = !isTopRotateNegaY;
-		isTopRotatePosiY = false;
-	}
-
-	else {
-		isTopRotatePosiY = false;
-		isTopRotateNegaY = false;
-	}
-}
-
-void Shape::setRotateBarrel(int i)
-{
-	if (i > 0) {
-		isBarrelRotatePosiY = !isBarrelRotatePosiY;
-		isBarrelRotateNegaY = false;
-	}
-
-	else if (i < 0) {
-		isBarrelRotateNegaY = !isBarrelRotateNegaY;
-		isBarrelRotatePosiY = false;
-	}
-
-	else {
-		isBarrelRotateNegaY = false;
-		isBarrelRotatePosiY = false;
-	}
-}
-
-void Shape::setMoveBarrel(int i)
-{
-	if (i > 0) {
-		if (isBarrelRotatePosiY or isBarrelRotateNegaY)
-			wait = &isBarrelmovePosiX;
-
-		else {
-			isBarrelmovePosiX = !isBarrelmovePosiX;
-			isBarrelmoveNegaX = false;
-		}
-	}
-
-	else if (i < 0) {
-		if (isBarrelRotatePosiY or isBarrelRotateNegaY)
-			wait = &isBarrelmoveNegaX;
-
-		else {
-			isBarrelmoveNegaX = !isBarrelmoveNegaX;
-			isBarrelmovePosiX = false;
-		}
-	}
-
-	else {
-		isBarrelmoveNegaX = false;
-		isBarrelmovePosiX = false;
-	}
-}
-
-void Shape::setRotateArm(int i)
-{
-	if (i > 0) {
-		isArmRotatePosiZ = !isArmRotatePosiZ;
-		isArmRotateNegaZ = false;
-	}
-
-	else if (i < 0) {
-		isArmRotateNegaZ = !isArmRotateNegaZ;
-		isArmRotatePosiZ = false;
-	}
-
-	else {
-		isArmRotatePosiZ = false;
-		isArmRotateNegaZ = false;
-	}
-}
-
 void Shape::Reset()
 {
-	pos = rot = deg = {};
 }
 
 void Shape::Update()
 {
-	if (isMovePosiX)
-		movePos += 0.005f;
-
-	else if (isMoveNegaX)
-		movePos -= 0.005f;
-
-	if (isTopRotatePosiY) {
-		if (topRotateAngle < 90.f)
-			topRotateAngle += 3.f;
-	}
-
-	else if (isTopRotateNegaY) {
-		if (topRotateAngle > 0.f) {
-			topRotateAngle -= 3.f;
-
-		}
-	}
-
-	if (isBarrelRotatePosiY) {
-		if (barrelRotateAngle < 90.f) {
-			barrelRotateAngle += 3.f;
-			correctionBarrel += 0.0019;
-		}
-
-		else if (wait) {
-			*wait = !(*wait);
-			wait = nullptr;
-		}
-	}
-
-	else if (isBarrelRotateNegaY) {
-		if (barrelRotateAngle > 0.f) {
-			barrelRotateAngle -= 3.f;
-			correctionBarrel -= 0.0019;
-		}
-
-		else if (wait) {
-			*wait = !(*wait);
-			wait = nullptr;
-		}
-	}
-
-	if (isBarrelmovePosiX) {
-		if (barrelMovePos < 0.195f) {
-			barrelMovePos += 0.005f;
-			isCombined = false;
-		}
-
-		else
-			isCombined = true;
-	}
-
-	else if (isBarrelmoveNegaX) {
-		if (barrelMovePos > 0.f) {
-			barrelMovePos -= 0.005f;
-			isCombined = false;
-		}
-	}
-
-	if (isArmRotatePosiZ) {
-		if (armRotateAngle > -90.f) {
-			armRotateAngle -= 3.f;
-			correctionArm += 0.0019;
-		}
-	}
-
-	else if (isArmRotateNegaZ) {
-		if (armRotateAngle < 0.f) {
-			armRotateAngle += 3.f;
-			correctionArm -= 0.0019;
-		}
-	}
 }
 
 void Shape::Draw(GLuint shaderProgram)
 {
+	/*
 	GLuint worldLoc = glGetUniformLocation(shaderProgram, "modelTransform");
 
 	if (worldLoc < 0)
@@ -412,21 +161,355 @@ void Shape::Draw(GLuint shaderProgram)
 			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 		}
+	}*/
+}
+
+//	-----------------------------------------------------------------------
+
+Robot::Robot()
+{
+	std::cout << "Robot::Robot()\n";
+}
+
+void Robot::init()
+{
+	armRotateLevel = 0;
+	dArmAngle = 3.f;
+	armAngle = 0.f;
+	isJumping = false;
+	jumpPeak = false;
+	jumpPos = 0.f;
+	groundYPos = 0.f;
+	pos = glm::vec3(0.f);
+	Angle = 90.f;
+	dir = glm::vec3(0.f);
+	speed = 0.01f;
+}
+
+void Robot::initBuffer()
+{
+	float VAO[] = {
+		-0.5f, -0.5f, -0.5f,   0.48f, 0.58f, 0.78f,
+		 0.5f, -0.5f, -0.5f,   0.48f, 0.58f, 0.78f,
+		 0.5f,  0.5f, -0.5f,   0.48f, 0.58f, 0.78f,
+		-0.5f,  0.5f, -0.5f,   0.48f, 0.58f, 0.78f,
+							  
+		-0.5f, -0.5f,  0.5f,   0.48f, 0.58f, 0.78f,
+		 0.5f, -0.5f,  0.5f,   0.48f, 0.58f, 0.78f,
+		 0.5f,  0.5f,  0.5f,   1.f, 0.58f, 0.78f,
+		-0.5f,  0.5f,  0.5f,   0.48f, 0.58f, 0.78f
+	};
+
+	unsigned int VBO[] = {
+		// 앞면
+		4, 5, 6, 6, 7, 4,
+		// 뒷면
+		0, 1, 2, 2, 3, 0,
+		// 왼쪽 면
+		0, 3, 7, 7, 4, 0,
+		// 오른쪽 면
+		1, 5, 6, 6, 2, 1,
+		// 아래쪽 면
+		0, 1, 5, 5, 4, 0,
+		// 위쪽 면
+		3, 2, 6, 6, 7, 3
+	};
+
+	shapeVertex = new Vertex(VAO, 8, VBO, 36);
+}
+
+void Robot::setGroundPos(float y)
+{
+	groundYPos = y;
+}
+
+void Robot::setDir(Direction d)
+{
+	switch (d) {
+	case Dir_None:
+		dir = glm::vec3(0.f, 0.f, 0.f);
+		break;
+
+	case Dir_Left:
+		dir = glm::vec3(-1.f, 0.f, 0.f);
+		Angle = 270.f;
+		break;
+
+	case Dir_Right:
+		dir = glm::vec3(1.f, 0.f, 0.f);
+		Angle = 90.f;
+		break;
+
+	case Dir_Front:
+		dir = glm::vec3(0.f, 0.f, 1.f);
+		Angle = 0.f;
+		break;
+
+	case Dir_Back:
+		dir = glm::vec3(0.f, 0.f, -1.f);
+		Angle = 180.f;
+		break;
 	}
 }
 
-void Shape::DrawPlat(GLuint shaderProgram)
+void Robot::adjSpeed(int i)
 {
-	GLuint uLoc = glGetUniformLocation(shaderProgram, "modelTransform");
+	if ((i > 0 && speed < 0.03f) or (i < 0 && speed > 0.001f))
+		speed += 0.001f * i;
 
-	if (uLoc < 0)
+	std::cout << "Speed: " << speed << '\n';
+}
+
+void Robot::Update()
+{
+	pos += dir * speed;
+
+	if (isJumping) {
+		if (jumpPeak) {
+			if (jumpPos > groundYPos)
+				jumpPos -= 0.05f;
+
+			else {
+				jumpPos = 0.f;
+				jumpPeak = false;
+				isJumping = false;
+				std::cout << "Jump: " << isJumping << '\n';
+			}
+		}
+
+		else {
+			if (jumpPos < 0.3f)
+				jumpPos += 0.05f;
+
+			else
+				jumpPeak = true;
+		}
+	}
+}
+
+void Robot::Draw(GLuint shaderProgram)
+{
+	shapeVertex->setActive();
+
+	GLuint worldLoc = glGetUniformLocation(shaderProgram, "modelTransform");
+
+	if (worldLoc < 0)
 		std::cout << "uLoc not found" << '\n';
 
 	else {
-		glm::mat4 T = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
+		glm::mat4 unit(1.f);
 
-		glm::mat4 SRT = T;
-		glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(SRT));
+		glm::mat4 S = glm::scale(unit, glm::vec3(0.2f, 0.4f, 0.2f));
+		glm::mat4 T = glm::translate(unit, pos);
+		glm::mat4 onFloor = glm::translate(unit, glm::vec3(0.f, 0.2f + jumpPos, 0.f));
+		glm::mat4 Look = glm::rotate(unit, glm::radians(Angle), glm::vec3(0.f, 1.f, 0.f));
+		glm::mat4 result = onFloor * T * Look * S;
+
+		glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(result));
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 	}
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
+}
+
+void Robot::DrawParts(GLuint shaderProgram)
+{
+}
+
+//	------------------------------------------------------------------------
+//	------------------------------------------------------------------------
+
+Cbstacle::Cbstacle()
+{
+	std::cout << "Obstacle::Obstacle()\n";
+}
+
+void Cbstacle::init()
+{
+	std::uniform_real_distribution<float> urd(-0.7f, 0.7f);
+
+	isSteppedOn = false;
+	fumi = 0.f;
+	pos = glm::vec3(urd(rd), 0.f, urd(rd));
+}
+
+void Cbstacle::initBuffer()
+{
+}
+
+void Cbstacle::setState(bool st)
+{
+	isSteppedOn = st;
+}
+
+void Cbstacle::Update()
+{
+	if (isSteppedOn) {
+		if (fumi > -0.2f)
+			fumi -= 0.01f;
+	}
+
+	else {
+		if (fumi < 0.f)
+			fumi += 0.01f;
+	}
+}
+
+void Cbstacle::Draw(GLuint shaderProgram)
+{
+}
+
+void Cbstacle::DrawParts(GLuint shaderProgram)
+{
+}
+
+//	------------------------------------------------------------------------
+//	------------------------------------------------------------------------
+
+Butai::Butai()
+{
+	std::cout << "Butai::Butai()\n";
+	init();
+	initBuffer();
+}
+
+void Butai::init()
+{
+	doorPos = 1.0f;
+	isOpened = true;
+	isOpening = false;
+}
+
+void Butai::initBuffer()
+{
+	float VAO[] = {
+		// 앞면 (빨간색)
+		-1.0f, -1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  // 왼쪽 아래
+		 0.0f, -1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  // 오른쪽 아래
+		 0.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  // 오른쪽 위
+		-1.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  // 왼쪽 위
+
+		 0.0f, -1.0f,  1.0f,  1.0f, 0.0f, 0.0f,
+		 1.0f, -1.0f,  1.0f,  1.0f, 0.0f, 0.0f,
+		 1.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f,
+		 0.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f,
+
+		// 뒷면 (초록색)
+		-1.0f, -1.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+		 1.0f, -1.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+		 1.0f,  1.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+		-1.0f,  1.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+
+		// 왼쪽 면 (파란색)
+		-1.0f, -1.0f, -1.0f,  0.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f,  1.0f,  0.0f, 0.0f, 1.0f,
+		-1.0f,  1.0f,  1.0f,  0.0f, 0.0f, 1.0f,
+		-1.0f,  1.0f, -1.0f,  0.0f, 0.0f, 1.0f,
+
+		// 오른쪽 면 (노란색)
+		 1.0f, -1.0f, -1.0f,  1.0f, 1.0f, 0.0f,
+		 1.0f, -1.0f,  1.0f,  1.0f, 1.0f, 0.0f,
+		 1.0f,  1.0f,  1.0f,  1.0f, 1.0f, 0.0f,
+		 1.0f,  1.0f, -1.0f,  1.0f, 1.0f, 0.0f,
+
+		// 아래쪽 면 (하늘색)
+		-1.0f, -1.0f, -1.0f,  0.0f, 1.0f, 1.0f,
+		 1.0f, -1.0f, -1.0f,  0.0f, 1.0f, 1.0f,
+		 1.0f, -1.0f,  1.0f,  0.0f, 1.0f, 1.0f,
+		-1.0f, -1.0f,  1.0f,  0.0f, 1.0f, 1.0f,
+
+		// 위쪽 면 (보라색)
+		-1.0f,  1.0f, -1.0f,  1.0f, 0.0f, 1.0f,
+		 1.0f,  1.0f, -1.0f,  1.0f, 0.0f, 1.0f,
+		 1.0f,  1.0f,  1.0f,  1.0f, 0.0f, 1.0f,
+		-1.0f,  1.0f,  1.0f,  1.0f, 0.0f, 1.0f
+	};
+
+	unsigned int VBO[] = {
+		// 앞면
+		0, 1, 2, 2, 3, 0,
+		4, 5, 6, 6, 7, 4,
+		// 뒷면
+		8, 9, 10, 10, 11, 8,
+		// 왼쪽 면
+		12, 13, 14, 14, 15, 12,
+		// 오른쪽 면
+		16, 17, 18, 18, 19, 16,
+		// 아래쪽 면
+		20, 21, 22, 22, 23, 20,
+		// 위쪽 면
+		24, 25, 26, 26, 27, 24
+	};
+
+	shapeVertex = new Vertex(VAO, 28, VBO, 42);
+}
+
+void Butai::setOpen()
+{
+	if (isOpening) {
+		if (isOpened)
+			isOpened = false;
+
+		else
+			isOpened = true;
+	}
+
+	else {
+		std::cout << "Opening\n";
+		isOpening = true;
+	}
+}
+
+void Butai::Update()
+{
+	if (isOpening) {
+		if (isOpened) {
+			if (doorPos > 0.01f)
+				doorPos -= 0.05f;
+
+			else {
+				std::cout << "Closed\n";
+				isOpened = false;
+				isOpening = false;
+			}
+		}
+
+		else {
+			if (doorPos < 1.0f)
+				doorPos += 0.05f;
+
+			else {
+				std::cout << "Opened\n";
+				isOpened = true;
+				isOpening = false;
+			}
+		}
+	}
+}
+
+void Butai::Draw(GLuint shaderProgram)
+{
+	shapeVertex->setActive();
+
+	GLuint worldLoc = glGetUniformLocation(shaderProgram, "modelTransform");
+
+	if (worldLoc < 0)
+		std::cout << "uLoc not found" << '\n';
+
+	else {
+		//glm::mat4 m = glm::scale(glm::mat4(1.f), glm::vec3(1.f));
+		glm::mat4 m = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 1.f, 0.f));
+		glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(m));
+
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawElements(GL_TRIANGLES, 30, GL_UNSIGNED_INT, (void*)(12 * sizeof(unsigned int)));
+		
+		{
+			m = glm::translate(glm::mat4(1.f), glm::vec3(-doorPos, 1.f, 0.f));
+			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(m));
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
+
+			m = glm::translate(glm::mat4(1.f), glm::vec3(doorPos, 1.f, 0.f));
+			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(m));
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(6 * sizeof(unsigned int)));
+		}
+	}
 }

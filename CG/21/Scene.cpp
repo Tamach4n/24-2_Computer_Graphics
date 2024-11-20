@@ -29,148 +29,82 @@ bool Scene::initialize()
 	movCamPosiZ = false;
 	movCamNegaZ = false;
 
-	camPos[0] = glm::vec3(-2.f, 2.f, 2.f);
-	camPos[1] = glm::vec3( 0.f, 2.f, 0.f);
-	camPos[2] = glm::vec3(-2.f, 0.f, 2.f);
+	camPos = glm::vec3(0.f, 1.f, 5.f);
 
-	camDeg = 135.f;
-	camRad = glm::length(camPos[0]);
+	camDeg = 90.f;
+	camRad = glm::length(camPos);
 
-	/*camPos[0].x = camRad * cos(glm::radians(camDeg));
-	camPos[1].x = camRad * cos(glm::radians(camDeg));
-	camPos[2].x = camRad * cos(glm::radians(camDeg));
-	camPos[0].z = camRad * sin(glm::radians(camDeg));
-	camPos[1].z = camRad * sin(glm::radians(camDeg));
-	camPos[2].z = camRad * sin(glm::radians(camDeg));*/
+	camPos.x = camRad * cos(glm::radians(camDeg));
+	camPos.z = camRad * sin(glm::radians(camDeg));
 
-	glm::vec3 camAt = glm::vec3(0.f, 0.f, 0.f);
+	glm::vec3 camAt = glm::vec3(0.f, 1.f, 0.f);
 	glm::vec3 camUp = glm::vec3(0.f, 1.f, 0.f);
-	glm::vec3 camUp_z = glm::vec3(0.f, 0.f, 1.f);
 	
-	camDir[0] = glm::normalize(camPos[0] - camAt);
-	camDir[1] = glm::normalize(camPos[1] - camAt);
-	camDir[2] = glm::normalize(camPos[2] - camAt);
+	camDir = glm::normalize(camPos - camAt);
 
-	camU[0] = glm::normalize(glm::cross(camUp, camDir[0]));
-	camU[1] = glm::normalize(glm::cross(camUp_z, camDir[1]));
-	camU[2] = glm::normalize(glm::cross(camUp, camDir[2]));
+	camU = glm::normalize(glm::cross(camUp, camDir));
+	camV = glm::cross(camDir, camU);
 
-	camV[0] = glm::cross(camDir[0], camU[0]);
-	camV[1] = glm::cross(camDir[1], camU[1]);
-	camV[2] = glm::cross(camDir[2], camU[2]);
+	robot = new Robot();
+	robot->init();
+	robot->initBuffer();
 
-	plat = new Shape();
-	plat->initPlatBuffer();
-	crane = new Shape();
-	crane->initBuffer();
+	butai = new Butai();
+	
+	/*obs = new Cbstackle[3]{ Cbstackle(), Cbstackle(), Cbstackle() };*/
 
 	return true;
 }
 
 void Scene::update()
 {
-	crane->Update();
+	robot->Update();
+	butai->Update();
 
 	if (movCamPosiX) {
-		camPos[0].x += 0.01f;
-		camPos[1].x += 0.01f;
-		camPos[2].x += 0.01f;
+		camPos.x += 0.01f;
+		camRad = glm::length(camPos);
 	}
 
 	else if (movCamNegaX) {
-		camPos[0].x -= 0.01f;
-		camPos[1].x -= 0.01f;
-		camPos[2].x -= 0.01f;
+		camPos.x -= 0.01f;
+		camRad = glm::length(camPos);
 	}
 
 	if (movCamPosiZ) {
-		camPos[0].z += 0.01f;
-		camPos[1].z += 0.01f;
-		camPos[2].z += 0.01f;
+		camPos.z += 0.01f;
+		camRad = glm::length(camPos);
 	}
 
 	else if (movCamNegaZ) {
-		camPos[0].z -= 0.01f;
-		camPos[1].z -= 0.01f;
-		camPos[2].z -= 0.01f;
+		camPos.z -= 0.01f;
+		camRad = glm::length(camPos);
 	}
-
-	//camRad = glm::length(camPos);
 
 	//	공전
 	if (rotCamPosiCenter) {
 		/*glm::vec3 ori = camPos - camDir;*/
 		camDeg += 3.f;
-		camPos[0].x = camRad * cos(glm::radians(camDeg));
-		camPos[1].x = camRad * cos(glm::radians(camDeg));
-		camPos[2].x = camRad * cos(glm::radians(camDeg));
-		camPos[0].z = camRad * sin(glm::radians(camDeg));
-		camPos[1].z = camRad * sin(glm::radians(camDeg));
-		camPos[2].z = camRad * sin(glm::radians(camDeg));
-		/*camDir = glm::normalize(camPos - ori);
+		camPos.x = camRad * cos(glm::radians(camDeg));
+		camPos.z = camRad * sin(glm::radians(camDeg));
+
+		camDir = glm::normalize(camPos - glm::vec3(0.f, 1.f, 0.f));
 		camU = glm::normalize(glm::cross(camDir, glm::vec3(0.f, 1.f, 0.f)));
-		camV = glm::cross(camDir, camU);*/
+		camV = glm::cross(-camDir, camU);
 	}
 
 	else if (rotCamNegaCenter) {
 		camDeg -= 3.f;
-		camPos[0].x = camRad * cos(glm::radians(camDeg));
-		camPos[1].x = camRad * cos(glm::radians(camDeg));
-		camPos[2].x = camRad * cos(glm::radians(camDeg));
-		camPos[0].z = camRad * sin(glm::radians(camDeg));
-		camPos[1].z = camRad * sin(glm::radians(camDeg));
-		camPos[2].z = camRad * sin(glm::radians(camDeg));
+		camPos.x = camRad * cos(glm::radians(camDeg));
+		camPos.z = camRad * sin(glm::radians(camDeg));
 	}
-
-	//	자전
-	if (rotCamPosiSelf) {
-		glm::mat4 R = glm::rotate(glm::mat4(1.f), glm::radians(30.f), camV[0]);
-		camDir[0] = glm::vec3(R * glm::vec4(camDir[0], 1.f));
-		camU[0] = glm::normalize(glm::cross(camDir[0], camV[0]));
-
-		R = glm::rotate(glm::mat4(1.f), glm::radians(30.f), camV[1]);
-		camDir[1] = glm::vec3(R * glm::vec4(camDir[1], 1.f));
-		camU[1] = glm::normalize(glm::cross(camDir[1], camV[1]));
-
-		R = glm::rotate(glm::mat4(1.f), glm::radians(30.f), camV[2]);
-		camDir[2] = glm::vec3(R * glm::vec4(camDir[2], 1.f));
-		camU[2] = glm::normalize(glm::cross(camDir[2], camV[2]));
-	}
-
-	else if (rotCamNegaSelf) {
-		glm::mat4 R = glm::rotate(glm::mat4(1.f), glm::radians(-30.f), camV[0]);
-		camDir[0] = glm::vec3(R * glm::vec4(camDir[0], 1.f));
-		camU[0] = glm::normalize(glm::cross(camDir[0], camV[0]));
-
-		R = glm::rotate(glm::mat4(1.f), glm::radians(-30.f), camV[1]);
-		camDir[1] = glm::vec3(R * glm::vec4(camDir[1], 1.f));
-		camU[1] = glm::normalize(glm::cross(camDir[1], camV[1]));
-
-		R = glm::rotate(glm::mat4(1.f), glm::radians(-30.f), camV[2]);
-		camDir[2] = glm::vec3(R * glm::vec4(camDir[2], 1.f));
-		camU[2] = glm::normalize(glm::cross(camDir[2], camV[2]));
-	}
-
-	//std::cout << "Length: " << camDeg2 << ", X: " << camPos.x << ", Z: " << camPos.z << '\n';
 }
 
 void Scene::draw()
 {
 	glClearColor(r, g, b, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-	glViewport(0, 100, 600, 600);
-	drawScene(0);
 
-	glViewport(600,600,200,200);
-	drawScene(1);
-	
-	glViewport(600, 0, 200, 200);
-	drawScene(2);
-}
-
-void Scene::drawScene(int mode)
-{
 	GLuint viewLoc = glGetUniformLocation(spriteShader->GetshaderProgram(), "viewTransform");
 	GLuint projLoc = glGetUniformLocation(spriteShader->GetshaderProgram(), "projTransform");
 
@@ -181,87 +115,63 @@ void Scene::drawScene(int mode)
 		std::cout << "projLoc not found" << '\n';
 
 	else {
-		glm::mat4 view;
+		glm::mat4 view = glm::lookAt(camPos, camPos - camDir, camV);
 		glm::mat4 proj;
 
-		if (mode == 0) {
-			view = glm::lookAt(camPos[0], camPos[0] - camDir[0], camV[0]);
+		if (Proj)
+			proj = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 50.f);
 
-			if (Proj)
-				proj = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 50.f);
-
-			else
-				proj = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -100.f, 100.0f);
-		}
-
-		else if (mode == 1) {
-			view = glm::lookAt(camPos[1], camPos[1] - camDir[1], camV[1]);
+		else
 			proj = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -100.f, 100.0f);
-		}
-
-		else {
-			view = glm::lookAt(camPos[2], camPos[2] - camDir[2], camV[2]);
-			proj = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -100.f, 100.0f);
-		}
 
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
-		plat->setActive(spriteShader);
-		plat->DrawPlat(spriteShader->GetshaderProgram());
+		robot->setActive(spriteShader);
+		robot->Draw(spriteShader->GetshaderProgram());
 
-		crane->setActive(spriteShader);
-		crane->Draw(spriteShader->GetshaderProgram());
+		butai->setActive(spriteShader);
+		butai->Draw(spriteShader->GetshaderProgram());
 	}
 }
 
 void Scene::keyboard(unsigned char key)
 {
 	switch (key) {
-	case 'b':
-		crane->setMoveX(1);
+	case ' ':
+		butai->setOpen();
 		break;
 
-	case 'B':
-		crane->setMoveX(-1);
+	case 'w':
+		robot->setDir(Dir_Back);
 		break;
 
-
-	case 'm':
-		crane->setRotateTop(1);
+	case 'a':
+		robot->setDir(Dir_Left);
 		break;
 
-	case 'M':
-		crane->setRotateTop(-1);
+	case 's':
+		robot->setDir(Dir_Front);
 		break;
 
-
-	case 'f':
-		crane->setRotateBarrel(1);
+	case 'd':
+		robot->setDir(Dir_Right);
 		break;
 
-	case 'F':
-		crane->setRotateBarrel(-1);
+	case '+':
+		robot->adjSpeed(1);
 		break;
 
-
-	case 'e':
-		crane->setMoveBarrel(1);
+	case '-':
+		robot->adjSpeed(-1);
 		break;
 
-	case 'E':
-		crane->setMoveBarrel(-1);
+	case 'j':
+		robot->setJump();
 		break;
 
-
-	case 't':
-		crane->setRotateArm(1);
+	case 'i':
 		break;
-
-	case 'T':
-		crane->setRotateArm(-1);
-		break;
-
 
 	case 'x':
 		movCamPosiX = !movCamPosiX;
@@ -294,72 +204,13 @@ void Scene::keyboard(unsigned char key)
 		rotCamPosiCenter = false;
 		rotCamNegaCenter = !rotCamNegaCenter;
 		break;
-
-
-
-	case 'r':
-		rotCamPosiSelf = !rotCamPosiSelf;
-		rotCamNegaSelf = false;
-		break;
-
-	case 'R':
-		rotCamPosiSelf = false;
-		rotCamNegaSelf = !rotCamNegaSelf;
-		break;
-
-
-	case 'a':
-		rotCamPosiSelf = true;
-		rotCamNegaSelf = false;
-		break;
-
-	case 'A':
-		rotCamPosiSelf = false;
-		rotCamNegaSelf = true;
-		break;
-
-
-	case 's':
-	case 'S':
-		crane->setMoveX(0);
-		crane->setMoveBarrel(0);
-		crane->setRotateArm(0);
-		crane->setRotateBarrel(0);
-		crane->setRotateTop(0);
-		rotCamPosiSelf = false;
-		rotCamNegaSelf = false;
-		rotCamPosiCenter = false;
-		rotCamNegaCenter = false;
-		movCamPosiX = false;
-		movCamNegaX = false;
-		movCamPosiZ = false;
-		movCamNegaZ = false;
-		break;
-
-
-	case 'c':
-	case 'C':
-		crane->init();
-		crane->initBuffer();
-		rotCamPosiSelf = false;
-		rotCamNegaSelf = false;
-		rotCamPosiCenter = false;
-		rotCamNegaCenter = false;
-		movCamPosiX = false;
-		movCamNegaX = false;
-		movCamPosiZ = false;
-		movCamNegaZ = false;
-		break;
 	}
 }
 
 void Scene::keyboardUp(unsigned char key)
 {
-	if (key == 'r')
-		rotCamPosiSelf = false;
-
-	else if (key == 'R')
-		rotCamNegaSelf = false;
+	if (key == 'w' || key == 'a' || key == 's' || key == 'd')
+		robot->setDir(Dir_None);
 }
 
 void Scene::specialKeyboard(int key)
