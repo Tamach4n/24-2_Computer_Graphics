@@ -12,8 +12,6 @@
 #include "shader.h"
 #include "Shape.h"
 
-class Cbstackle;
-
 class Scene
 {
 public:
@@ -21,6 +19,9 @@ public:
 	Scene(int winWidth, int winHeight);
 
 	bool initialize();
+
+	void checkCollision(const Obstacle* obs);
+	bool checkGround(Obstacle* obs);
 
 	void update();
 
@@ -64,7 +65,7 @@ private:
 	class Shader* spriteShader;
 
 	class Robot* robot;
-	class Cbstackle* obs;
+	class Obstacle** obs;	//	이중 포인터데스와
 	class Butai* butai;
 
 	void randomRGB();

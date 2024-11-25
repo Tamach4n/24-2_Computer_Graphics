@@ -49,17 +49,72 @@ bool Scene::initialize()
 	robot->init();
 	robot->initBuffer();
 
+	obs = new Obstacle * [3];
+	obs[0] = new Obstacle();
+	obs[1] = new Obstacle();
+	obs[2] = new Obstacle();
+	obs[0]->init();
+	obs[1]->init();
+	obs[2]->init();
+
 	butai = new Butai();
-	
-	/*obs = new Cbstackle[3]{ Cbstackle(), Cbstackle(), Cbstackle() };*/
 
 	return true;
 }
 
+void Scene::checkCollision(const Obstacle* obs)
+{
+	glm::vec4 hbr = robot->getHitbox();
+	glm::vec4 hbo = obs->getHitbox();
+
+	if (hbr.x >= hbo.z && hbr.z <= hbo.x && hbr.y >= hbo.w && hbr.w <= hbo.y)
+		robot->setCanMove(false);
+
+	else
+		robot->setCanMove(true);
+}
+
+bool Scene::checkGround(Obstacle* obs)
+{
+	glm::vec3 rPos = robot->getPos();
+	glm::vec3 oPos = obs->getPos();
+
+	if (rPos.x > oPos.x - 0.2f && rPos.x < oPos.x + 0.2f && rPos.z > oPos.z - 0.2f && rPos.z < oPos.z + 0.2f) {
+		robot->setGroundPos(oPos.y);
+
+		if (rPos.y <= oPos.y) {
+			std::cout << "Stepping on\n";
+			robot->setStepOn(true);
+			obs->setState(true);
+			return true;
+		}
+	}
+
+	robot->setGroundPos(0.f);
+	robot->setStepOn(false);
+	obs->setState(false);
+
+	return false;
+}
+
 void Scene::update()
 {
+	for (int i = 0; i < 3; ++i) {
+		if (checkGround(obs[i]))
+			break;
+	}
+
+	for (int i = 0; i < 3; ++i) {
+		if (robot->checkCollision(obs[i]))
+			break;
+	}
+
 	robot->Update();
 	butai->Update();
+	obs[0]->Update();
+	obs[1]->Update();
+	obs[2]->Update();
+
 
 	if (movCamPosiX) {
 		camPos.x += 0.01f;
@@ -97,6 +152,10 @@ void Scene::update()
 		camDeg -= 3.f;
 		camPos.x = camRad * cos(glm::radians(camDeg));
 		camPos.z = camRad * sin(glm::radians(camDeg));
+
+		camDir = glm::normalize(camPos - glm::vec3(0.f, 1.f, 0.f));
+		camU = glm::normalize(glm::cross(camDir, glm::vec3(0.f, 1.f, 0.f)));
+		camV = glm::cross(-camDir, camU);
 	}
 }
 
@@ -132,6 +191,11 @@ void Scene::draw()
 
 		butai->setActive(spriteShader);
 		butai->Draw(spriteShader->GetshaderProgram());
+
+		obs[0]->setActive(spriteShader);
+		obs[0]->Draw(spriteShader->GetshaderProgram());
+		obs[1]->Draw(spriteShader->GetshaderProgram());
+		obs[2]->Draw(spriteShader->GetshaderProgram());
 	}
 }
 
@@ -167,10 +231,11 @@ void Scene::keyboard(unsigned char key)
 		break;
 
 	case 'j':
-		robot->setJump();
+		robot->setJump(true);
 		break;
 
 	case 'i':
+		robot->init();
 		break;
 
 	case 'x':
@@ -193,7 +258,6 @@ void Scene::keyboard(unsigned char key)
 		movCamPosiZ = false;
 		movCamNegaZ = !movCamNegaZ;
 		break;
-
 
 	case 'y':
 		rotCamPosiCenter = !rotCamPosiCenter;

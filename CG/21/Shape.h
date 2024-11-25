@@ -51,11 +51,16 @@ public:
 	void init() override;
 	void initBuffer() override;
 
-	void setJump() { isJumping = true; }
+	void setJump(bool st) { isJumping = st; }
 	void setGroundPos(float y);
 	void setDir(Direction d);
 	void adjSpeed(int i);
+	void steppingOn();
+	void setCanMove(bool st) { canMove = st; }
+	void setStepOn(bool st) { isSteppingOn = st; }
+	bool checkCollision(const class Obstacle* obs);
 
+	glm::vec4 getHitbox() const { return glm::vec4(pos.x - 0.1f, pos.z - 0.1f, pos.x + 0.1f, pos.z + 0.1f); }
 	glm::vec3 getPos() const { return pos; }
 
 	void Update() override;
@@ -80,29 +85,31 @@ private:
 	//glm::vec3 rot;
 	glm::vec3 dir;	//	¿Ãµø ¥‹¿ß
 	float speed;
+	bool canMove;
+	bool isSteppingOn;
+	bool isMoving;	//	¿Ã∑≤∞≈∏È state Enum ∏∏µÈ¡ˆ
 };
 
-class Cbstacle : public Shape {
+class Obstacle : public Shape {
 public:
-	Cbstacle();
-	~Cbstacle() { delete shapeVertex; }
+	Obstacle();
+	~Obstacle() { delete shapeVertex; }
 
 	void init() override;
 	void initBuffer() override;
 
 	void setState(bool st);
 
+	glm::vec4 getHitbox() const { return glm::vec4(pos.x - 0.2f, pos.z - 0.2f, pos.x + 0.2f, pos.z + 0.2f); }
 	glm::vec3 getPos() const { return pos; }
 	bool getState() const { return isSteppedOn; }
 
 	void Update() override;
 
 	void Draw(GLuint shaderProgram) override;
-	void DrawParts(GLuint shaderProgram);
 
 private:
 	bool isSteppedOn;
-	float fumi;	//	π‚»˘ ¡§µµ, footPressure
 	glm::vec3 pos;
 };
 
