@@ -71,7 +71,7 @@ void Shape::Update()
 {
 }
 
-void Shape::Draw(GLuint shaderProgram)
+void Shape::Draw(const Shader* shaderProgram)
 {
 	/*
 	GLuint worldLoc = glGetUniformLocation(shaderProgram, "modelTransform");
@@ -173,7 +173,7 @@ Robot::Robot()
 void Robot::init()
 {
 	armRotateLevel = 0;
-	dArmAngle = 3.f;
+	dArmAngle = 15.f;
 	armAngle = 0.f;
 	isJumping = false;
 	jumpPeak = false;
@@ -189,17 +189,17 @@ void Robot::init()
 }
 
 void Robot::initBuffer()
-{
+{	//	이건 그냥 비효율적
 	float VAO[] = {
-		-0.5f, -0.5f, -0.5f,   0.48f, 0.58f, 0.78f,
-		 0.5f, -0.5f, -0.5f,   0.48f, 0.58f, 0.78f,
-		 0.5f,  0.5f, -0.5f,   0.48f, 0.58f, 0.78f,
-		-0.5f,  0.5f, -0.5f,   0.48f, 0.58f, 0.78f,
-							  
-		-0.5f, -0.5f,  0.5f,   0.48f, 0.58f, 0.78f,
-		 0.5f, -0.5f,  0.5f,   0.48f, 0.58f, 0.78f,
-		 0.5f,  0.5f,  0.5f,   1.f, 0.58f, 0.78f,
-		-0.5f,  0.5f,  0.5f,   0.48f, 0.58f, 0.78f
+		-0.5f, -0.5f, -0.5f,   0.f, 0.f, 0.f,
+		 0.5f, -0.5f, -0.5f,   0.f, 0.f, 0.f,
+		 0.5f,  0.5f, -0.5f,   0.f, 0.f, 0.f,
+		-0.5f,  0.5f, -0.5f,   0.f, 0.f, 0.f,
+
+		-0.5f, -0.5f,  0.5f,   0.f, 0.f, 0.f,
+		 0.5f, -0.5f,  0.5f,   0.f, 0.f, 0.f,
+		 0.5f,  0.5f,  0.5f,   0.f, 0.f, 0.f,
+		-0.5f,  0.5f,  0.5f,   0.f, 0.f, 0.f
 	};
 
 	unsigned int VBO[] = {
@@ -231,6 +231,8 @@ void Robot::setDir(Direction d)
 	case Dir_None:
 		dir = glm::vec3(0.f, 0.f, 0.f);
 		isMoving = false;
+		armRotateLevel = 0;
+		armAngle = 0.f;
 		break;
 
 	case Dir_Left:
@@ -306,8 +308,21 @@ bool Robot::checkCollision(const class Obstacle* obs)
 void Robot::Update()
 {
 	if (isMoving) {
-		armAngle += dArmAngle;
+		if (armRotateLevel == 1) {
+			if (armAngle < 60.f)
+				armAngle += dArmAngle;
 
+			else
+				armRotateLevel = 2;
+		}
+
+		else {
+			if (armAngle > -60.f)
+				armAngle -= dArmAngle;
+
+			else
+				armRotateLevel = 1;
+		}
 	}
 
 	if(canMove)
@@ -334,7 +349,6 @@ void Robot::Update()
 				jumpPos += 0.05f;
 				pos.y += 0.05f;
 				std::cout << jumpPos << '\n';
-
 			}
 
 			else
@@ -348,64 +362,90 @@ void Robot::Update()
 	}
 }
 
-void Robot::Draw(GLuint shaderProgram)
+void Robot::Draw(const Shader* shaderProgram)
 {
 	shapeVertex->setActive();
 
-	GLuint worldLoc = glGetUniformLocation(shaderProgram, "modelTransform");
+	glm::mat4 unit(1.f);
 
-	if (worldLoc < 0)
-		std::cout << "uLoc not found" << '\n';
+	glm::mat4 S;
+	glm::mat4 T = glm::translate(unit, pos);
+	glm::mat4 onFloor;
+	glm::mat4 Look = glm::rotate(unit, glm::radians(Angle), glm::vec3(0.f, 1.f, 0.f));
+	glm::mat4 result;
 
-	else {
-		glm::mat4 unit(1.f);
-
-		glm::mat4 S;
-		glm::mat4 T = glm::translate(unit, pos);
-		glm::mat4 onFloor;
-		glm::mat4 Look = glm::rotate(unit, glm::radians(Angle), glm::vec3(0.f, 1.f, 0.f));
-		glm::mat4 result;
-
-		/*glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(result));
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));*/
-		//	머리
-		{
-			S = glm::scale(unit, glm::vec3(0.16f, 0.1f, 0.16f));
-			onFloor = glm::translate(unit, glm::vec3(0.f, 0.35f, 0.f));
-			result= onFloor * T * Look * S;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(result));
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
-		}
-		//	몸통
-		{
-			S = glm::scale(unit, glm::vec3(0.2f, 0.25f, 0.2f));
-			onFloor = glm::translate(unit, glm::vec3(0.f, 0.175f, 0.f));
-			result = onFloor * T * Look * S;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(result));
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
-		}
-		//	팔
-		{
-		}
-		//	다리
-		{
-			S = glm::scale(unit, glm::vec3(0.07f, 0.05f, 0.07f));
-			glm::mat4 t1 = glm::translate(unit, glm::vec3(0.f, -0.035f, 0.f));
-			glm::mat4 rotateLegLeft = glm::rotate(unit, glm::radians(-armAngle), glm::vec3(1.f, 0.f, 0.f));
-			glm::mat4 rotateLegRight = glm::rotate(unit, glm::radians(armAngle), glm::vec3(1.f, 0.f, 0.f));
-			glm::mat4 t2 = glm::translate(unit, glm::vec3(0.f, 0.035f, 0.f));
-			onFloor = glm::translate(unit, glm::vec3(0.045f, 0.025f, 0.f));
-
-			result = T * Look * onFloor * t2 * rotateLegLeft * t1 * S;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(result));
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
-
-			onFloor = glm::translate(unit, glm::vec3(-0.045f, 0.025f, 0.f));
-			result = T * Look * onFloor * t2 * rotateLegRight * t1 * S;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(result));
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
-		}
+	//	코
+	{
+		S = glm::scale(unit, glm::vec3(0.02f, 0.02f, 0.02f));
+		onFloor = glm::translate(unit, glm::vec3(0.f, 0.375f, 0.08f));
+		result = T * Look * onFloor * S;
+		shaderProgram->setUniformM("modelTransform", result);
+		shaderProgram->setUniform3("uColor", 1.f, 0.f, 0.f);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 	}
+	//	머리
+	{
+		S = glm::scale(unit, glm::vec3(0.16f, 0.1f, 0.16f));
+		onFloor = glm::translate(unit, glm::vec3(0.f, 0.35f, 0.f));
+		result = T * Look * onFloor * S;
+		shaderProgram->setUniformM("modelTransform", result);
+		shaderProgram->setUniform3("uColor", 0.48f, 0.58f, 0.78f);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
+	}
+	//	몸통
+	{
+		S = glm::scale(unit, glm::vec3(0.2f, 0.25f, 0.2f));
+		onFloor = glm::translate(unit, glm::vec3(0.f, 0.175f, 0.f));
+		result = T * Look * onFloor * S;
+		shaderProgram->setUniformM("modelTransform", result);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
+	}
+	//	팔
+	{
+		S = glm::scale(unit, glm::vec3(0.05f, 0.15f, 0.05f));
+		glm::mat4 t11 = glm::translate(unit, glm::vec3(0.f, -0.035f, 0.f));
+		glm::mat4 rotateArmLeft = glm::rotate(unit, glm::radians(armAngle), glm::vec3(1.f, 0.f, 0.f));
+		glm::mat4 rotateArmRight = glm::rotate(unit, glm::radians(-armAngle), glm::vec3(1.f, 0.f, 0.f));
+		glm::mat4 t12 = glm::translate(unit, glm::vec3(0.f, 0.035f, 0.f));
+		glm::mat4 t21 = glm::translate(unit, glm::vec3(-0.025f, 0.f, 0.f));
+		glm::mat4 armLeft = glm::rotate(unit, glm::radians(30.f), glm::vec3(0.f, 0.f, 1.f));
+		glm::mat4 armRight = glm::rotate(unit, glm::radians(-30.f), glm::vec3(0.f, 0.f, 1.f));
+		glm::mat4 t22 = glm::translate(unit, glm::vec3(0.025f, 0.f, 0.f));
+		onFloor = glm::translate(unit, glm::vec3(0.15f, 0.2f, 0.f));
+
+		result = T * Look * onFloor * t12 * rotateArmLeft * t11 * t22 * armLeft * t21 * S;
+		shaderProgram->setUniformM("modelTransform", result);
+		shaderProgram->setUniform3("uColor", 0.f, 0.9f, 0.f);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
+
+		onFloor = glm::translate(unit, glm::vec3(-0.15f, 0.2f, 0.f));
+		result = T * Look * onFloor * t12 * rotateArmRight * t11 * t22 * armRight * t21 * S;
+		shaderProgram->setUniformM("modelTransform", result);
+		shaderProgram->setUniform3("uColor", 0.f, 0.f, 0.9f);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
+	}
+	//	다리
+	{
+		S = glm::scale(unit, glm::vec3(0.07f, 0.05f, 0.07f));
+		glm::mat4 t1 = glm::translate(unit, glm::vec3(0.f, -0.025f, 0.f));
+		glm::mat4 rotateLegLeft = glm::rotate(unit, glm::radians(-armAngle), glm::vec3(1.f, 0.f, 0.f));
+		glm::mat4 rotateLegRight = glm::rotate(unit, glm::radians(armAngle), glm::vec3(1.f, 0.f, 0.f));
+		glm::mat4 t2 = glm::translate(unit, glm::vec3(0.f, 0.025f, 0.f));
+		onFloor = glm::translate(unit, glm::vec3(0.045f, 0.025f, 0.f));
+
+		result = T * Look * onFloor * t2 * rotateLegLeft * t1 * S;
+		shaderProgram->setUniformM("modelTransform", result);
+		shaderProgram->setUniform3("uColor", 0.f, 0.9f, 0.f);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
+
+		onFloor = glm::translate(unit, glm::vec3(-0.045f, 0.025f, 0.f));
+		result = T * Look * onFloor * t2 * rotateLegRight * t1 * S;
+		shaderProgram->setUniformM("modelTransform", result);
+		shaderProgram->setUniform3("uColor", 0.f, 0.f, 0.9f);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
+	}
+
+	shaderProgram->setUniform3("uColor", 0.f, 0.f, 0.f);
 }
 
 void Robot::DrawParts(GLuint shaderProgram)
@@ -493,26 +533,19 @@ void Obstacle::Update()
 	}
 }
 
-void Obstacle::Draw(GLuint shaderProgram)
+void Obstacle::Draw(const Shader* shaderProgram)
 {
 	shapeVertex->setActive();
 
-	GLuint worldLoc = glGetUniformLocation(shaderProgram, "modelTransform");
+	glm::mat4 unit(1.f);
 
-	if (worldLoc < 0)
-		std::cout << "uLoc not found" << '\n';
+	glm::mat4 S = glm::scale(unit, glm::vec3(0.4f, 0.2f, 0.4f));
+	glm::mat4 T = glm::translate(unit, pos);
+	glm::mat4 onFloor = glm::translate(unit, glm::vec3(0.f, -0.1f, 0.f));
+	glm::mat4 result = onFloor * T * S;
 
-	else {
-		glm::mat4 unit(1.f);
-
-		glm::mat4 S = glm::scale(unit, glm::vec3(0.4f, 0.2f, 0.4f));
-		glm::mat4 T = glm::translate(unit, pos);
-		glm::mat4 onFloor = glm::translate(unit, glm::vec3(0.f, -0.1f, 0.f));
-		glm::mat4 result = onFloor * T * S;
-
-		glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(result));
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
-	}
+	shaderProgram->setUniformM("modelTransform", result);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 }
 
 //	------------------------------------------------------------------------
@@ -527,8 +560,8 @@ Butai::Butai()
 
 void Butai::init()
 {
-	doorPos = 1.0f;
-	isOpened = true;
+	doorPos = 0.0f;
+	isOpened = false;
 	isOpening = false;
 }
 
@@ -639,31 +672,24 @@ void Butai::Update()
 	}
 }
 
-void Butai::Draw(GLuint shaderProgram)
+void Butai::Draw(const Shader* shaderProgram)
 {
 	shapeVertex->setActive();
 
-	GLuint worldLoc = glGetUniformLocation(shaderProgram, "modelTransform");
+	//glm::mat4 m = glm::scale(glm::mat4(1.f), glm::vec3(1.f));
+	glm::mat4 m = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 1.f, 0.f));
+	shaderProgram->setUniformM("modelTransform", m);
 
-	if (worldLoc < 0)
-		std::cout << "uLoc not found" << '\n';
+	//glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDrawElements(GL_TRIANGLES, 30, GL_UNSIGNED_INT, (void*)(12 * sizeof(unsigned int)));
 
-	else {
-		//glm::mat4 m = glm::scale(glm::mat4(1.f), glm::vec3(1.f));
-		glm::mat4 m = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 1.f, 0.f));
-		glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(m));
+	{
+		m = glm::translate(glm::mat4(1.f), glm::vec3(-doorPos, 1.f, 0.f));
+		shaderProgram->setUniformM("modelTransform", m);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-		glDrawElements(GL_TRIANGLES, 30, GL_UNSIGNED_INT, (void*)(12 * sizeof(unsigned int)));
-		
-		{
-			m = glm::translate(glm::mat4(1.f), glm::vec3(-doorPos, 1.f, 0.f));
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(m));
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
-
-			m = glm::translate(glm::mat4(1.f), glm::vec3(doorPos, 1.f, 0.f));
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(m));
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(6 * sizeof(unsigned int)));
-		}
+		m = glm::translate(glm::mat4(1.f), glm::vec3(doorPos, 1.f, 0.f));
+		shaderProgram->setUniformM("modelTransform", m);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(6 * sizeof(unsigned int)));
 	}
 }

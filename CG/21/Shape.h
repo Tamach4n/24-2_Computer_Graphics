@@ -35,7 +35,7 @@ public:
 
 	virtual void Update();
 
-	virtual void Draw(GLuint shaderProgram);
+	virtual void Draw(const Shader* shaderProgram);
 
 protected:
 	Vertex* shapeVertex;
@@ -65,7 +65,7 @@ public:
 
 	void Update() override;
 
-	void Draw(GLuint shaderProgram) override;
+	void Draw(const Shader* shaderProgram) override;
 	void DrawParts(GLuint shaderProgram);
 
 private:
@@ -106,7 +106,7 @@ public:
 
 	void Update() override;
 
-	void Draw(GLuint shaderProgram) override;
+	void Draw(const Shader* shaderProgram) override;
 
 private:
 	bool isSteppedOn;
@@ -125,7 +125,7 @@ public:
 
 	void Update() override;
 
-	void Draw(GLuint shaderProgram) override;
+	void Draw(const Shader* shaderProgram) override;
 
 private:
 	bool isOpening;

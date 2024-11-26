@@ -187,15 +187,15 @@ void Scene::draw()
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
 		robot->setActive(spriteShader);
-		robot->Draw(spriteShader->GetshaderProgram());
+		robot->Draw(spriteShader);
 
 		butai->setActive(spriteShader);
-		butai->Draw(spriteShader->GetshaderProgram());
+		butai->Draw(spriteShader);
 
 		obs[0]->setActive(spriteShader);
-		obs[0]->Draw(spriteShader->GetshaderProgram());
-		obs[1]->Draw(spriteShader->GetshaderProgram());
-		obs[2]->Draw(spriteShader->GetshaderProgram());
+		obs[0]->Draw(spriteShader);
+		obs[1]->Draw(spriteShader);
+		obs[2]->Draw(spriteShader);
 	}
 }
 
@@ -378,7 +378,7 @@ bool Scene::loadShaders()
 {
 	spriteShader = new Shader();
 
-	if (!spriteShader->Load("C:\\Users\\worl\\source\\repos\\Computer_Graphics\\vertex2.vert", "C:\\Users\\worl\\source\\repos\\Computer_Graphics\\fragment.frag"))
+	if (!spriteShader->Load("C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\vertex2.vert", "C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\fragment.frag"))
 		return false;
 
 	spriteShader->setActive();
