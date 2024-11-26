@@ -275,7 +275,8 @@ void Scene::keyboard(unsigned char key)
 void Scene::keyboardUp(unsigned char key)
 {
 	if (key == 'w' || key == 'a' || key == 's' || key == 'd')
-		robot->setDir(Dir_None);
+		if (!robot->getMoving())
+			robot->setDir(Dir_None);
 }
 
 void Scene::specialKeyboard(int key)

@@ -60,6 +60,7 @@ public:
 
 	glm::vec4 getHitbox() const { return glm::vec4(pos.x - 0.1f, pos.z - 0.1f, pos.x + 0.1f, pos.z + 0.1f); }
 	glm::vec3 getPos() const { return pos; }
+	bool getMoving() const { return isMoving; }
 
 	void Update() override;
 
