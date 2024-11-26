@@ -98,6 +98,7 @@ void Robot::init()
 	canMove = true;
 	isSteppingOn = false;
 	isMoving = false;
+	Outside = false;
 }
 
 void Robot::initBuffer()
@@ -222,14 +223,30 @@ bool Robot::checkCollision(const Butai* butai)
 	glm::vec4 bPos = butai->getArea();
 	glm::vec3 newPos = pos + dir * speed;
 
-	if (newPos.x - 0.1f <= bPos.x || newPos.x + 0.1f >= bPos.z ||
-		newPos.y - 0.1f <= bPos.y || newPos.y + 0.1f >= bPos.w) {
+	if (newPos.z + 0.1f > bPos.w) {
+		if (butai->getIsOpened()) {
+			std::cout << "Falling~\n";
+			groundYPos = -10.f;
+			freeDiveTime = std::chrono::system_clock::now();
+			this->canMove = true;
+			Outside = true;
+			return false;
+		}
+
+		else {
+			std::cout << "cant move\n";
+			this->canMove = false;
+			return true;
+		}
+	}
+
+	else if (newPos.x - 0.1f < bPos.x || newPos.x + 0.1f > bPos.z || newPos.z - 0.1f < bPos.y) {
 		std::cout << "cant move\n";
 		this->canMove = false;
 		return true;
 	}
 
-	this->canMove = true;
+	this->canMove = this->canMove ? true : false;
 	return false;
 }
 
@@ -253,8 +270,19 @@ void Robot::Update()
 		}
 	}
 
-	if(canMove)
+	if (Outside) {
+		auto now = std::chrono::system_clock::now();
+		auto s = std::chrono::duration_cast<std::chrono::nanoseconds>(now - freeDiveTime);
+		freeDiveTime = now;
+		float d = (0.00000049 * s.count() * s.count()) / 2;
+		pos.y -= d;	
+		//std::cout << d << '\n';
+	}
+
+	std::cout << canMove << '\n';
+	if (canMove) {
 		pos += dir * speed;
+	}
 	
 	if (isJumping) {
 		if (jumpPeak) {
@@ -282,7 +310,7 @@ void Robot::Update()
 		}
 	}
 
-	else if (pos.y > groundYPos) {
+	else if (!Outside && pos.y > groundYPos) {
 		pos.y -= 0.01f;
 	}
 }

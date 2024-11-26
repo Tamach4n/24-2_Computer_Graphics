@@ -110,6 +110,7 @@ void Scene::update()
 	}
 
 	robot->checkCollision(butai);
+
 	robot->Update();
 	butai->Update();
 	obs[0]->Update();

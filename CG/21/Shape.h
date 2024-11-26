@@ -2,6 +2,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <random>
+#include <chrono>
 #include "gl/glew.h"
 #include <gl/glut.h>
 #include "glm/glm.hpp"
@@ -85,6 +86,8 @@ private:
 	bool canMove;
 	bool isSteppingOn;
 	bool isMoving;	//	이럴거면 state Enum 만들지
+	bool Outside;
+	std::chrono::system_clock::time_point freeDiveTime;
 };
 
 class Obstacle : public Shape {
@@ -121,6 +124,7 @@ public:
 	void setOpen();
 
 	glm::vec4 getArea() const { return glm::vec4(-1.f, -1.0, 1.f, 1.f); }
+	bool getIsOpened() const { return isOpened; }
 
 	void Update() override;
 

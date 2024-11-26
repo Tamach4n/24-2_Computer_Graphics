@@ -59,9 +59,9 @@ int main(int argc, char** argv)
 		glutMouseFunc(MouseFunc);			// 마우스 입력 (좌클릭, 우클릭, 휠클릭... 
 		glutMotionFunc(MotionFunc);			// 화면 누르고 드래그
 
-		glutDisplayFunc(DisplayFunc);		// 출력 함수의 지정
 		glutReshapeFunc(ReshapeFunc);		// 화면 크기가 변경되었을 때....
 		glutTimerFunc(16, TimerFunc, 0);	// 16ms --> 초당 60번
+		glutDisplayFunc(DisplayFunc);		// 출력 함수의 지정
 
 		glutMainLoop(); // 이벤트 처리 시작
 	}
