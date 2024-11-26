@@ -26,10 +26,6 @@ public:
 	virtual void initBuffer();
 
 	virtual void setActive(Shader* shader);
-	//virtual void setPos(float x, float y, float z);
-	//virtual void setRotation(float x, float y, float z);
-	//virtual void setDirection(float x, float y, float z);
-	//virtual void setMove(float x, float y, float z);
 
 	virtual void Reset();
 
@@ -59,6 +55,7 @@ public:
 	void setCanMove(bool st) { canMove = st; }
 	void setStepOn(bool st) { isSteppingOn = st; }
 	bool checkCollision(const class Obstacle* obs);
+	bool checkCollision(const class Butai* butai);
 
 	glm::vec4 getHitbox() const { return glm::vec4(pos.x - 0.1f, pos.z - 0.1f, pos.x + 0.1f, pos.z + 0.1f); }
 	glm::vec3 getPos() const { return pos; }
@@ -122,6 +119,8 @@ public:
 	void initBuffer() override;
 
 	void setOpen();
+
+	glm::vec4 getArea() const { return glm::vec4(-1.f, -1.0, 1.f, 1.f); }
 
 	void Update() override;
 

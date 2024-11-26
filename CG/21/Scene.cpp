@@ -109,6 +109,7 @@ void Scene::update()
 			break;
 	}
 
+	robot->checkCollision(butai);
 	robot->Update();
 	butai->Update();
 	obs[0]->Update();
@@ -138,7 +139,6 @@ void Scene::update()
 
 	//	°øÀü
 	if (rotCamPosiCenter) {
-		/*glm::vec3 ori = camPos - camDir;*/
 		camDeg += 3.f;
 		camPos.x = camRad * cos(glm::radians(camDeg));
 		camPos.z = camRad * sin(glm::radians(camDeg));

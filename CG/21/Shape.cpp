@@ -73,94 +73,6 @@ void Shape::Update()
 
 void Shape::Draw(const Shader* shaderProgram)
 {
-	/*
-	GLuint worldLoc = glGetUniformLocation(shaderProgram, "modelTransform");
-
-	if (worldLoc < 0)
-		std::cout << "uLoc not found" << '\n';
-
-	else {
-		const glm::mat4 unitMat(1.f);
-
-		glm::mat4 moveAll = glm::translate(unitMat, glm::vec3(movePos, 0.f, 0.f));
-		glm::mat4 rotateTopArm = glm::rotate(unitMat, glm::radians(topRotateAngle), glm::vec3(0.f, 1.f, 0.f));
-		glm::mat4 finalMat(1.f);
-
-		glm::mat4 Ty = glm::translate(unitMat, glm::vec3(0.f, 0.5f, 0.f));
-		glm::mat4 S(1.f);
-
-		glm::mat4 movLeft(1.f);
-		glm::mat4 movRight(1.f);
-		glm::mat4 moveOnMono(1.f);
-
-		//	¸öÅë
-		{
-			S = glm::scale(unitMat, glm::vec3(0.5f, 0.25f, 0.5f));
-
-			finalMat = moveAll * S * Ty;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
-		}
-
-		//	»óÃ¼
-		{
-			S = glm::scale(unitMat, glm::vec3(0.25f, 0.125f, 0.25f));
-			moveOnMono = glm::translate(unitMat, glm::vec3(0.f, 0.25f, 0.f));
-
-			finalMat = moveAll * moveOnMono * rotateTopArm * S * Ty;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
-		}
-
-		//	ÆÈ
-		{
-			S = glm::scale(unitMat, glm::vec3(0.0625f, 0.25f, 0.0625f));
-
-			movLeft = glm::translate(unitMat, glm::vec3(-0.0625f, correctionArm, 0.f));
-			movRight = glm::translate(unitMat, glm::vec3(0.0625f, correctionArm, 0.f));
-			moveOnMono = glm::translate(unitMat, glm::vec3(0.f, 0.375f, 0.f));
-
-			glm::mat4 rotateArmLeft = glm::rotate(unitMat, glm::radians(-armRotateAngle), glm::vec3(0.f, 0.f, 1.f));
-			glm::mat4 rotateArmRight = glm::rotate(unitMat, glm::radians(armRotateAngle), glm::vec3(0.f, 0.f, 1.f));
-
-			//	ÁÂ
-			finalMat = moveAll * moveOnMono * rotateTopArm * movLeft * rotateArmLeft * S * Ty;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
-
-			//	¿ì
-			finalMat = moveAll * moveOnMono * rotateTopArm * movRight * rotateArmRight * S * Ty;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
-		}
-
-		//	Æ÷½Å
-		{
-			Ty = glm::translate(unitMat, glm::vec3(0.f, 0.5f, 0.5f));	//	zµµ ÀÌµ¿ÇÑ´Ù?!
-			S = glm::scale(unitMat, glm::vec3(0.0625f, 0.0625f, 0.25f));
-
-			movLeft = glm::translate(unitMat, glm::vec3(-0.2f + barrelMovePos, 0.f, correctionBarrel));
-			movRight = glm::translate(unitMat, glm::vec3(0.2f - barrelMovePos, 0.f, correctionBarrel));
-			moveOnMono = glm::translate(unitMat, glm::vec3(0.f, 0.0625f, 0.25f));
-
-			glm::mat4 rotateBarrelLeft = glm::rotate(unitMat, glm::radians(-barrelRotateAngle), glm::vec3(0.f, 1.f, 0.f));
-			glm::mat4 rotateBarrelRight = glm::rotate(unitMat, glm::radians(barrelRotateAngle), glm::vec3(0.f, 1.f, 0.f));
-
-			//	ÁÂ
-			finalMat = moveAll * moveOnMono * movLeft * rotateBarrelLeft * S * Ty;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
-
-			if (isCombined)	return;
-
-			//	¿ì
-			finalMat = moveAll * moveOnMono * movRight * rotateBarrelRight * S * Ty;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
-		}
-	}*/
 }
 
 //	-----------------------------------------------------------------------
@@ -305,6 +217,22 @@ bool Robot::checkCollision(const class Obstacle* obs)
 	return false;*/
 }
 
+bool Robot::checkCollision(const Butai* butai)
+{
+	glm::vec4 bPos = butai->getArea();
+	glm::vec3 newPos = pos + dir * speed;
+
+	if (newPos.x - 0.1f <= bPos.x || newPos.x + 0.1f >= bPos.z ||
+		newPos.y - 0.1f <= bPos.y || newPos.y + 0.1f >= bPos.w) {
+		std::cout << "cant move\n";
+		this->canMove = false;
+		return true;
+	}
+
+	this->canMove = true;
+	return false;
+}
+
 void Robot::Update()
 {
 	if (isMoving) {
@@ -333,7 +261,6 @@ void Robot::Update()
 			if (jumpPos > groundYPos + 0.01f) {
 				jumpPos -= 0.05f;
 				pos.y -= 0.05f;
-				std::cout << jumpPos << '\n';
 			}
 
 			else {
@@ -348,7 +275,6 @@ void Robot::Update()
 			if (jumpPos < 0.3f) {
 				jumpPos += 0.05f;
 				pos.y += 0.05f;
-				std::cout << jumpPos << '\n';
 			}
 
 			else
@@ -357,7 +283,6 @@ void Robot::Update()
 	}
 
 	else if (pos.y > groundYPos) {
-		std::cout << "pos.y -= 0.01f;\n";
 		pos.y -= 0.01f;
 	}
 }
