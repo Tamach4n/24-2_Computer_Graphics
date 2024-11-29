@@ -234,20 +234,15 @@ bool Robot::checkCollision(const Butai* butai)
 		}
 
 		else {
-			this->canMove = true;
-			this->dir.z = -this->dir.z;
+			std::cout << "cant move\n";
+			this->canMove = false;
 			return true;
 		}
 	}
 
-	else if (newPos.z - 0.1f < bPos.y) {
-		this->canMove = true;
-		this->dir.z = -this->dir.z;
-		return true;
-	}
-	else if (newPos.x - 0.1f < bPos.x || newPos.x + 0.1f > bPos.z) {
-		this->canMove = true;
-		this->dir.x = -this->dir.x;
+	else if (newPos.x - 0.1f < bPos.x || newPos.x + 0.1f > bPos.z || newPos.z - 0.1f < bPos.y) {
+		std::cout << "cant move\n";
+		this->canMove = false;
 		return true;
 	}
 
@@ -279,7 +274,7 @@ void Robot::Update()
 		auto now = std::chrono::system_clock::now();
 		auto s = std::chrono::duration_cast<std::chrono::nanoseconds>(now - freeDiveTime);
 		freeDiveTime = now;
-		float d = (0.00000098 * s.count() * s.count()) / 2;
+		float d = (0.00000049 * s.count() * s.count()) / 2;
 		pos.y -= d;	
 		//std::cout << d << '\n';
 	}

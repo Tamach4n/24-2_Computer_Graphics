@@ -59,8 +59,6 @@ bool Scene::initialize()
 
 	butai = new Butai();
 
-	moveDir = Dir_None;
-
 	return true;
 }
 
@@ -210,54 +208,19 @@ void Scene::keyboard(unsigned char key)
 		break;
 
 	case 'w':
-		if (moveDir == Dir_Back) {
-			robot->setDir(Dir_None);
-			moveDir = Dir_None;
-		}
-
-		else {
-			robot->setDir(Dir_Back);
-			moveDir = Dir_Back;
-		}
+		robot->setDir(Dir_Back);
 		break;
 
 	case 'a':
-		if (moveDir == Dir_Left) {
-			robot->setDir(Dir_None);
-			moveDir = Dir_None;
-		}
-
-		else {
-			robot->setDir(Dir_Left);
-			moveDir = Dir_Left;
-		}
-
+		robot->setDir(Dir_Left);
 		break;
 
 	case 's':
-		if (moveDir == Dir_Front) {
-			robot->setDir(Dir_None);
-			moveDir = Dir_None;
-		}
-
-		else {
-			robot->setDir(Dir_Front);
-			moveDir = Dir_Front;
-		}
-
+		robot->setDir(Dir_Front);
 		break;
 
 	case 'd':
-		if (moveDir == Dir_Right) {
-			robot->setDir(Dir_None);
-			moveDir = Dir_None;
-		}
-
-		else {
-			robot->setDir(Dir_Right);
-			moveDir = Dir_Right;
-		}
-
+		robot->setDir(Dir_Right);
 		break;
 
 	case '+':
@@ -311,8 +274,9 @@ void Scene::keyboard(unsigned char key)
 
 void Scene::keyboardUp(unsigned char key)
 {
-	/*if (key == 'w' || key == 'a' || key == 's' || key == 'd')
-		robot->setDir(Dir_None);*/
+	if (key == 'w' || key == 'a' || key == 's' || key == 'd')
+		if (!robot->getMoving())
+			robot->setDir(Dir_None);
 }
 
 void Scene::specialKeyboard(int key)

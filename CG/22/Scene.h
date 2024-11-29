@@ -61,7 +61,6 @@ private:
 	bool hsr;		//	은면 제거
 	bool Proj;		//	0: 직각투영, 1: 원근투영
 	bool polygonMode;	//	0: 선, 1: 면
-	int moveDir;
 	
 	class Shader* spriteShader;
 

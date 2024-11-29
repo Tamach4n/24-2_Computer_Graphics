@@ -11,6 +11,8 @@
 #include "Vertex.h"	
 #include "shader.h"
 #include "Shape.h"
+#include "Cube.h"
+#include "Pyramid.h"
 
 class Scene
 {
@@ -19,9 +21,6 @@ public:
 	Scene(int winWidth, int winHeight);
 
 	bool initialize();
-
-	void checkCollision(const Obstacle* obs);
-	bool checkGround(Obstacle* obs);
 
 	void update();
 
@@ -39,37 +38,30 @@ private:
 	int width;
 	int height;
 
-	GLclampf r, g, b;
-
 	glm::vec3 camPos;
 	glm::vec3 camDir;
 	glm::vec3 camU;
 	glm::vec3 camV;
 
-	bool rotCamPosiSelf;
-	bool rotCamNegaSelf;
-	bool rotCamPosiCenter;
-	bool rotCamNegaCenter;
-	bool movCamPosiX;
-	bool movCamNegaX;
-	bool movCamPosiZ;
-	bool movCamNegaZ;
+	GLclampf r, g, b;
 
-	float camDeg;
-	float camRad;
+	bool hsr;			//	은면 제거 - Hidden Surface Removal
+	bool drawMode;		//	0: 와이어, 1: 솔리드
 
-	bool hsr;		//	은면 제거
-	bool Proj;		//	0: 직각투영, 1: 원근투영
-	bool polygonMode;	//	0: 선, 1: 면
-	int moveDir;
-	
+	class Vertex* axisVertex;
+	class Shader* axisShader;
 	class Shader* spriteShader;
 
-	class Robot* robot;
-	class Obstacle** obs;	//	이중 포인터데스와
-	class Butai* butai;
+	class Shape* curr;
+	class Cube* cube;
+	class Pyramid* pyramid;
 
 	void randomRGB();
+
+	void initBuffer();
+
+	void createAxisVerts();
+	void createSpriteVerts();
 
 	bool loadShaders();
 
