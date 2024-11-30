@@ -44,6 +44,23 @@ Vertex::Vertex(const float* verts, unsigned int numVerts)
 		reinterpret_cast<void*>(sizeof(float) * 3));
 }
 
+Vertex::Vertex(const std::vector<float>& verts)
+	:numVerts(static_cast<unsigned int>(verts.size() / 6)), indexBuffer(0), numIndices(verts.size())
+{
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, static_cast<unsigned int>(verts.size()) * sizeof(float), verts.data(), GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, reinterpret_cast<void*>(sizeof(float) * 3));
+}
+
 Vertex::~Vertex()
 {
 	glDeleteBuffers(1, &VBO);

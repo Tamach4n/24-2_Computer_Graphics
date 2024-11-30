@@ -42,22 +42,38 @@ void Shader::setActive()
 	glUseProgram(shaderProgram);
 }
 
-void Shader::setUniform(const char* name, float xPos, float yPos)
+void Shader::setUniform1f(const const char* name, float x)
 {
 	GLuint loc = glGetUniformLocation(shaderProgram, name);
+	checkUniformLocation(loc);
+	glUniform1f(loc, x);
+}
+
+void Shader::setUniform2f(const char* name, float xPos, float yPos)
+{
+	GLuint loc = glGetUniformLocation(shaderProgram, name);
+	checkUniformLocation(loc);
 	glUniform2f(loc, xPos, yPos);
 }
 
-void Shader::setVec3Uniform(const char* name, float x, float y, float z) const
+void Shader::setUniform3f(const char* name, float x, float y, float z) const
 {
 	GLuint loc = glGetUniformLocation(shaderProgram, name);
+	checkUniformLocation(loc);
 	glUniform3f(loc, x, y, z);
 }
 
 void Shader::setMatrixUniform(const char* name, glm::mat4 mat) const
 {
 	GLuint loc = glGetUniformLocation(shaderProgram, name);
+	checkUniformLocation(loc);
 	glUniformMatrix4fv(loc, 1, GL_FALSE, reinterpret_cast<const float*>(&mat[0][0]));
+}
+
+void Shader::checkUniformLocation(const GLuint& loc) const
+{
+	if (loc < 0)
+		std::cout << loc << " not found\n";
 }
 
 bool Shader::compileShader(const std::string& fileName, GLenum shaderType, GLuint& outShader)

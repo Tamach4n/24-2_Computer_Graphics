@@ -15,7 +15,7 @@ public:
 
 	void setActive();
 
-	void setUniform(const char* name, float xPos, float yPos);
+	void setUniform2f(const char* name, float xPos, float yPos);
 
 	GLuint GetshaderProgram() const { return shaderProgram; }
 

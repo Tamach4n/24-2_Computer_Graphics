@@ -9,6 +9,7 @@ public:
 		const unsigned int* indices, unsigned int numIndices);
 
 	Vertex(const float* verts, unsigned int numVerts);
+	Vertex(const std::vector<float>& verts);
 
 	~Vertex();
 

@@ -110,11 +110,13 @@ void Scene::update()
 
 		camDir[0] = glm::normalize(camPos[0] - glm::vec3(0.f, 0.f, 0.f));
 		camU[0] = glm::normalize(glm::cross(camDir[0], glm::vec3(0.f, 1.f, 0.f)));
-		//camV[0] = glm::cross(camDir[0], camV[0]);
+		camV[0] = glm::cross(-camDir[0], camU[0]);
 		camDir[1] = glm::normalize(camPos[1] - glm::vec3(0.f, 0.f, 0.f));
-		camU[1] = glm::normalize(glm::cross(camDir[1], glm::vec3(0.f, 1.f, 0.f))); 
+		camU[1] = glm::normalize(glm::cross(camDir[1], glm::vec3(0.f, 1.f, 0.f)));
+		camV[1] = glm::cross(-camDir[1], camU[1]);
 		camDir[2] = glm::normalize(camPos[2] - glm::vec3(0.f, 0.f, 0.f));
 		camU[2] = glm::normalize(glm::cross(camDir[2], glm::vec3(0.f, 1.f, 0.f)));
+		camV[2] = glm::cross(-camDir[2], camU[2]);
 	}
 
 	else if (rotCamNegaCenter) {
@@ -197,11 +199,7 @@ void Scene::drawScene(int mode)
 		glm::mat4 proj;
 
 		if (mode == 0) {
-			if(rotCamPosiSelf|| rotCamNegaSelf)
-				view = glm::lookAt(camPos[0], camPos[0] - camDir[0], glm::vec3(0.f,1.f,0.f));
-
-			else
-				view = glm::lookAt(camPos[0], camPos[0] - camDir[0], glm::vec3(0.f, 1.f, 0.f));
+			view = glm::lookAt(camPos[0], camPos[0] - camDir[0], camV[0]);
 
 			if (Proj)
 				proj = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 50.f);

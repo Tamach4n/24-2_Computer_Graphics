@@ -51,17 +51,32 @@ private:
 	class Vertex* axisVertex;
 	class Shader* axisShader;
 	class Shader* spriteShader;
+	class Vertex* orbitVertex;
+	class Shader* orbitShader;
 
 	class Shape* curr;
-	class Cube* cube;
-	class Pyramid* pyramid;
+	class Shape* cube;
+	class Shape* pyramid;
+	class Shape* lightSource;
+
+	bool isTurnedOn;
+	bool rotateLight;
+	bool orbitLight;
+	bool transformLightRad;
+	glm::vec3 lightPos;	//	lightSource¿« ¡ﬂ¡°
+	float lightDeg;
+	float lightRot;
+	float lightRad;
+	float dLightRad;
+
+	float orbitScale;
 
 	void randomRGB();
 
 	void initBuffer();
 
 	void createAxisVerts();
-	void createSpriteVerts();
+	void createOrbitVerts();
 
 	bool loadShaders();
 

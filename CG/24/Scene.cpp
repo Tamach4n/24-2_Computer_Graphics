@@ -8,7 +8,7 @@ Scene::Scene(int winWidth, int winHeight)
 {
 	hsr = true;
 	drawMode = true;
-	r = g = b = 0.9f;
+	r = g = b = 0.0f;
 }
 
 bool Scene::initialize()
@@ -17,8 +17,6 @@ bool Scene::initialize()
 		std::cerr << "Failed to Load Shaders." << '\n';
 		return false;
 	}
-	
-	createAxisVerts();
 
 	cube = new Cube;
 	cube->Init();
@@ -26,13 +24,34 @@ bool Scene::initialize()
 	pyramid->Init();
 	curr = cube;
 
+	isTurnedOn = true;
+	rotateLight = orbitLight = transformLightRad = false;
+	lightPos = glm::vec3(0.f, 0.f, 2.f);
+	lightDeg = 90.f;
+	lightRot = 0.f;
+	dLightRad = 0.f;
+	lightRad = 1.85f;
+	orbitScale = 1.f;
+
+	lightSource = new Cube();
+	lightSource->Init();
+	lightSource->setDegree(glm::vec3(0.f, 0.f, 0.f));
+	lightSource->setPosition(lightPos);
+	lightSource->setScale(0.1f);
+
+	lightPos.x = lightRad * cos(glm::radians(lightDeg));
+	lightPos.z = lightRad * sin(glm::radians(lightDeg));
+
 	glm::vec3 camAt = glm::vec3(0.f, 0.f, 0.f);
 	glm::vec3 camUp = glm::vec3(0.f, 1.f, 0.f);
 
-	camPos = glm::vec3(-1.f, 1.f, 1.f);
+	camPos = glm::vec3(-3.f, 3.f, 3.f);
 	camDir = glm::normalize(camPos - camAt);
 	camU = glm::normalize(glm::cross(camUp, camDir));
 	camV = glm::cross(camDir, camU);
+	
+	createAxisVerts();
+	createOrbitVerts();
 	
 	return true;
 }
@@ -41,7 +60,7 @@ void Scene::update()
 {
 	if (drawMode)	//	0
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	
+
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -51,8 +70,34 @@ void Scene::update()
 	else
 		glDisable(GL_DEPTH_TEST);
 
-	curr->Update();
-}
+	if (transformLightRad) {
+		if (lightRad < 0.5f) {
+			std::cout << "ToMaRe\n";
+			transformLightRad = false;
+			dLightRad = 0.f;
+			lightSource->setDirection(0.f, 0.f, 0.f);
+			lightRad += 0.01f;
+		}
+
+		orbitScale += dLightRad / 2;
+		lightRad += dLightRad;
+		lightPos.x = lightRad * cos(glm::radians(lightDeg));
+		lightPos.z = lightRad * sin(glm::radians(lightDeg));
+		lightSource->Update();
+	}
+
+	if (orbitLight) {
+		lightSource->Update();
+		lightDeg += lightRot;
+		lightPos.x = lightRad * cos(glm::radians(lightDeg));
+		lightPos.z = lightRad * sin(glm::radians(lightDeg));
+		//std::cout << lightPos.x << " " << lightPos.z << '\n';
+	}
+
+	else if (rotateLight) {
+		curr->Update();
+	}
+};
 
 void Scene::draw()
 {
@@ -61,18 +106,46 @@ void Scene::draw()
 
 	glm::mat4 view = glm::lookAt(camPos, camPos - camDir, camV);
 	glm::mat4 proj = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 50.f);
+	glm::mat4 mat(1.f);
 
-	spriteShader->setMatrixUniform("viewTransform", view);
-	spriteShader->setMatrixUniform("projTransform", proj);
-	spriteShader->setVec3Uniform("cameraPos", camPos.x, camPos.y, camPos.z);
-	spriteShader->setVec3Uniform("lightPos", 0.f, 0.f, 1.f);
-	spriteShader->setVec3Uniform("lightColor", 1.f, 1.f, 1.f);
+	{
+		axisVertex->setActive();
+		axisShader->setActive();
+		axisShader->setMatrixUniform("viewTransform", view);
+		axisShader->setMatrixUniform("projTransform", proj);
+		axisShader->setMatrixUniform("modelTransform", mat);
+		glDrawArrays(GL_LINES, 0, 6);
+	}
+	{
+		glm::mat4 s = glm::scale(mat, glm::vec3(orbitScale));
+		orbitVertex->setActive();
+		orbitShader->setActive();
+		orbitShader->setMatrixUniform("viewTransform", view);
+		orbitShader->setMatrixUniform("projTransform", proj);
+		orbitShader->setMatrixUniform("modelTransform", s);
+		glDrawArrays(GL_LINE_LOOP, 0, 360);
+	}
+	{
+		spriteShader->setActive();
+		spriteShader->setMatrixUniform("viewTransform", view);
+		spriteShader->setMatrixUniform("projTransform", proj);
+		spriteShader->setUniform3f("uCameraPos", camPos.x, camPos.y, camPos.z);
+		spriteShader->setUniform3f("uLightPos", lightPos.x, lightPos.y, lightPos.z);
+		spriteShader->setUniform1f("uAmbientLight", 0.1f);
+		spriteShader->setUniform1f("uSpecularShininess", 64);
+		spriteShader->setUniform1f("uSpecularStrength", 1.f);
 
-	spriteShader->setActive();
-	axisVertex->setActive();
+		if (isTurnedOn)
+			spriteShader->setUniform3f("uLightColor", 1.f, 1.f, 1.f);
 
-	glDrawArrays(GL_LINES, 0, 6);
-	curr->Draw(spriteShader);
+		else
+			spriteShader->setUniform3f("uLightColor", 0.f, 0.f, 0.f);
+
+		spriteShader->setUniform3f("uEmissiveColor", 1.f, 1.f, 1.f);
+		lightSource->Draw(spriteShader);
+		spriteShader->setUniform3f("uEmissiveColor", 0.f, 0.f, 0.f);
+		curr->Draw(spriteShader);
+	}
 }
 
 void Scene::keyboard(unsigned char key)
@@ -101,12 +174,118 @@ void Scene::keyboard(unsigned char key)
 		break;
 
 	case 'y':
-		curr->setRotation(0, 1, 0);
+	{
+		glm::vec3 v = curr->getRotation();
+
+		if (rotateLight && v.y > 0) {
+			std::cout << "Rotation Positive Off\n";
+			rotateLight = false;
+			curr->setRotation(0.f, 0.f, 0.f);
+		}
+
+		else {
+			std::cout << "Rotation Positive On\n";
+			rotateLight = true;
+			curr->setRotation(0.f, 3.f, 0.f);;
+		}
+
 		break;
+	}
 
 	case 'Y':
-		curr->setRotation(0, -1, 0);
+	{
+		glm::vec3 v = curr->getRotation();
+
+		if (rotateLight && v.y < 0) {
+			std::cout << "Rotation Negative Off\n";
+			rotateLight = false;
+			curr->setRotation(0.f, 0.f, 0.f);
+		}
+
+		else {
+			std::cout << "Rotation Negative On\n";
+			rotateLight = true;
+			curr->setRotation(0.f, -3.f, 0.f);
+		}
+
 		break;
+	}
+
+	case 'r':
+		if (orbitLight&& lightRot > 0) {
+			std::cout << "Uchimawari Off\n";
+			orbitLight = false;
+			lightRot = 0.f;
+			lightSource->setRotation(0.f, 0.f, 0.f);
+			lightSource->setOrbit(false);
+		}
+
+		else {
+			std::cout << "Uchimawari On\n";
+			orbitLight = true;
+			lightRot = 3.f;
+			lightSource->setRotation(0.f, -3.f, 0.f);
+			lightSource->setOrbit(true);
+		}
+
+		break;
+
+	case 'R':
+		if (orbitLight && lightRot < 0) {
+			std::cout << "Sotomawari Off\n";
+			orbitLight = false;
+			lightRot = 0.f;
+			lightSource->setRotation(0.f, 0.f, 0.f);
+			lightSource->setOrbit(false);
+		}
+
+		else {
+			std::cout << "Sotomawari On\n";
+			orbitLight = true;
+			lightRot = -3.f;
+			lightSource->setRotation(0.f, 3.f, 0.f);
+			lightSource->setOrbit(true);
+		}
+
+		break;
+
+	case 'z':
+		if (transformLightRad && dLightRad < 0) {
+			std::cout << "ToMaRe\n";
+			transformLightRad = false;
+			dLightRad = 0.f;
+			lightSource->setDirection(0.f, 0.f, 0.f);
+		}
+
+		else {
+			std::cout << "Chikazuku\n";
+			transformLightRad = true;
+			dLightRad = -0.01f;
+			lightSource->setDirection(0.f, 0.f, -0.01f);
+		}
+
+		break;
+
+	case 'Z':
+		if (transformLightRad && dLightRad > 0) {
+			std::cout << "ToMaRe\n";
+			transformLightRad = false;
+			dLightRad = 0.f;
+			lightSource->setDirection(0.f, 0.f, 0.f);
+		}
+
+		else {
+			std::cout << "OMG Go Outside\n";
+			transformLightRad = true;
+			dLightRad = 0.01f;
+			lightSource->setDirection(0.f, 0.f, 0.01f);
+		}
+
+		break;
+
+	case 'm':
+	case 'M':
+		isTurnedOn = !isTurnedOn;
 
 	case 's':
 		curr->Reset();
@@ -231,11 +410,33 @@ void Scene::createAxisVerts()
 	axisVertex = new Vertex(VAO, 6);
 }
 
+void Scene::createOrbitVerts()
+{
+	float r = 2.f;
+	std::vector<float> VAO;
+
+	for (int i = 0; i < 360; ++i) {
+		VAO.push_back(r * cos(glm::radians(static_cast<float>(i))));
+		VAO.push_back(0.f);
+		VAO.push_back(r * sin(glm::radians(static_cast<float>(i))));
+		VAO.push_back(0.1f);
+		VAO.push_back(0.1f);
+		VAO.push_back(0.1f);
+	}
+
+	orbitVertex = new Vertex(VAO);
+}
+
 bool Scene::loadShaders()
 {
 	axisShader = new Shader();
 
-	if (!axisShader->Load("C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\vertex.vert", "C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\fragment.frag"))
+	if (!axisShader->Load("C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\vertex2.vert", "C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\fragment.frag"))
+		return false;
+
+	orbitShader = new Shader();
+
+	if (!orbitShader->Load("C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\vertex2.vert", "C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\fragment.frag"))
 		return false;
 
 	spriteShader = new Shader();
