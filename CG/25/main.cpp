@@ -94,7 +94,7 @@ void ReshapeFunc(int width, int height)
 
 void KeyboardFunc(unsigned char key, int x, int y)
 {
-	if (27 == key || 'q' == key)
+	if (27 == key)
 		glutLeaveMainLoop();
 
 	g_scene.keyboard(key);

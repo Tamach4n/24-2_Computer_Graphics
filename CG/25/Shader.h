@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <gl/glew.h>
-#include <glm/glm.hpp>
 
 class Shader
 {
@@ -16,10 +15,7 @@ public:
 
 	void setActive();
 
-	void setUniform1f(const char* name, float x) const;
-	void setUniform2f(const char* name, float xPos, float yPos) const;
-	void setUniform3f(const char* name, float x, float y, float z) const;
-	void setMatrixUniform(const char* name, glm::mat4 mat) const;
+	void setUniform2f(const char* name, float xPos, float yPos);
 
 	GLuint GetshaderProgram() const { return shaderProgram; }
 

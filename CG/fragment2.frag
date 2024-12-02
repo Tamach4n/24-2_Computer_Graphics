@@ -32,8 +32,8 @@ void main()
 	//vec3 specular = specularLight * uLightColor;
 	vec3 specular = uSpecularStrength * specularLight * uLightColor;
 
-	vec3 result = (ambient + diffuse + specular) * outColor;		// vec3 * vec3 = ¿ø¼Ò³¢¸®ÀÇ °ö
-	//vec3 result = (uEmissiveColor + ambient + diffuse + specular) * outColor;``
+	//vec3 result = (ambient + diffuse + specular) * outColor;		// vec3 * vec3 = ¿ø¼Ò³¢¸®ÀÇ °ö
+	vec3 result = (uEmissiveColor + ambient + diffuse + specular) * outColor;
 	
 	FragColor = vec4(result, 1.0);
 }

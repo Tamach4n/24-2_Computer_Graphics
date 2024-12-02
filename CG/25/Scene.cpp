@@ -6,7 +6,7 @@
 Scene::Scene(int winWidth, int winHeight)
 	: width{ winWidth }, height{ winHeight }
 {
-	r = g = b = 0.0f;
+	r = g = b = 0.1f;
 }
 
 bool Scene::initialize()
@@ -20,8 +20,6 @@ bool Scene::initialize()
 	Proj = true;
 	polygonMode = true;
 
-	rotateLightPosi = rotateLightNega = false;
-
 	star = new Star(0.f, 0.f);
 	star->initVerts(0.6f, Position(1.f, 0.f, 0.f));
 
@@ -34,33 +32,11 @@ bool Scene::initialize()
 	planet[2].initVerts(0.3f, Position(0.f, 1.f, 0.f));
 	planet[2].initOrbitVerts(star->getPos());
 
-	lightColor = glm::vec3(1.f);
-	lightDeg = 90.f;
-	lightRad = glm::length(3.f);
-	lightPos.x = lightRad * cos(glm::radians(lightDeg));
-	lightPos.y = 0.f;
-	lightPos.z = lightRad * sin(glm::radians(lightDeg));
-
 	return true;
 }
 
 void Scene::update()
 {
-	if (rotateLightPosi) {
-		lightDeg += 5.f;
-		lightPos.x = lightRad * cos(glm::radians(lightDeg));
-		lightPos.z = lightRad * sin(glm::radians(lightDeg));
-		//star->setPos(lightPos.x, lightPos.y, lightPos.z);
-		std::cout << "X " << lightPos.x << " Z " << lightPos.z << '\n';
-	}
-
-	else if (rotateLightNega) {
-		lightDeg -= 5.f;
-		lightPos.x = lightRad * cos(glm::radians(lightDeg));
-		lightPos.z = lightRad * sin(glm::radians(lightDeg));
-		//star->setPos(lightPos.x, lightPos.y, lightPos.z);
-	}
-
 	star->Update(Position(0.f, 0.f, 0.f));
 
 	planet[0].Update(star->getPos());
@@ -72,56 +48,46 @@ void Scene::draw()
 {
 	glClearColor(r, g, b, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glm::vec3 camPos = glm::vec3(0.f, 0.f, 4.f);
-	glm::vec3 camAt = glm::vec3(0.f, 0.f, 0.f);
-	glm::vec3 camUp = glm::vec3(0.f, 1.f, 0.f);
 
-	glm::mat4 view = glm::lookAt(camPos, camAt, camUp);
-	glm::mat4 proj;
+	GLuint viewLoc = glGetUniformLocation(spriteShader->GetshaderProgram(), "viewTransform");
+	GLuint projLoc = glGetUniformLocation(spriteShader->GetshaderProgram(), "projTransform");
 
-	if (Proj)
-		proj = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 50.f);
+	if (viewLoc < 0)
+		std::cout << "viewLoc not found" << '\n';
 
-	else
-		proj = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -100.f, 100.0f);
+	else if (projLoc < 0)
+		std::cout << "projLoc not found" << '\n';
 
-	
-	spriteShader->setActive();
-	spriteShader->setMatrixUniform("viewTransform", view);
-	spriteShader->setMatrixUniform("projTransform", proj); 
-	spriteShader->setUniform3f("uCameraPos", camPos.x, camPos.y, camPos.z);
-	spriteShader->setUniform3f("uLightPos", lightPos.x, lightPos.y, lightPos.z);
-	spriteShader->setUniform1f("uAmbientLight", 0.3f);
-	spriteShader->setUniform1f("uSpecularShininess", 64);
-	spriteShader->setUniform1f("uSpecularStrength", 1.f);
-	spriteShader->setUniform3f("uLightColor", lightColor.x, lightColor.y, lightColor.z);
-	spriteShader->setUniform3f("uEmissiveColor", 0.f, 0.f, 0.f);
+	else {
+		glm::vec3 camPos = glm::vec3(0.f, 1.f, 4.f);
+		glm::vec3 camAt = glm::vec3(0.f, 0.f, 0.f);
+		glm::vec3 camUp = glm::vec3(0.f, 1.f, 0.f);
 
-	star->Draw(spriteShader->GetshaderProgram(), star->getPos());
+		glm::mat4 view = glm::lookAt(camPos, camAt, camUp);
+		glm::mat4 proj = glm::mat4(1.f);
 
-	//planet->setActive(spriteShader);
-	planet[0].Draw(spriteShader->GetshaderProgram(), star->getPos());
-	planet[1].Draw(spriteShader->GetshaderProgram(), star->getPos());
-	planet[2].Draw(spriteShader->GetshaderProgram(), star->getPos());
+		if (Proj)
+			proj = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 50.f);
+
+		else
+			proj = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -100.f, 100.0f);
+
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+
+		star->setActive(spriteShader);
+		star->Draw(spriteShader->GetshaderProgram(), star->getPos());
+
+		//planet->setActive(spriteShader);
+		planet[0].Draw(spriteShader->GetshaderProgram(), star->getPos());
+		planet[1].Draw(spriteShader->GetshaderProgram(), star->getPos());
+		planet[2].Draw(spriteShader->GetshaderProgram(), star->getPos());
+	}
 }
 
 void Scene::keyboard(unsigned char key)
 {
 	switch (key) {
-	case 'c':
-		randomRGB();
-		break;
-
-	case 'r':
-		rotateLightPosi = !rotateLightPosi;
-		rotateLightNega = false;
-		break;
-
-	case 'R':
-		rotateLightPosi = false;
-		rotateLightNega = !rotateLightNega;
-		break;
-
 	case 'h':
 		hsr = !hsr; 
 		
@@ -322,28 +288,18 @@ void Scene::setWindowSize(int winWidth, int winHeight)
 
 void Scene::randomRGB()
 {
-	std::uniform_int_distribution<int> uid{ 0,2 };
+	std::uniform_real_distribution<float> urd{ 0.f, 1.f };
 
-	switch (uid(rd)) {
-	case 0:
-		lightColor = glm::vec3(1.f);
-		break;
-
-	case 1:
-		lightColor = glm::vec3(1.f, 0.f, 0.f);
-		break;
-
-	case 2:
-		lightColor = glm::vec3(0.f, 1.f, 0.f);
-		break;
-	}
+	r = urd(rd);
+	g = urd(rd);
+	b = urd(rd);
 }
 
 bool Scene::loadShaders()
 {
 	spriteShader = new Shader();
 
-	if (!spriteShader->Load("C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\vertex3.vert", "C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\fragment2.frag"))
+	if (!spriteShader->Load("C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\vertex2.vert", "C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\fragment.frag"))
 		return false;
 
 	spriteShader->setActive();

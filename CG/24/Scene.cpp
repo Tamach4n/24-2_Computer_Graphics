@@ -26,7 +26,7 @@ bool Scene::initialize()
 
 	isTurnedOn = true;
 	rotateLight = orbitLight = transformLightRad = false;
-	lightPos = glm::vec3(0.f, 0.f, 2.f);
+	lightPos = glm::vec3(10.f, 10.f, 0.f);
 	lightDeg = 90.f;
 	lightRot = 0.f;
 	dLightRad = 0.f;
@@ -39,8 +39,8 @@ bool Scene::initialize()
 	lightSource->setPosition(lightPos);
 	lightSource->setScale(0.1f);
 
-	lightPos.x = lightRad * cos(glm::radians(lightDeg));
-	lightPos.z = lightRad * sin(glm::radians(lightDeg));
+	//lightPos.x = lightRad * cos(glm::radians(lightDeg));
+	//lightPos.z = lightRad * sin(glm::radians(lightDeg));
 
 	glm::vec3 camAt = glm::vec3(0.f, 0.f, 0.f);
 	glm::vec3 camUp = glm::vec3(0.f, 1.f, 0.f);
@@ -131,7 +131,7 @@ void Scene::draw()
 		spriteShader->setMatrixUniform("projTransform", proj);
 		spriteShader->setUniform3f("uCameraPos", camPos.x, camPos.y, camPos.z);
 		spriteShader->setUniform3f("uLightPos", lightPos.x, lightPos.y, lightPos.z);
-		spriteShader->setUniform1f("uAmbientLight", 0.1f);
+		spriteShader->setUniform1f("uAmbientLight", 0.3f);
 		spriteShader->setUniform1f("uSpecularShininess", 64);
 		spriteShader->setUniform1f("uSpecularStrength", 1.f);
 
@@ -141,9 +141,9 @@ void Scene::draw()
 		else
 			spriteShader->setUniform3f("uLightColor", 0.f, 0.f, 0.f);
 
-		spriteShader->setUniform3f("uEmissiveColor", 1.f, 1.f, 1.f);
+		//spriteShader->setUniform3f("uEmissiveColor", 1.f, 1.f, 1.f);
 		lightSource->Draw(spriteShader);
-		spriteShader->setUniform3f("uEmissiveColor", 0.f, 0.f, 0.f);
+		//spriteShader->setUniform3f("uEmissiveColor", 0.f, 0.f, 0.f);
 		curr->Draw(spriteShader);
 	}
 }

@@ -16,8 +16,8 @@ public:
 
 	void setActive();
 
-	void setUniform1f(const const char* name, float x);
-	void setUniform2f(const char* name, float xPos, float yPos);
+	void setUniform1f(const const char* name, float x) const;
+	void setUniform2f(const char* name, float xPos, float yPos) const;
 	void setUniform3f(const char* name, float x, float y, float z) const;
 	void setMatrixUniform(const char* name, glm::mat4 mat) const;
 

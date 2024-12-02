@@ -232,6 +232,5 @@ void Shape::Draw(GLuint shaderProgram, const Position& center)
 		glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(SRT));
 	}
 
-	shapeVertex->setActive();
 	glDrawElements(GL_TRIANGLES, shapeVertex->getNumIndices(), GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 }

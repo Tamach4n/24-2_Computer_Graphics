@@ -42,12 +42,28 @@ void Shader::setActive()
 	glUseProgram(shaderProgram);
 }
 
-void Shader::setUniform2f(const char* name, float xPos, float yPos)
+void Shader::setUniform1f(const char* name, float x) const
+{
+	GLuint loc = glGetUniformLocation(shaderProgram, name);
+	glUniform1f(loc, x);
+}
+
+void Shader::setUniform2f(const char* name, float xPos, float yPos) const
 {
 	GLuint loc = glGetUniformLocation(shaderProgram, name);
 	glUniform2f(loc, xPos, yPos);
+}
 
-	//glUniformMatrix4fv(loc, 1, GL_TRUE, reinterpret_cast<const float*>(&matrix[0][0]));
+void Shader::setUniform3f(const char* name, float x, float y, float z) const
+{
+	GLuint loc = glGetUniformLocation(shaderProgram, name);
+	glUniform3f(loc, x, y, z);
+}
+
+void Shader::setMatrixUniform(const char* name, glm::mat4 mat) const
+{
+	GLuint loc = glGetUniformLocation(shaderProgram, name);
+	glUniformMatrix4fv(loc, 1, GL_FALSE, reinterpret_cast<const float*>(&mat[0][0]));
 }
 
 bool Shader::compileShader(const std::string& fileName, GLenum shaderType, GLuint& outShader)

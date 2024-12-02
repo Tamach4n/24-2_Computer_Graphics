@@ -50,13 +50,6 @@ private:
 	Shape* star;
 	Planet* planet;
 
-	bool rotateLightPosi;
-	bool rotateLightNega;
-	glm::vec3 lightPos;
-	glm::vec3 lightColor;
-	float lightDeg;
-	float lightRad;
-
 	void randomRGB();
 
 	bool loadShaders();

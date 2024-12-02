@@ -1,29 +1,35 @@
-#include "Satellite.h"
-//#include "Planet.h"
+#include "Planet.h"
 
-Satellite::Satellite(const class Planet& p, float r, float degree)
+Planet::Planet(float r, float degree)
 {
-	std::cout << "Satellite(float r, float degree)" << '\n';
+	std::cout << "Planet(float r, float degree)" << '\n';
 	std::uniform_real_distribution<float> urd(0.f, 360.f);
 
 	shapeAngle = urd(rd);
-	Position pPos = p.getPos();
-	pos.x = pPos.x + orbitRadius* cos(glm::radians(shapeAngle));
+	std::cout << shapeAngle << '\n';
+
+	pos.x = orbitRadius * cos(glm::radians(shapeAngle));
 	pos.y = 0.f;
-	pos.z = pPos.z + orbitRadius * sin(glm::radians(shapeAngle));
+	pos.z = orbitRadius * sin(glm::radians(shapeAngle));
 	orbitRadius = r;
-	orbitSpeed = 0.f;
+	orbitSpeed = 5.f;
 	deg.z = degree;
 	rotateY = false;
 	rotateX = false;
-
-	initOrbitVerts(pPos);
+	
+	satellite = new Satellite(*this, 0.5f, -degree);
+	satellite->initVerts(0.1f, Position(0.f, 0.f, 1.f));
 }
 
-void Satellite::initOrbitVerts(const Position& center)
+Planet::~Planet()
+{
+	delete shapeVertex;
+	delete satellite;
+}
+
+void Planet::initOrbitVerts(const Position& center)
 {
 	std::vector<float> VAO;
-	std::cout << center.x << " " << center.y << " " << center.z << '\n';
 
 	for (float i = 0.f; i < 360; ++i) {
 		VAO.push_back(orbitRadius * cos(glm::radians(i)));
@@ -33,11 +39,11 @@ void Satellite::initOrbitVerts(const Position& center)
 		VAO.push_back(1.f);
 		VAO.push_back(1.f);
 	}
-	
+
 	orbitVertex = new Vertex(VAO);
 }
 
-void Satellite::Update(const Planet& pla)
+void Planet::Update(const Position& center)
 {
 	if (moveX) {
 		if (moveX == 1)
@@ -63,26 +69,26 @@ void Satellite::Update(const Planet& pla)
 			dir.z -= 0.01f;
 	}
 
-	Position p = pla.getPos();
-	Position d = pla.getDeg();
-
 	shapeAngle += orbitSpeed;
-	pos.x = orbitRadius * cos(shapeAngle);
-	pos.z = orbitRadius * sin(shapeAngle);
+	pos.x = orbitRadius * cos(glm::radians(shapeAngle));
+	//pos.y = center.y;
+	pos.z = orbitRadius * sin(glm::radians(shapeAngle));
 
 	if (rotateY) {
-		deg.y = 5.f;
+		deg.y += 5.f;
 	}
 
 	if (rotateX) {
-		deg.x -= 5.f;
+		deg.x += 5.f;
+	}
+
+	if (satellite) {
+		satellite->Update(*this);
 	}
 }
 
-void Satellite::Draw(GLuint shaderProgram, const glm::mat4& pMat, const Position& pPos)
+void Planet::Draw(GLuint shaderProgram, const Position& center)
 {
-	shapeVertex->setActive();
-
 	GLuint uLoc = glGetUniformLocation(shaderProgram, "modelTransform");
 	glm::mat4 STR = glm::mat4(1.f);
 
@@ -93,11 +99,11 @@ void Satellite::Draw(GLuint shaderProgram, const glm::mat4& pMat, const Position
 		glm::mat4 Rx = glm::rotate(STR, glm::radians(deg.x), glm::vec3(1.f, 0.f, 0.f));
 		glm::mat4 Ry = glm::rotate(STR, glm::radians(deg.y), glm::vec3(0.f, 1.f, 0.f));
 		glm::mat4 Rz = glm::rotate(STR, glm::radians(deg.z), glm::vec3(0.f, 0.f, 1.f));
-		glm::mat4 T = glm::translate(STR, glm::vec3(pPos.x, pPos.y, pPos.z));
-		glm::mat4 S = glm::scale(STR, glm::vec3(2.0f));
+		glm::mat4 T = glm::translate(STR, glm::vec3(center.x, center.y, center.z));
+		glm::mat4 S;
 
 		{
-			STR = pMat * Ry * Rz * Rx;
+			STR = T * Ry * Rz * Rx;
 			glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(STR));
 
 			orbitVertex->setActive();
@@ -109,14 +115,36 @@ void Satellite::Draw(GLuint shaderProgram, const glm::mat4& pMat, const Position
 		Ry = glm::rotate(STR, glm::radians(deg.y), glm::vec3(0.f, 1.f, 0.f));
 		Rz = glm::rotate(STR, glm::radians(deg.z), glm::vec3(0.f, 0.f, 1.f));
 		T = glm::translate(STR, glm::vec3(pos.x, pos.y, pos.z));
+		glm::mat4 T2 = glm::translate(STR, glm::vec3(center.x, center.y, center.z));
 		S = glm::scale(STR, glm::vec3(0.5f));
 
 		{
-			STR = T * pMat * Ry * Rz * Rx * S;
+			STR = T2 * Ry * Rz * Rx * T * S;
 			glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(STR));
 
 			shapeVertex->setActive();
 			glDrawElements(GL_TRIANGLES, shapeVertex->getNumIndices(), GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 		}
-	}
+
+		STR /= S;
+	}	
+
+	if(satellite)
+		satellite->Draw(shaderProgram, STR, this->pos);
+}
+
+void Planet::setRotateY()
+{
+	rotateY = !rotateY;
+
+	if (satellite)
+		satellite->setRotateY();
+}
+
+void Planet::setRotateZ()
+{
+	rotateX = !rotateX;
+
+	if (satellite)
+		satellite->setRotateZ();
 }

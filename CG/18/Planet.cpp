@@ -12,7 +12,7 @@ Planet::Planet(float r, float degree)
 	pos.y = 0.f;
 	pos.z = orbitRadius * sin(glm::radians(shapeAngle));
 	orbitRadius = r;
-	orbitSpeed = 5.f;
+	orbitSpeed = 0.f;
 	deg.z = degree;
 	rotateY = false;
 	rotateX = false;
@@ -53,7 +53,7 @@ void Planet::Update(const Position& center)
 			dir.x -= 0.01f;
 	}
 
-	if (moveY == 1) {
+	if (moveY) {
 		if (moveY == 1)
 			dir.y += 0.01f;
 

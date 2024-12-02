@@ -12,7 +12,7 @@ Satellite::Satellite(const class Planet& p, float r, float degree)
 	pos.y = 0.f;
 	pos.z = pPos.z + orbitRadius * sin(glm::radians(shapeAngle));
 	orbitRadius = r;
-	orbitSpeed = 0.f;
+	orbitSpeed = 0.5f;
 	deg.z = degree;
 	rotateY = false;
 	rotateX = false;
@@ -81,8 +81,6 @@ void Satellite::Update(const Planet& pla)
 
 void Satellite::Draw(GLuint shaderProgram, const glm::mat4& pMat, const Position& pPos)
 {
-	shapeVertex->setActive();
-
 	GLuint uLoc = glGetUniformLocation(shaderProgram, "modelTransform");
 	glm::mat4 STR = glm::mat4(1.f);
 
