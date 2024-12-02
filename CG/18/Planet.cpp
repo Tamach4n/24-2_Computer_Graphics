@@ -107,7 +107,7 @@ void Planet::Draw(GLuint shaderProgram, const Position& center)
 			glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(STR));
 
 			orbitVertex->setActive();
-			glDrawArrays(GL_LINE_LOOP, 0, orbitVertex->getNumIndices());
+			glDrawArrays(GL_LINE_LOOP, 0, 360);
 		}
 
 		STR = glm::mat4(1.f);
@@ -123,7 +123,8 @@ void Planet::Draw(GLuint shaderProgram, const Position& center)
 			glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(STR));
 
 			shapeVertex->setActive();
-			glDrawElements(GL_TRIANGLES, shapeVertex->getNumIndices(), GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
+			glDrawArrays(GL_TRIANGLES, 0, shapeVertex->getNumVerts());
+			//glDrawElements(GL_TRIANGLES, shapeVertex->getNumIndices(), GL_UNSIGNED_INT, 0);
 		}
 
 		STR /= S;

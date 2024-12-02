@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <gl/glew.h>
+#include <glm/glm.hpp>
 #include <iostream>
 
 class Vertex {
@@ -9,7 +10,9 @@ public:
 		const unsigned int* indices, unsigned int numIndices);
 
 	Vertex(const float* verts, unsigned int numVerts);
+	Vertex(const std::vector<float>& verts, const std::vector<unsigned int>& numVerts);
 	Vertex(const std::vector<float>& verts);
+	Vertex(const std::vector<glm::vec3>& verts);
 
 	~Vertex();
 

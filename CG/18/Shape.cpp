@@ -1,4 +1,6 @@
 #include "Shape.h"
+#include <fstream>
+#include <sstream>
 
 Shape::Shape()
 {
@@ -59,62 +61,183 @@ void Shape::clearBuffer()
 }
 
 void Shape::initVerts(float radius, const Position& color)
-{
+{	
+	/*std::vector<glm::vec3> VAO = readOBJ("C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\sphere.obj", color);*/
 	std::vector<float> VAO;
 	std::vector<unsigned int> VBO;
+	
+	std::ifstream in{ "C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\sphere.obj" };
 
-	const int LATITUDE_SEGMENTS = 20;  // 위도 분할 개수
-	const int LONGITUDE_SEGMENTS = 20;  // 경도 분할 개수
-
-	// 정점 데이터 생성 (위도와 경도를 따라 분할)
-	for (int i = 0; i <= LATITUDE_SEGMENTS; ++i) {
-		float theta = i * M_PI / LATITUDE_SEGMENTS;  // 위도 각도
-		float sinTheta = sin(theta);
-		float cosTheta = cos(theta);
-
-		for (int j = 0; j <= LONGITUDE_SEGMENTS; ++j) {
-			float phi = j * 2.0f * M_PI / LONGITUDE_SEGMENTS;  // 경도 각도
-			float x = cos(phi) * sinTheta;
-			float y = cosTheta;
-			float z = sin(phi) * sinTheta;
-				
-			// 정점 (x, y, z)
-			VAO.push_back(radius * x);
-			VAO.push_back(radius * y);
-			VAO.push_back(radius * z);
-
-			if (y == 0.5f) {
-				VAO.push_back(1.0f);
-				VAO.push_back(1.0f);
-				VAO.push_back(1.0f);
+	std::vector<glm::vec3> vertex;
+	std::vector<glm::vec3> vcolor;
+	std::vector<glm::vec3> normal;
+	std::vector<glm::ivec3> vindex;
+	std::vector<glm::ivec3> nindex;
+	while (in) {
+		std::string line;
+		std::getline(in, line);
+		std::stringstream ss{ line };
+		std::string str;
+		ss >> str;
+		if (str == "v") {
+			glm::vec3 v;
+			for (int i = 0; i < 3; ++i) {
+				std::string subStr;
+				ss >> subStr;
+				v[i] = std::stof(subStr);
 			}
-			else {
-				VAO.push_back(color.x);
-				VAO.push_back(color.y);
-				VAO.push_back(color.z);
+			vertex.push_back(v);
+			vcolor.push_back(glm::vec3(color.x, color.y, color.z));
+		}
+		else if (str == "vn") {
+			glm::vec3 n;
+			for (int i = 0; i < 3; ++i) {
+				std::string subStr;
+				ss >> subStr;
+				n[i] = std::stof(subStr);
 			}
+			normal.push_back(n);
+		}
+		else if (str == "f") {
+			glm::ivec3 fv;
+			glm::ivec3 fn;
+			for (int i = 0; i < 3; ++i) {
+				std::string substr;
+				ss >> substr;
+				std::stringstream subss{ substr };
+				std::string vIdx;
+				std::getline(subss, vIdx, '/');
+				fv[i] = std::stoi(vIdx) - 1;
+				std::getline(subss, vIdx, '/');
+				// 텍스처 건너뛰기
+				std::getline(subss, vIdx, '/');
+				fn[i] = std::stoi(vIdx) - 1;
+			}
+			vindex.push_back(fv);
+			nindex.push_back(fn);
 		}
 	}
 
-	// 인덱스 데이터 생성 (삼각형들로 구성)
-	for (int i = 0; i < LATITUDE_SEGMENTS; ++i) {
-		for (int j = 0; j < LONGITUDE_SEGMENTS; ++j) {
-			int first = (i * (LONGITUDE_SEGMENTS + 1)) + j;
-			int second = first + LONGITUDE_SEGMENTS + 1;
-
-			// 삼각형 1
-			VBO.push_back(first);
-			VBO.push_back(second);
-			VBO.push_back(first + 1); 
-
-			// 삼각형 2
-			VBO.push_back(second);
-			VBO.push_back(second + 1);
-			VBO.push_back(first + 1);
-		}
+	std::vector<glm::vec3> data;
+	for (int i = 0; i < vindex.size(); ++i) {
+		data.push_back(vertex[vindex[i][0]]);
+		data.push_back(vcolor[vindex[i][0]]);
+		data.push_back(normal[nindex[i][0]]);
+		data.push_back(vertex[vindex[i][1]]);
+		data.push_back(vcolor[vindex[i][1]]);
+		data.push_back(normal[nindex[i][1]]);
+		data.push_back(vertex[vindex[i][2]]);
+		data.push_back(vcolor[vindex[i][2]]);
+		data.push_back(normal[nindex[i][2]]);
 	}
+	/*if (!in) {
+		std::cout << fileName << " file read failed\n";
+		exit(1);
+	}*/
 
-	shapeVertex = new Vertex(VAO, VBO);
+	// c++ stream --> input output을 해주는 흐름?
+
+	//while (in) {
+	//	std::string line;
+	//	std::getline(in, line);
+	//	std::stringstream ss{ line };
+	//	std::string str;
+	//	ss >> str;
+	//	if (str == "v") {
+	//		glm::vec3 v;
+	//		for (int i = 0; i < 3; ++i) {
+	//			std::string subStr;
+	//			ss >> subStr;
+	//			v[i] = std::stof(subStr);
+	//			VAO.push_back(std::stof(subStr));
+	//		}
+	//		VAO.push_back(color.x);
+	//		VAO.push_back(color.y);
+	//		VAO.push_back(color.z);
+	//	}
+	//	else if (str == "vn") {
+	//		glm::vec3 n;
+	//		for (int i = 0; i < 3; ++i) {
+	//			std::string subStr;
+	//			ss >> subStr;
+	//			n[i] = std::stof(subStr);
+	//			VAO.push_back(std::stof(subStr));
+	//		}
+	//	}
+	//	else if (str == "f") {
+	//		std::vector<unsigned int> temp;
+	//		for (int i = 0; i < 3; ++i) {
+	//			std::string substr;
+	//			ss >> substr;
+	//			std::stringstream subss{ substr };
+	//			std::string vIdx;
+	//			std::getline(subss, vIdx, '/');
+	//			temp.push_back(std::stoi(vIdx) - 1);
+	//			VBO.push_back(std::stoi(vIdx) - 1);
+	//			std::cout << vIdx << " ";
+	//		}
+	//		std::cout << '\n';
+	//		/*for (int i = 2; i >= 0; --i) {
+	//			VBO.push_back(temp[i]);
+	//		}*/
+	//	}
+	//}
+
+	//std::cout << VAO.size() / 9 << " Vertices Exists." << std::endl;
+
+	//const int LATITUDE_SEGMENTS = 20;  // 위도 분할 개수
+	//const int LONGITUDE_SEGMENTS = 20;  // 경도 분할 개수
+
+	//// 정점 데이터 생성 (위도와 경도를 따라 분할)
+	//for (int i = 0; i <= LATITUDE_SEGMENTS; ++i) {
+	//	float theta = i * M_PI / LATITUDE_SEGMENTS;  // 위도 각도
+	//	float sinTheta = sin(theta);
+	//	float cosTheta = cos(theta);
+
+	//	for (int j = 0; j <= LONGITUDE_SEGMENTS; ++j) {
+	//		float phi = j * 2.0f * M_PI / LONGITUDE_SEGMENTS;  // 경도 각도
+	//		float x = cos(phi) * sinTheta;
+	//		float y = cosTheta;
+	//		float z = sin(phi) * sinTheta;
+	//			
+	//		// 정점 (x, y, z)
+	//		VAO.push_back(radius * x);
+	//		VAO.push_back(radius * y);
+	//		VAO.push_back(radius * z);
+
+	//		if (y == 0.5f) {
+	//			VAO.push_back(1.0f);
+	//			VAO.push_back(1.0f);
+	//			VAO.push_back(1.0f);
+	//		}
+	//		else {
+	//			VAO.push_back(color.x);
+	//			VAO.push_back(color.y);
+	//			VAO.push_back(color.z);
+	//		}
+	//	}
+	//}
+
+	//// 인덱스 데이터 생성 (삼각형들로 구성)
+	//for (int i = 0; i < LATITUDE_SEGMENTS; ++i) {
+	//	for (int j = 0; j < LONGITUDE_SEGMENTS; ++j) {
+	//		int first = (i * (LONGITUDE_SEGMENTS + 1)) + j;
+	//		int second = first + LONGITUDE_SEGMENTS + 1;
+
+	//		// 삼각형 1
+	//		VBO.push_back(first);
+	//		VBO.push_back(second);
+	//		VBO.push_back(first + 1); 
+
+	//		// 삼각형 2
+	//		VBO.push_back(second);
+	//		VBO.push_back(second + 1);
+	//		VBO.push_back(first + 1);
+	//	}
+	//}
+
+	shapeVertex = new Vertex(data);
+	//shapeVertex = new Vertex(VAO, VBO);
 }
 
 void Shape::setActive(Shader* shader)
@@ -216,22 +339,86 @@ void Shape::Update(const Position& center)
 
 void Shape::Draw(GLuint shaderProgram, const Position& center)
 {
-	GLuint uLoc = glGetUniformLocation(shaderProgram, "modelTransform");
+}
 
-	if (uLoc < 0)
-		std::cout << "uLoc not found" << '\n';
-
-	else {
-		glm::mat4 Rx = glm::rotate(glm::mat4(1.f), glm::radians(deg.x), glm::vec3(1.f, 0.f, 0.f));	//	radians(degree) : degree to radian
-		glm::mat4 Ry = glm::rotate(glm::mat4(1.f), glm::radians(deg.y), glm::vec3(0.f, 1.f, 0.f));
-		glm::mat4 Rz = glm::rotate(glm::mat4(1.f), glm::radians(deg.z), glm::vec3(0.f, 0.f, 1.f));
-		glm::mat4 T = glm::translate(glm::mat4(1.f), glm::vec3(pos.x, pos.y, pos.z));
-		glm::mat4 S = glm::scale(glm::mat4(1.f), glm::vec3(0.5f));
-
-		glm::mat4 SRT = Rz * Ry * Rx * T * S;
-		glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(SRT));
+std::vector<glm::vec3> Shape::readOBJ(std::string fileName, const Position& color)
+{
+	std::ifstream in{ fileName };
+	if (!in) {
+		std::cout << fileName << " file read failed\n";
+		exit(1);
 	}
 
-	shapeVertex->setActive();
-	glDrawElements(GL_TRIANGLES, shapeVertex->getNumIndices(), GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
+	// c++ stream --> input output을 해주는 흐름?
+
+	srand(static_cast<unsigned int>(time(nullptr)));
+
+	std::vector<glm::vec3> vertex;
+	std::vector<glm::vec3> vcolor;
+	std::vector<glm::vec3> normal;
+	std::vector<glm::ivec3> vindex;
+	std::vector<glm::ivec3> nindex;
+	while (in) {
+		std::string line;
+		std::getline(in, line);
+		std::stringstream ss{ line };
+		std::string str;
+		ss >> str;
+		if (str == "v") {
+			glm::vec3 v;
+			for (int i = 0; i < 3; ++i) {
+				std::string subStr;
+				ss >> subStr;
+				v[i] = std::stof(subStr);
+			}
+			vertex.push_back(v);
+			vcolor.push_back(glm::vec3(color.x, color.y, color.z));
+		}
+		else if (str == "vn") {
+			glm::vec3 n;
+			for (int i = 0; i < 3; ++i) {
+				std::string subStr;
+				ss >> subStr;
+				n[i] = std::stof(subStr);
+			}
+			normal.push_back(n);
+		}
+		else if (str == "f") {
+			glm::ivec3 fv;
+			glm::ivec3 fn;
+			for (int i = 0; i < 3; ++i) {
+				std::string substr;
+				ss >> substr;
+				std::stringstream subss{ substr };
+				std::string vIdx;
+				std::getline(subss, vIdx, '/');
+				fv[i] = std::stoi(vIdx) - 1;
+				std::getline(subss, vIdx, '/');
+				// 텍스처 건너뛰기
+				std::getline(subss, vIdx, '/');
+				fn[i] = std::stoi(vIdx) - 1;
+			}
+			vindex.push_back(fv);
+			nindex.push_back(fn);
+		}
+	}
+
+	std::vector<glm::vec3> data;
+	for (int i = 0; i < vindex.size(); ++i) {
+		std::cout << vertex[vindex[i][0]].x << " " << vertex[vindex[i][0]].y << " " << vertex[vindex[i][0]].z << '\n';
+		std::cout << vertex[vindex[i][1]].x << " " << vertex[vindex[i][1]].y << " " << vertex[vindex[i][1]].z << '\n';
+		std::cout << vertex[vindex[i][2]].x << " " << vertex[vindex[i][2]].y << " " << vertex[vindex[i][2]].z << '\n';
+		data.push_back(vertex[vindex[i][0]]);
+		data.push_back(vcolor[vindex[i][0]]);
+		data.push_back(normal[nindex[i][0]]);
+		data.push_back(vertex[vindex[i][1]]);
+		data.push_back(vcolor[vindex[i][1]]);
+		data.push_back(normal[nindex[i][1]]);
+		data.push_back(vertex[vindex[i][2]]);
+		data.push_back(vcolor[vindex[i][2]]);
+		data.push_back(normal[nindex[i][2]]);
+	}
+
+	std::cout << fileName << " File Read, " << data.size() / 3 << " Vertices Exists." << std::endl;
+	return data;
 }

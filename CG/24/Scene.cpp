@@ -26,7 +26,7 @@ bool Scene::initialize()
 
 	isTurnedOn = true;
 	rotateLight = orbitLight = transformLightRad = false;
-	lightPos = glm::vec3(10.f, 10.f, 0.f);
+	lightPos = glm::vec3(0.f, 0.f, 2.f);
 	lightDeg = 90.f;
 	lightRot = 0.f;
 	dLightRad = 0.f;

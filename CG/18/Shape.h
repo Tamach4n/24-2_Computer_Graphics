@@ -79,5 +79,7 @@ protected:
 	Position dir;
 	
 	std::random_device rd;
+
+	virtual std::vector<glm::vec3> readOBJ(std::string fileName, const Position& color);
 };
 
