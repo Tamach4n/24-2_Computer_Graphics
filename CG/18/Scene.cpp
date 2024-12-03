@@ -36,7 +36,7 @@ bool Scene::initialize()
 
 	lightColor = glm::vec3(1.f);
 	lightDeg = 90.f;
-	lightRad = glm::length(3.f);
+	lightRad = glm::length(1.f);
 	lightPos.x = lightRad * cos(glm::radians(lightDeg));
 	lightPos.y = 0.f;
 	lightPos.z = lightRad * sin(glm::radians(lightDeg));
@@ -91,7 +91,7 @@ void Scene::draw()
 	spriteShader->setMatrixUniform("projTransform", proj); 
 	spriteShader->setUniform3f("uCameraPos", camPos.x, camPos.y, camPos.z);
 	spriteShader->setUniform3f("uLightPos", lightPos.x, lightPos.y, lightPos.z);
-	spriteShader->setUniform1f("uAmbientLight", 0.3f);
+	spriteShader->setUniform1f("uAmbientLight", 0.1f);
 	spriteShader->setUniform1f("uSpecularShininess", 64);
 	spriteShader->setUniform1f("uSpecularStrength", 1.f);
 	spriteShader->setUniform3f("uLightColor", lightColor.x, lightColor.y, lightColor.z);
@@ -330,11 +330,11 @@ void Scene::randomRGB()
 		break;
 
 	case 1:
-		lightColor = glm::vec3(1.f, 0.f, 0.f);
+		lightColor = glm::vec3(0.8f, 0.8f, 0.f);
 		break;
 
 	case 2:
-		lightColor = glm::vec3(0.f, 1.f, 0.f);
+		lightColor = glm::vec3(0.f, 0.8f, 0.8f);
 		break;
 	}
 }

@@ -109,14 +109,14 @@ void Satellite::Draw(GLuint shaderProgram, const glm::mat4& pMat, const Position
 		Ry = glm::rotate(STR, glm::radians(deg.y), glm::vec3(0.f, 1.f, 0.f));
 		Rz = glm::rotate(STR, glm::radians(deg.z), glm::vec3(0.f, 0.f, 1.f));
 		T = glm::translate(STR, glm::vec3(pos.x, pos.y, pos.z));
-		S = glm::scale(STR, glm::vec3(0.5f));
+		S = glm::scale(STR, glm::vec3(0.2f));
 
 		{
 			STR = T * pMat * Ry * Rz * Rx * S;
 			glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(STR));
 
 			shapeVertex->setActive();
-			glDrawArrays(GL_TRIANGLES, 0, shapeVertex->getNumVerts());
+			glDrawElements(GL_TRIANGLES, shapeVertex->getNumIndices(), GL_UNSIGNED_INT, 0);
 		}
 	}
 }

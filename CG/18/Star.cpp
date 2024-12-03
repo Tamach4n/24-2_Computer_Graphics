@@ -34,5 +34,5 @@ void Star::Draw(GLuint shaderProgram, const Position& center)
 	}
 
 	shapeVertex->setActive();
-	glDrawArrays(GL_TRIANGLES, 0, shapeVertex->getNumVerts());
+	glDrawElements(GL_TRIANGLES, shapeVertex->getNumIndices(), GL_UNSIGNED_INT, 0);
 }

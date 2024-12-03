@@ -116,15 +116,15 @@ void Planet::Draw(GLuint shaderProgram, const Position& center)
 		Rz = glm::rotate(STR, glm::radians(deg.z), glm::vec3(0.f, 0.f, 1.f));
 		T = glm::translate(STR, glm::vec3(pos.x, pos.y, pos.z));
 		glm::mat4 T2 = glm::translate(STR, glm::vec3(center.x, center.y, center.z));
-		S = glm::scale(STR, glm::vec3(0.5f));
+		S = glm::scale(STR, glm::vec3(0.3f));
 
 		{
 			STR = T2 * Ry * Rz * Rx * T * S;
 			glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(STR));
 
 			shapeVertex->setActive();
-			glDrawArrays(GL_TRIANGLES, 0, shapeVertex->getNumVerts());
-			//glDrawElements(GL_TRIANGLES, shapeVertex->getNumIndices(), GL_UNSIGNED_INT, 0);
+			//glDrawArrays(GL_TRIANGLES, 0, shapeVertex->getNumVerts());
+			glDrawElements(GL_TRIANGLES, shapeVertex->getNumIndices(), GL_UNSIGNED_INT, 0);
 		}
 
 		STR /= S;

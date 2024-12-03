@@ -29,8 +29,8 @@ void main()
 	vec3 cameraDir = normalize(uCameraPos - outFragPos);
 	vec3 reflectDir = reflect(-lightDir, normatVec);
 	float specularLight = pow(max(dot(cameraDir, reflectDir), 0.0), uSpecularShininess);
-	//vec3 specular = specularLight * uLightColor;
-	vec3 specular = uSpecularStrength * specularLight * uLightColor;
+	vec3 specular = specularLight * uLightColor;
+	//vec3 specular = uSpecularStrength * specularLight * uLightColor;
 
 	//vec3 result = (ambient + diffuse + specular) * outColor;		// vec3 * vec3 = ¿ø¼Ò³¢¸®ÀÇ °ö
 	vec3 result = (uEmissiveColor + ambient + diffuse + specular) * outColor;
