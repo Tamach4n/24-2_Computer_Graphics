@@ -68,74 +68,6 @@ void Shape::initVerts(float radius, const Position& color)
 	
 	std::ifstream in{ "C:\\Users\\worl\\Desktop\\Lecture\\2-2\\CG\\CG\\sphere.obj" };
 
-	//std::vector<glm::vec3> vertex;
-	//std::vector<glm::vec3> vcolor;
-	//std::vector<glm::vec3> normal;
-	//std::vector<glm::ivec3> vindex;
-	//std::vector<glm::ivec3> nindex;
-	//while (in) {
-	//	std::string line;
-	//	std::getline(in, line);
-	//	std::stringstream ss{ line };
-	//	std::string str;
-	//	ss >> str;
-	//	if (str == "v") {
-	//		glm::vec3 v;
-	//		for (int i = 0; i < 3; ++i) {
-	//			std::string subStr;
-	//			ss >> subStr;
-	//			v[i] = std::stof(subStr);
-	//		}
-	//		vertex.push_back(v);
-	//		vcolor.push_back(glm::vec3(color.x, color.y, color.z));
-	//	}
-	//	else if (str == "vn") {
-	//		glm::vec3 n;
-	//		for (int i = 0; i < 3; ++i) {
-	//			std::string subStr;
-	//			ss >> subStr;
-	//			n[i] = std::stof(subStr);
-	//		}
-	//		normal.push_back(n);
-	//	}
-	//	else if (str == "f") {
-	//		glm::ivec3 fv;
-	//		glm::ivec3 fn;
-	//		for (int i = 0; i < 3; ++i) {
-	//			std::string substr;
-	//			ss >> substr;
-	//			std::stringstream subss{ substr };
-	//			std::string vIdx;
-	//			std::getline(subss, vIdx, '/');
-	//			fv[i] = std::stoi(vIdx) - 1;
-	//			std::getline(subss, vIdx, '/');
-	//			// 텍스처 건너뛰기
-	//			std::getline(subss, vIdx, '/');
-	//			fn[i] = std::stoi(vIdx) - 1;
-	//		}
-	//		vindex.push_back(fv);
-	//		nindex.push_back(fn);
-	//	}
-	//}
-
-	//std::vector<glm::vec3> data;
-	//for (int i = 0; i < vindex.size(); ++i) {
-	//	data.push_back(vertex[vindex[i][0]]);
-	//	data.push_back(vcolor[vindex[i][0]]);
-	//	data.push_back(normal[nindex[i][0]]);
-	//	data.push_back(vertex[vindex[i][1]]);
-	//	data.push_back(vcolor[vindex[i][1]]);
-	//	data.push_back(normal[nindex[i][1]]);
-	//	data.push_back(vertex[vindex[i][2]]);
-	//	data.push_back(vcolor[vindex[i][2]]);
-	//	data.push_back(normal[nindex[i][2]]);
-	//}
-	/*if (!in) {
-		std::cout << fileName << " file read failed\n";
-		exit(1);
-	}*/
-
-	// c++ stream --> input output을 해주는 흐름?
 	std::vector<glm::vec3>vertex;
 	std::vector<glm::vec3>vn;
 
@@ -146,22 +78,27 @@ void Shape::initVerts(float radius, const Position& color)
 		std::string str;
 		ss >> str;
 		if (str == "v") {
-			glm::vec3 v;
+			std::vector<float> v;
+
 			for (int i = 0; i < 3; ++i) {
 				std::string subStr;
 				ss >> subStr;
-				v[i] = std::stof(subStr);
+				v.push_back(std::stof(subStr));
 			}
-			vertex.push_back(v);
+
+			vertex.push_back(glm::vec3(v[0], v[1], v[2]));
 		}
+
 		else if (str == "vn") {
-			glm::vec3 n;
+			std::vector<float> n;
+
 			for (int i = 0; i < 3; ++i) {
 				std::string subStr;
 				ss >> subStr;
-				n[i] = std::stof(subStr);
+				n.push_back(std::stof(subStr));
 			}
-			vn.push_back(n);
+
+			vn.push_back(glm::vec3(n[0], n[1], n[2]));
 		}
 		else if (str == "f") {
 			std::vector<unsigned int> temp;
