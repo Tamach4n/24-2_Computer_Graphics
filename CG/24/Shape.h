@@ -14,7 +14,7 @@ public:
 
 	virtual void Init();
 
-	virtual void setActive(Shader* shader);
+	virtual void setActive();
 	virtual void setPosition(glm::vec3 p);
 	virtual void setRotation(float x, float y, float z);
 	virtual void setDirection(float x, float y, float z);

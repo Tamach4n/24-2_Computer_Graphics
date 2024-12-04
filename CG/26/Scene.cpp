@@ -303,13 +303,13 @@ void Scene::keyboard(unsigned char key)
 		break;
 
 	case 'r':
-		rotCamPosiSelf = !rotCamPosiSelf;
-		rotCamNegaSelf = false;
+		rotCamPosiCenter = !rotCamPosiCenter;
+		rotCamNegaCenter = false;
 		break;
 
 	case 'R':
-		rotCamPosiSelf = false;
-		rotCamNegaSelf = !rotCamNegaSelf;
+		rotCamPosiCenter = false;
+		rotCamNegaCenter = !rotCamNegaCenter;
 		break;
 
 	case 'a':
@@ -322,8 +322,8 @@ void Scene::keyboard(unsigned char key)
 		rotCamNegaSelf = true;
 		break;
 
-
-	/*case 's':
+	/*
+	case 's':
 	case 'S':
 		crane->setMoveX(0);
 		crane->setMoveBarrel(0);
@@ -338,10 +338,12 @@ void Scene::keyboard(unsigned char key)
 		movCamNegaX = false;
 		movCamPosiZ = false;
 		movCamNegaZ = false;
-		break;*/
+		break;
+		*/
 
 
-	/*case 'c':
+	/*
+	case 'c':
 	case 'C':
 		crane->init();
 		crane->initBuffer();
@@ -353,7 +355,8 @@ void Scene::keyboard(unsigned char key)
 		movCamNegaX = false;
 		movCamPosiZ = false;
 		movCamNegaZ = false;
-		break;*/
+		break;
+		*/
 	}
 }
 

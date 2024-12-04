@@ -485,6 +485,7 @@ void Shape::DrawCube(const Shader* shaderProgram)
 	glm::mat4 S = glm::scale(mat, glm::vec3(0.1f));
 	mat = T * S;
 
+	shaderProgram->setUniform3f("outColor", 1.f, 1.f, 1.f);
 	shaderProgram->setMatrixUniform("modelTransform", mat);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 }
