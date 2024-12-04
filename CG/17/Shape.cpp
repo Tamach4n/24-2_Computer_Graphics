@@ -95,7 +95,7 @@ void Shape::initAxisVerts()
 	shapeVertex = new Vertex(VAO, 6);
 }
 
-void Shape::setActive(Shader* shader)
+void Shape::setActive()
 {
 	shapeVertex->setActive();
 }

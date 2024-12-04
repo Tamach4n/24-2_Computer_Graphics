@@ -221,10 +221,10 @@ void Scene::drawScene(int mode)
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
-		plat->setActive(spriteShader);
+		plat->setActive();
 		plat->DrawPlat(spriteShader->GetshaderProgram());
 
-		crane->setActive(spriteShader);
+		crane->setActive();
 		crane->Draw(spriteShader->GetshaderProgram());
 	}
 }

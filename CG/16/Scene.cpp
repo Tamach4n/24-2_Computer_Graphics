@@ -63,7 +63,7 @@ void Scene::draw()
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
 		for (int i = 0; i < shapes.size(); ++i) {
-			shapes[i]->setActive(spriteShader);
+			shapes[i]->setActive();
 			shapes[i]->Draw();
 		}
 	}

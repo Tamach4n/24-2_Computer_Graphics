@@ -116,7 +116,7 @@ void Shape::initPlatBuffer()
 	shapeVertex = new Vertex(VAO, 4, VBO, 6);
 }
 
-void Shape::setActive(Shader* shader)
+void Shape::setActive()
 {
 	shapeVertex->setActive();
 }

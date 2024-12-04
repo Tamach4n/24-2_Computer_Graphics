@@ -50,13 +50,19 @@ bool Scene::initialize()
 	crane = new Shape();
 	crane->initBuffer();
 
+	rotateLight = 0;
+	lightOn = true;
 	lightColor = glm::vec3(1.f);
-	lightDeg = 0.f;
-	lightPos = glm::vec3(0.f, 2.f, 3.f);
+	lightDeg = 315.f;
+	lightPos = glm::vec3(0.f, 1.f, 3.f);
 	lightRad = glm::length(lightPos);
 	lightPos.x = lightRad * cos(glm::radians(lightDeg));
 	lightPos.y = 2.f;
 	lightPos.z = lightRad * sin(glm::radians(lightDeg));
+
+	light = new Shape();
+	light->initBuffer();
+	light->setPos(lightPos.x, lightPos.y, lightPos.z);
 
 	return true;
 }
@@ -118,17 +124,18 @@ void Scene::update()
 		camU = glm::normalize(glm::cross(camDir, camV));
 	}
 
-	if (rotateCamera == 1) {
+	if (rotateLight == 1) {
 		lightDeg += 5.f;
 		lightPos.x = lightRad * cos(glm::radians(lightDeg));
 		lightPos.z = lightRad * sin(glm::radians(lightDeg));
-
+		light->setPos(lightPos.x, lightPos.y, lightPos.z);
 	}
 
-	else if (rotateCamera == 2) {
+	else if (rotateLight == 2) {
 		lightDeg -= 5.f;
 		lightPos.x = lightRad * cos(glm::radians(lightDeg));
 		lightPos.z = lightRad * sin(glm::radians(lightDeg));
+		light->setPos(lightPos.x, lightPos.y, lightPos.z);
 	}
 
 	//std::cout << "Length: " << camDeg2 << ", X: " << camPos.x << ", Z: " << camPos.z << '\n';
@@ -149,22 +156,63 @@ void Scene::draw()
 	else
 		proj = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -100.f, 100.0f);
 
-	spriteShader->setActive();
-	spriteShader->setMatrixUniform("viewTransform", view);
-	spriteShader->setMatrixUniform("projTransform", proj);
-	spriteShader->setUniform3f("uCameraPos", camPos.x, camPos.y, camPos.z);
-	spriteShader->setUniform3f("uLightPos", lightPos.x, lightPos.y, lightPos.z);
-	spriteShader->setUniform1f("uAmbientLight", 0.1f);
-	spriteShader->setUniform1f("uSpecularShininess", 64);
-	spriteShader->setUniform1f("uSpecularStrength", 1.f);
-	spriteShader->setUniform3f("uLightColor", lightColor.x, lightColor.y, lightColor.z);
-	spriteShader->setUniform3f("uEmissiveColor", 0.f, 0.f, 0.f);
+	/*{
+		spriteShader->setActive();
+		spriteShader->setMatrixUniform("viewTransform", view);
+		spriteShader->setMatrixUniform("projTransform", proj);
+		spriteShader->setUniform3f("uCameraPos", camPos.x, camPos.y, camPos.z);
+		spriteShader->setUniform3f("uLightPos", lightPos.x, lightPos.y, lightPos.z);
+		spriteShader->setUniform1f("uAmbientLight", 0.1f);
+		spriteShader->setUniform1f("uSpecularShininess", 64);
+		spriteShader->setUniform1f("uSpecularStrength", 1.f);
 
-	plat->setActive(spriteShader);
-	plat->DrawPlat(spriteShader->GetshaderProgram());
+		if (lightOn) {
+			spriteShader->setUniform3f("uEmissiveColor", 1.f, 1.f, 1.f);
+			spriteShader->setUniform3f("uLightColor", lightColor.x, lightColor.y, lightColor.z);
+		}
 
-	crane->setActive(spriteShader);
-	crane->Draw(spriteShader->GetshaderProgram());
+		else {
+			spriteShader->setUniform3f("uEmissiveColor", 0.f, 0.f, 0.f);
+			spriteShader->setUniform3f("uLightColor", 0.f, 0.f, 0.f);
+		}
+
+		light->setActive();
+		light->DrawCube(spriteShader);
+
+		spriteShader->setUniform3f("uEmissiveColor", 0.f, 0.f, 0.f);
+		plat->setActive();
+		plat->DrawPlat(spriteShader->GetshaderProgram());
+
+		crane->setActive();
+		crane->Draw(spriteShader->GetshaderProgram());
+	}*/
+	{
+		spriteShader->setActive();
+		spriteShader->setMatrixUniform("viewTransform", view);
+		spriteShader->setMatrixUniform("projTransform", proj);
+		spriteShader->setUniform3f("uCameraPos", camPos.x, camPos.y, camPos.z);
+		spriteShader->setUniform3f("uLightPos", lightPos.x, lightPos.y, lightPos.z);
+		spriteShader->setUniform1f("uAmbientLight", 0.1f);
+		spriteShader->setUniform1f("uSpecularShininess", 64);
+		spriteShader->setUniform1f("uSpecularStrength", 1.f);
+		spriteShader->setUniform3f("uEmissiveColor", 0.f, 0.f, 0.f);
+
+		if (lightOn)
+			spriteShader->setUniform3f("uLightColor", lightColor.x, lightColor.y, lightColor.z);
+
+		else
+			spriteShader->setUniform3f("uLightColor", 0.f, 0.f, 0.f);
+
+		plat->setActive();
+		plat->DrawPlat(spriteShader->GetshaderProgram());
+
+		crane->setActive();
+		crane->Draw(spriteShader->GetshaderProgram());
+
+		spriteShader->setUniform3f("uEmissiveColor", 1.f, 1.f, 1.f);
+		light->setActive();
+		light->DrawCube(spriteShader);
+	}
 }
 
 void Scene::drawScene(int mode)
@@ -181,16 +229,6 @@ void Scene::keyboard(unsigned char key)
 	case 'B':
 		crane->setMoveX(-1);
 		break;
-
-
-	case 'm':
-		crane->setRotateTop(1);
-		break;
-
-	case 'M':
-		crane->setRotateTop(-1);
-		break;
-
 
 	case 'f':
 		crane->setRotateBarrel(1);
@@ -242,11 +280,11 @@ void Scene::keyboard(unsigned char key)
 
 
 	case 'y':
-		rotateCamera = 1;
+		rotateLight = 1;
 		break;
 
 	case 'Y':
-		rotateCamera = 2;
+		rotateLight = 2;
 		break;
 
 	case 'c':
@@ -256,7 +294,12 @@ void Scene::keyboard(unsigned char key)
 
 	case 's':
 	case 'S':
-		rotateCamera = 0;
+		rotateLight = 0;
+		break;
+
+	case 'm':
+	case 'M':
+		lightOn = !lightOn;
 		break;
 
 	case 'r':

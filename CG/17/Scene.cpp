@@ -78,9 +78,9 @@ void Scene::draw()
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
-		axisShape->setActive(spriteShader);
+		axisShape->setActive();
 		axisShape->Draw(spriteShader->GetshaderProgram());
-		shape->setActive(spriteShader);
+		shape->setActive();
 		shape->Draw(spriteShader->GetshaderProgram());
 	}
 }

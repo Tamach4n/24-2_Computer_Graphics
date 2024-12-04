@@ -38,7 +38,7 @@ public:
 	void initBuffer();
 	void initPlatBuffer();
 
-	void setActive(Shader* shader);
+	void setActive();
 	void setPos(float x, float y, float z);
 	void setRotation(float x, float y, float z);
 	void setDirection(float x, float y, float z);
@@ -59,6 +59,7 @@ public:
 
 	void Draw(GLuint shaderProgram);
 	void DrawPlat(GLuint shaderProgram);
+	void DrawCube(const Shader* shaderProgram);
 
 private:
 	Vertex* shapeVertex;

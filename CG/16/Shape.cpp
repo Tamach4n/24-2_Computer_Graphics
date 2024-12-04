@@ -278,7 +278,7 @@ void Shape::initSphereVerts()
 	shapeVertex = new Vertex(VAO, VBO);
 }
 
-void Shape::setActive(Shader* shader)
+void Shape::setActive()
 {
 	shapeVertex->setActive();
 

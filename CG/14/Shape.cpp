@@ -14,7 +14,7 @@ void Shape::Init()
 {	
 }
 
-void Shape::setActive(Shader* shader)
+void Shape::setActive()
 {
 	shapeVertex->setActive();
 

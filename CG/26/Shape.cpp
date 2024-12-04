@@ -149,10 +149,10 @@ void Shape::initBuffer()
 void Shape::initPlatBuffer()
 {
 	float VAO[] = {
-		-2.f, 0.f,  2.f,	1.f, 0.f, 0.f,
-		 2.f, 0.f,  2.f,	0.f, 1.f, 0.f,
-		-2.f, 0.f, -2.f,	0.f, 0.f, 1.f,
-		 2.f, 0.f, -2.f,	1.f, 1.f, 0.f
+		-2.f, 0.f,  2.f,	1.f, 0.f, 0.f,	0.0000, 1.0000, -0.0000,
+		 2.f, 0.f,  2.f,	0.f, 1.f, 0.f,	0.0000, 1.0000, -0.0000,
+		-2.f, 0.f, -2.f,	0.f, 0.f, 1.f,	0.0000, 1.0000, -0.0000,
+		 2.f, 0.f, -2.f,	1.f, 1.f, 0.f,	0.0000, 1.0000, -0.0000
 	};
 
 	unsigned int VBO[] = {
@@ -163,7 +163,7 @@ void Shape::initPlatBuffer()
 	shapeVertex = new Vertex(VAO, 4, VBO, 6);
 }
 
-void Shape::setActive(Shader* shader)
+void Shape::setActive()
 {
 	shapeVertex->setActive();
 }
@@ -476,4 +476,15 @@ void Shape::DrawPlat(GLuint shaderProgram)
 		glUniformMatrix4fv(uLoc, 1, GL_FALSE, glm::value_ptr(SRT));
 	}
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
+}
+
+void Shape::DrawCube(const Shader* shaderProgram)
+{
+	glm::mat4 mat(1.f);
+	glm::mat4 T = glm::translate(mat, glm::vec3(pos.x, pos.y, pos.z));
+	glm::mat4 S = glm::scale(mat, glm::vec3(0.1f));
+	mat = T * S;
+
+	shaderProgram->setMatrixUniform("modelTransform", mat);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
 }

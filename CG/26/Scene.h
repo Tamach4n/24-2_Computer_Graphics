@@ -46,7 +46,8 @@ private:
 	float lightRad;
 	float dLightRad;
 
-	int rotateCamera;
+	bool lightOn;
+	int rotateLight;
 
 	glm::vec3 camPos;
 	glm::vec3 camDir;
@@ -70,7 +71,8 @@ private:
 	bool polygonMode;	//	0: ¼±, 1: ¸é
 	
 	class Shader* spriteShader;
-
+	 
+	class Shape* light;
 	class Shape* crane;
 	class Shape* plat;
 

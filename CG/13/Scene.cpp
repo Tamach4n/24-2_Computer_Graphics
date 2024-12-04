@@ -59,7 +59,7 @@ void Scene::draw()
 		glDrawArrays(GL_LINES, 0, 4);
 
 		if (drawMode == 0) {
-			cube->setActive(spriteShader);
+			cube->setActive();
 
 			if (!doubleFace)
 				cube->Draw(startIndex, indexCount);
@@ -71,7 +71,7 @@ void Scene::draw()
 		}
 
 		else {
-			tetra->setActive(spriteShader);
+			tetra->setActive();
 
 			if (!doubleFace)
 				tetra->Draw(startIndex, indexCount);

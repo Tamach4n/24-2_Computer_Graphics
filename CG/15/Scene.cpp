@@ -49,7 +49,7 @@ void Scene::draw()
 
 	else {
 		for (int i = 0; i < 3; ++i) {
-			shapes[i].setActive(spriteShader);
+			shapes[i].setActive();
 			shapes[i].Draw();
 		}
 	}

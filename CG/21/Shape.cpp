@@ -58,7 +58,7 @@ void Shape::initBuffer()
 	shapeVertex = new Vertex(VAO, 8, VBO, 36);
 }
 
-void Shape::setActive(Shader* shader)
+void Shape::setActive()
 {
 	shapeVertex->setActive();
 }

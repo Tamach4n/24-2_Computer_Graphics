@@ -66,7 +66,7 @@ void Scene::draw()
 
 		glDrawArrays(GL_LINES, 0, 4);
 
-		curr->setActive(spriteShader);
+		curr->setActive();
 		curr->Draw();
 	}
 }
