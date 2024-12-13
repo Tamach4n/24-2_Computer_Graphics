@@ -6,6 +6,8 @@ in vec3 outNormal;
 
 out vec4 FragColor;
 
+uniform int uLightOn;	//	26 only
+
 uniform vec3 uLightPos;
 uniform vec3 uLightColor;
 uniform vec3 uCameraPos;
@@ -23,7 +25,7 @@ void main()
 	vec3 normatVec = normalize(outNormal);
 	vec3 lightDir = normalize(uLightPos - outFragPos);		// 빛의 방향벡터
 	float diffuseLight = max(dot(normatVec, lightDir), 0.0);	// 0 ~ 1사이의 값
-	vec3 diffuse = diffuseLight * uLightColor;
+	vec3 diffuse = (uLightOn == 1) ? (diffuseLight * uLightColor) : vec3(0.0);
 	
 	int shininess = 64;
 	vec3 cameraDir = normalize(uCameraPos - outFragPos);

@@ -16,6 +16,7 @@ public:
 
 	void setActive();
 
+	void setUniform1i(const char* name, int x) const;
 	void setUniform1f(const char* name, float x) const;
 	void setUniform2f(const char* name, float xPos, float yPos) const;
 	void setUniform3f(const char* name, float x, float y, float z) const;

@@ -36,7 +36,7 @@ public:
 
 	virtual void initVerts(float radius, const Position& color);
 
-	virtual void setActive(Shader* shader);
+	virtual void setActive();
 	virtual void setRotateY();
 	virtual void setRotateZ();
 	virtual void setMoveX(int st);

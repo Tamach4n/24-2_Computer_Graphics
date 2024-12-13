@@ -60,7 +60,7 @@ private:
 	class Shape* lightSource;
 
 	bool isTurnedOn;
-	bool rotateLight;
+	bool rotateY;
 	bool orbitLight;
 	bool transformLightRad;
 	glm::vec3 lightPos;	//	lightSource¿« ¡ﬂ¡°

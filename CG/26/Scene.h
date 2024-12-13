@@ -47,7 +47,7 @@ private:
 	float dLightRad;
 
 	bool lightOn;
-	int rotateLight;
+	int rotateY;
 
 	glm::vec3 camPos;
 	glm::vec3 camDir;
@@ -68,7 +68,6 @@ private:
 
 	bool hsr;		//	은면 제거
 	bool Proj;		//	0: 직각투영, 1: 원근투영
-	bool polygonMode;	//	0: 선, 1: 면
 	
 	class Shader* spriteShader;
 	 

@@ -42,6 +42,12 @@ void Shader::setActive()
 	glUseProgram(shaderProgram);
 }
 
+void Shader::setUniform1i(const char* name, int x) const
+{
+	GLuint loc = glGetUniformLocation(shaderProgram, name);
+	glUniform1i(loc, x);
+}
+
 void Shader::setUniform1f(const char* name, float x) const
 {
 	GLuint loc = glGetUniformLocation(shaderProgram, name);

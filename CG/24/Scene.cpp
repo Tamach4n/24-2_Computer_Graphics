@@ -25,7 +25,7 @@ bool Scene::initialize()
 	curr = cube;
 
 	isTurnedOn = true;
-	rotateLight = orbitLight = transformLightRad = false;
+	rotateY = orbitLight = transformLightRad = false;
 	lightPos = glm::vec3(0.f, 0.f, 2.f);
 	lightDeg = 90.f;
 	lightRot = 0.f;
@@ -94,7 +94,7 @@ void Scene::update()
 		//std::cout << lightPos.x << " " << lightPos.z << '\n';
 	}
 
-	else if (rotateLight) {
+	else if (rotateY) {
 		curr->Update();
 	}
 };
@@ -177,15 +177,15 @@ void Scene::keyboard(unsigned char key)
 	{
 		glm::vec3 v = curr->getRotation();
 
-		if (rotateLight && v.y > 0) {
+		if (rotateY && v.y > 0) {
 			std::cout << "Rotation Positive Off\n";
-			rotateLight = false;
+			rotateY = false;
 			curr->setRotation(0.f, 0.f, 0.f);
 		}
 
 		else {
 			std::cout << "Rotation Positive On\n";
-			rotateLight = true;
+			rotateY = true;
 			curr->setRotation(0.f, 3.f, 0.f);;
 		}
 
@@ -196,15 +196,15 @@ void Scene::keyboard(unsigned char key)
 	{
 		glm::vec3 v = curr->getRotation();
 
-		if (rotateLight && v.y < 0) {
+		if (rotateY && v.y < 0) {
 			std::cout << "Rotation Negative Off\n";
-			rotateLight = false;
+			rotateY = false;
 			curr->setRotation(0.f, 0.f, 0.f);
 		}
 
 		else {
 			std::cout << "Rotation Negative On\n";
-			rotateLight = true;
+			rotateY = true;
 			curr->setRotation(0.f, -3.f, 0.f);
 		}
 
