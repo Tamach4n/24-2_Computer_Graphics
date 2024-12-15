@@ -14,10 +14,10 @@ uniform mat4 projTransform;
 
 void main()
 {
-	vec4 pos = vec4(inPos, 1.f) * modelTransform;
+	vec4 pos = modelTransform * vec4(inPos, 1.f);
 	gl_Position = projTransform * viewTransform * pos;
 
 	fragPos = pos.xyz;
-	fragNormal = transpose(inverse(mat3(modelTransform))) * inNormal;
+	fragNormal = (modelTransform * vec4(inNormal, 0.f)).xyz;
 	fragTexCoord = inTexCoord;
 }

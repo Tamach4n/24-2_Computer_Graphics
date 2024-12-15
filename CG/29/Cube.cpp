@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include <sstream>
 #include <fstream>
+#include<glm/gtx/string_cast.hpp>
 
 Cube::Cube(Scene* scene)
 	:Shape(scene)
@@ -33,6 +34,8 @@ void Cube::Draw(const Shader* shader)
 	glm::mat4 T = glm::translate(glm::mat4(1.f), glm::vec3(pos.x, pos.y, pos.z));
 	glm::mat4 S = glm::scale(glm::mat4(1.f), glm::vec3(mScale));
 	glm::mat4 SRT = Rz * Ry * Rx * T * S;
+
+	std::cout << "SRT: " << glm::to_string(SRT) << '\n';
 
 	shader->setMatrixUniform("modelTransform", SRT);
 	mTexture[4]->setActive();

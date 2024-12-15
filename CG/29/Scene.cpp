@@ -4,6 +4,7 @@
 #include "Scene.h"
 #include "Cube.h"
 #include "Pyramid.h"
+#include<glm/gtx/string_cast.hpp>
 
 Scene::Scene(int winWidth, int winHeight)
 	: width{ winWidth }, height{ winHeight }
@@ -25,7 +26,7 @@ bool Scene::initialize()
 	pyramid = new Pyramid(this);
 	pyramid->Init();
 	curr = cube;
-
+	cube->setPosition(glm::vec3(0.f, 0.f, 0.f));
 	isTurnedOn = true;
 	rotateY = rotateX = false;
 	orbitLight = transformLightRad = false;
@@ -100,6 +101,9 @@ void Scene::draw()
 	glm::mat4 proj = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 50.f);
 	glm::mat4 mat(1.f);
 
+
+	std::cout << "View: " << glm::to_string(view) << '\n';
+	std::cout << "Proj: " << glm::to_string(proj) << '\n';
 
 	spriteShader->setActive();
 	spriteShader->setMatrixUniform("viewTransform", view);

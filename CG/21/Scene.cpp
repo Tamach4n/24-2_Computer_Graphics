@@ -189,13 +189,13 @@ void Scene::draw()
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
-		robot->setActive();
+		robot->setActive(spriteShader);
 		robot->Draw(spriteShader);
 
-		butai->setActive();
+		butai->setActive(spriteShader);
 		butai->Draw(spriteShader);
 
-		obs[0]->setActive();
+		obs[0]->setActive(spriteShader);
 		obs[0]->Draw(spriteShader);
 		obs[1]->Draw(spriteShader);
 		obs[2]->Draw(spriteShader);
